@@ -1,5 +1,5 @@
-#!/bin/bash
-# Build script for Render
+#!/usr/bin/env bash
+set -e
 
 echo "Installing Python dependencies..."
 pip install -r requirements.txt
@@ -11,6 +11,5 @@ echo "Building frontend..."
 cd client/vite-project
 npm install
 npm run build
-cd ../..
 
 echo "Build complete!"
