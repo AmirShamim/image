@@ -10,6 +10,6 @@ npm install
 echo "Building frontend..."
 cd client/vite-project
 npm install
-npx vite build
+npm run build
 
 echo "Build complete!"
