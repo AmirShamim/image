@@ -9,7 +9,7 @@ npm install
 
 echo "Building frontend..."
 cd client/vite-project
-npm install
+npm install --include=dev
 npm run build
 
 echo "Build complete!"
