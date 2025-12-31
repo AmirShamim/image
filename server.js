@@ -166,9 +166,9 @@ app.post('/resize', upload.single('image'), (req, res) => {
     });
 });
 
-// Serve React app for all other routes in production
+// Serve React app for all other routes in production (Express 5 syntax)
 if (isProduction) {
-    app.get('*', (req, res) => {
+    app.get('/{*path}', (req, res) => {
         res.sendFile(path.join(__dirname, 'client/vite-project/dist', 'index.html'));
     });
 }
