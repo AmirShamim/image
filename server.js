@@ -1,0 +1,176 @@
+const express = require('express');
+const multer = require('multer');
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const cors = require('cors');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Configure multer
+const upload = multer({ 
+    dest: 'uploads/',
+    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+});
+
+// CORS - allow all in production since we serve from same origin
+app.use(cors());
+app.use(express.json());
+
+// Serve static files from React build in production
+if (isProduction) {
+    app.use(express.static(path.join(__dirname, 'client/vite-project/dist')));
+}
+
+// Ensure directories exist
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads', { recursive: true });
+}
+if (!fs.existsSync('processed')) {
+    fs.mkdirSync('processed', { recursive: true });
+}
+
+// Get image dimensions endpoint
+app.post('/get-dimensions', upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).send('No file uploaded.');
+
+    const inputPath = req.file.path;
+    
+    const pythonProcess = spawn('python', [
+        '-c',
+        `import cv2; import json; img = cv2.imread("${inputPath.replace(/\\/g, '\\\\')}"); h, w = img.shape[:2]; print(json.dumps({"width": w, "height": h}))`
+    ]);
+
+    let output = '';
+    pythonProcess.stdout.on('data', (data) => {
+        output += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python Error: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        // Clean up the uploaded file
+        fs.unlinkSync(inputPath);
+        
+        if (code !== 0) {
+            return res.status(500).send('Failed to get dimensions.');
+        }
+        
+        try {
+            const dimensions = JSON.parse(output.trim());
+            res.json(dimensions);
+        } catch (e) {
+            res.status(500).send('Failed to parse dimensions.');
+        }
+    });
+});
+
+// Upscale endpoint (AI-powered 4x upscaling)
+app.post('/upscale', upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).send('No file uploaded.');
+
+    const inputPath = req.file.path;
+    const outputPath = `processed/${req.file.filename}_upscaled.jpg`;
+
+    const pythonProcess = spawn('python', [
+        'upscale_script.py', 
+        inputPath, 
+        outputPath, 
+        'upscale',
+        '{}'
+    ]);
+
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`Python Output: ${data}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python Error: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+            fs.unlinkSync(inputPath);
+            return res.status(500).send('Image processing failed.');
+        }
+
+        res.download(outputPath, (err) => {
+            if (err) console.error(err);
+            fs.unlinkSync(inputPath);
+            // Optionally clean up processed file after a delay
+            setTimeout(() => {
+                if (fs.existsSync(outputPath)) {
+                    fs.unlinkSync(outputPath);
+                }
+            }, 60000);
+        });
+    });
+});
+
+// Resize endpoint (shrink/resize by pixels or percentage)
+app.post('/resize', upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).send('No file uploaded.');
+
+    const inputPath = req.file.path;
+    const format = req.body.format || 'jpg';
+    const outputPath = `processed/${req.file.filename}_resized.${format}`;
+
+    const options = {
+        resizeType: req.body.resizeType || 'percentage',
+        percentage: parseInt(req.body.percentage) || 100,
+        width: parseInt(req.body.width) || 800,
+        height: parseInt(req.body.height) || 600,
+        maintainAspect: req.body.maintainAspect !== 'false',
+        quality: parseInt(req.body.quality) || 90
+    };
+
+    console.log('Resize options:', options);
+
+    const pythonProcess = spawn('python', [
+        'upscale_script.py', 
+        inputPath, 
+        outputPath, 
+        'resize',
+        JSON.stringify(options)
+    ]);
+
+    let resultInfo = '';
+    pythonProcess.stdout.on('data', (data) => {
+        resultInfo += data.toString();
+        console.log(`Python Output: ${data}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python Error: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+            fs.unlinkSync(inputPath);
+            return res.status(500).send('Image processing failed.');
+        }
+
+        res.download(outputPath, `resized_image.${format}`, (err) => {
+            if (err) console.error(err);
+            fs.unlinkSync(inputPath);
+            setTimeout(() => {
+                if (fs.existsSync(outputPath)) {
+                    fs.unlinkSync(outputPath);
+                }
+            }, 60000);
+        });
+    });
+});
+
+// Serve React app for all other routes in production
+if (isProduction) {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'client/vite-project/dist', 'index.html'));
+    });
+}
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

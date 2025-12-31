@@ -1,0 +1,24 @@
+{
+  "name": "image-resizer",
+  "version": "1.0.0",
+  "description": "AI-powered image resizer and upscaler",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "cd client/vite-project && npm install && npm run build",
+    "render-build": "npm install && pip install -r requirements.txt && cd client/vite-project && npm install && npm run build"
+  },
+  "keywords": ["image", "resize", "upscale", "ai"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "multer": "^2.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
