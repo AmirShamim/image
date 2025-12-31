@@ -1,8 +1,10 @@
 # Dependencies
 node_modules/
+client/vite-project/node_modules/
 
 # Build output
-client/
+client/vite-project/dist/
+
 
 # Uploaded/processed files
 uploads/
