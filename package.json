@@ -9,14 +9,23 @@
     "build": "cd client/vite-project && npm install && npm run build",
     "render-build": "npm install && pip install -r requirements.txt && cd client/vite-project && npm install && npm run build"
   },
-  "keywords": ["image", "resize", "upscale", "ai"],
+  "keywords": [
+    "image",
+    "resize",
+    "upscale",
+    "ai"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "multer": "^2.0.2"
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "uuid": "^13.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

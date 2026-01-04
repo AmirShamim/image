@@ -1,9 +1,23 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './ImageProcessor.css';
+import UserButton from './components/UserButton';
 
 // Use relative URL in production, localhost in development
 const API_URL = import.meta.env.PROD ? '' : 'http://localhost:5000';
+
+// Create axios instance with auth interceptor
+const api = axios.create({
+  baseURL: API_URL
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 const ImageProcessor = () => {
   const [file, setFile] = useState(null);
@@ -165,7 +179,7 @@ const ImageProcessor = () => {
     formData.append('format', format);
 
     try {
-      const response = await axios.post(`${API_URL}/resize`, formData, {
+      const response = await api.post('/resize', formData, {
         responseType: 'blob',
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -209,7 +223,7 @@ const ImageProcessor = () => {
     formData.append('image', file);
 
     try {
-      const response = await axios.post(`${API_URL}/upscale`, formData, {
+      const response = await api.post('/upscale', formData, {
         responseType: 'blob',
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -288,11 +302,18 @@ const ImageProcessor = () => {
   return (
     <div className="processor-container">
       <header className="header">
-        <h1 className="title">
-          <span className="title-icon">✨</span>
-          Image Studio
-        </h1>
-        <p className="subtitle">Resize, compress, or upscale your images with ease</p>
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="title">
+              <span className="title-icon">✨</span>
+              Image Studio
+            </h1>
+            <p className="subtitle">Resize, compress, or upscale your images with ease</p>
+          </div>
+          <div className="header-right">
+            <UserButton />
+          </div>
+        </div>
       </header>
 
       {/* Tab Switcher */}

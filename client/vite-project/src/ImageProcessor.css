@@ -11,8 +11,22 @@
 
 /* Header */
 .header {
-  text-align: center;
   margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-left {
+  text-align: left;
+}
+
+.header-right {
+  flex-shrink: 0;
 }
 
 .title {
@@ -22,7 +36,6 @@
   margin: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -34,6 +47,21 @@
   color: rgba(255, 255, 255, 0.7);
   margin-top: 0.5rem;
   font-size: 1.1rem;
+}
+
+@media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-left {
+    text-align: center;
+  }
+  
+  .title {
+    justify-content: center;
+  }
 }
 
 /* Glass Effect - Optimized for performance */

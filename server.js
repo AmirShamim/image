@@ -4,6 +4,17 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
+
+// Import database (initializes tables)
+const db = require('./database');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+
+// Import middleware
+const { optionalAuth } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +29,12 @@ const upload = multer({
 // CORS - allow all in production since we serve from same origin
 app.use(cors());
 app.use(express.json());
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
+// User routes
+app.use('/api/users', userRoutes);
 
 // Serve static files from React build in production
 if (isProduction) {
@@ -70,11 +87,12 @@ app.post('/get-dimensions', upload.single('image'), (req, res) => {
 });
 
 // Upscale endpoint (AI-powered 4x upscaling)
-app.post('/upscale', upload.single('image'), (req, res) => {
+app.post('/upscale', optionalAuth, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
     const outputPath = `processed/${req.file.filename}_upscaled.jpg`;
+    const originalFilename = req.file.originalname;
 
     const pythonProcess = spawn('python', [
         'upscale_script.py', 
@@ -98,6 +116,22 @@ app.post('/upscale', upload.single('image'), (req, res) => {
             return res.status(500).send('Image processing failed.');
         }
 
+        // Log image operation if user is authenticated
+        if (req.user) {
+            try {
+                const imageId = uuidv4();
+                db.prepare('INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation) VALUES (?, ?, ?, ?, ?)').run(
+                    imageId,
+                    req.user.userId,
+                    originalFilename,
+                    `${req.file.filename}_upscaled.jpg`,
+                    'upscale'
+                );
+            } catch (err) {
+                console.error('Failed to log image operation:', err);
+            }
+        }
+
         res.download(outputPath, (err) => {
             if (err) console.error(err);
             fs.unlinkSync(inputPath);
@@ -112,12 +146,13 @@ app.post('/upscale', upload.single('image'), (req, res) => {
 });
 
 // Resize endpoint (shrink/resize by pixels or percentage)
-app.post('/resize', upload.single('image'), (req, res) => {
+app.post('/resize', optionalAuth, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
     const format = req.body.format || 'jpg';
     const outputPath = `processed/${req.file.filename}_resized.${format}`;
+    const originalFilename = req.file.originalname;
 
     const options = {
         resizeType: req.body.resizeType || 'percentage',
@@ -152,6 +187,22 @@ app.post('/resize', upload.single('image'), (req, res) => {
         if (code !== 0) {
             fs.unlinkSync(inputPath);
             return res.status(500).send('Image processing failed.');
+        }
+
+        // Log image operation if user is authenticated
+        if (req.user) {
+            try {
+                const imageId = uuidv4();
+                db.prepare('INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation) VALUES (?, ?, ?, ?, ?)').run(
+                    imageId,
+                    req.user.userId,
+                    originalFilename,
+                    `${req.file.filename}_resized.${format}`,
+                    'resize'
+                );
+            } catch (err) {
+                console.error('Failed to log image operation:', err);
+            }
         }
 
         res.download(outputPath, `resized_image.${format}`, (err) => {
