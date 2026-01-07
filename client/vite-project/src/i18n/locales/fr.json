@@ -1,0 +1,102 @@
+{
+  "app": {
+    "title": "Image Studio",
+    "subtitle": "Traitement d'Images Professionnel",
+    "description": "Redimensionnez et améliorez les images avec l'IA"
+  },
+  "header": {
+    "batch": "Traitement par Lots",
+    "language": "Langue"
+  },
+  "tabs": {
+    "resize": "Redimensionner",
+    "upscale": "Améliorer par IA"
+  },
+  "upload": {
+    "title": "Télécharger une Image",
+    "dragDrop": "Glissez et déposez votre image ici",
+    "or": "ou",
+    "browse": "Parcourir les Fichiers",
+    "pasteClipboard": "Coller depuis le presse-papiers",
+    "formats": "Supporté : JPG, PNG, WEBP"
+  },
+  "resize": {
+    "settings": "Paramètres de Redimensionnement",
+    "type": "Type de Redimensionnement",
+    "percentage": "Pourcentage",
+    "pixels": "Pixels Personnalisés",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "maintainAspect": "Maintenir le Rapport d'Aspect",
+    "quality": "Qualité",
+    "format": "Format",
+    "preset": "Préréglages Rapides",
+    "button": "Redimensionner l'Image"
+  },
+  "upscale": {
+    "selectModel": "Sélectionner le Modèle IA",
+    "usesLeft": "utilisations restantes",
+    "unlimited": "illimité",
+    "description": "Utilisation du modèle d'apprentissage profond EDSR pour améliorer votre image {model} en préservant les détails.",
+    "current": "Actuel",
+    "result": "Résultat",
+    "warning": "Cela peut prendre du temps pour les grandes images",
+    "button": "Améliorer {model}",
+    "noUses": "Plus d'Utilisations",
+    "resolutionError": "Résolution Trop Élevée"
+  },
+  "progress": {
+    "uploading": "Téléchargement...",
+    "processing": "Traitement IA...",
+    "downloading": "Téléchargement..."
+  },
+  "result": {
+    "title": "Résultat",
+    "livePreview": "Aperçu en Direct",
+    "previewNote": "Aperçu approximatif à résolution réduite",
+    "compare": "Comparer",
+    "showResult": "Afficher le Résultat",
+    "download": "Télécharger",
+    "copyClipboard": "Copier",
+    "copied": "Copié !",
+    "clear": "Effacer"
+  },
+  "auth": {
+    "signIn": "Se Connecter",
+    "signUp": "S'Inscrire",
+    "signOut": "Se Déconnecter",
+    "email": "E-mail",
+    "username": "Nom d'Utilisateur",
+    "password": "Mot de Passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Pas de compte ?",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "register": "S'Inscrire",
+    "verifyEmail": "Vérifier l'E-mail",
+    "verificationCode": "Entrez le code à 6 chiffres",
+    "resendCode": "Renvoyer le Code",
+    "verify": "Vérifier"
+  },
+  "usage": {
+    "title": "Utilisation",
+    "upgrade": "Mettre à Niveau",
+    "remaining": "restantes"
+  },
+  "plans": {
+    "guest": "Invité",
+    "free": "Gratuit",
+    "pro": "Pro",
+    "business": "Entreprise",
+    "mostPopular": "Le Plus Populaire",
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "features": "Fonctionnalités",
+    "choose": "Choisir le Plan"
+  },
+  "shortcuts": {
+    "paste": "Coller",
+    "save": "Enregistrer",
+    "clear": "Effacer",
+    "switch": "Changer de Mode"
+  }
+}

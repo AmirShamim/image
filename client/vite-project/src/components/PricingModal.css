@@ -1,0 +1,236 @@
+.pricing-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: 20px;
+}
+
+.pricing-modal {
+  background: var(--background-color, white);
+  border-radius: 16px;
+  max-width: 1200px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.pricing-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--text-color, #333);
+  transition: transform 0.15s;
+}
+
+.pricing-modal-close:hover {
+  transform: rotate(90deg);
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.pricing-header h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: var(--text-color, #333);
+}
+
+.pricing-header p {
+  color: var(--text-secondary, #666);
+  font-size: 16px;
+}
+
+.billing-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.billing-toggle button {
+  padding: 10px 20px;
+  border: 2px solid var(--primary-color, #007bff);
+  background: transparent;
+  color: var(--text-color, #333);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.billing-toggle button.active {
+  background: var(--primary-color, #007bff);
+  color: white;
+}
+
+.save-badge {
+  background: #10b981;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.pricing-plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.pricing-card {
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 30px;
+  background: var(--card-background, white);
+  position: relative;
+  transition: all 0.15s;
+}
+
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card.featured {
+  border-color: var(--primary-color, #007bff);
+  border-width: 3px;
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.2);
+}
+
+.featured-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-color, #007bff);
+  color: white;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pricing-card h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: var(--text-color, #333);
+  text-transform: capitalize;
+}
+
+.price {
+  margin-bottom: 25px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.price-currency {
+  font-size: 24px;
+  color: var(--text-color, #333);
+}
+
+.price-amount {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-color, #333);
+}
+
+.price-period {
+  font-size: 16px;
+  color: var(--text-secondary, #666);
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 25px 0;
+}
+
+.features-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  color: var(--text-color, #333);
+}
+
+.features-list svg {
+  color: var(--primary-color, #007bff);
+  flex-shrink: 0;
+}
+
+.plan-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary-color, #007bff);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.plan-button:hover:not(:disabled) {
+  background: var(--primary-hover, #0056b3);
+  transform: translateY(-2px);
+}
+
+.plan-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.featured-button {
+  background: linear-gradient(135deg, var(--primary-color, #007bff), #0056b3);
+}
+
+/* Dark theme support */
+.dark .pricing-modal {
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+}
+
+.dark .pricing-card {
+  background: var(--card-background);
+  border-color: var(--border-color);
+}
+
+.dark .pricing-card.featured {
+  border-color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pricing-modal {
+    padding: 30px 20px;
+  }
+
+  .pricing-header h2 {
+    font-size: 24px;
+  }
+
+  .pricing-plans {
+    grid-template-columns: 1fr;
+  }
+}

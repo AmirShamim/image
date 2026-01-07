@@ -16,38 +16,36 @@
 
 .auth-modal {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 40px;
   width: 100%;
   max-width: 420px;
   position: relative;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: modalSlideIn 0.3s ease-out;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: modalFadeIn 0.2s ease-out;
 }
 
 .profile-modal {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 30px;
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: modalSlideIn 0.3s ease-out;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: modalFadeIn 0.2s ease-out;
 }
 
-@keyframes modalSlideIn {
+@keyframes modalFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -55,21 +53,21 @@
   position: absolute;
   top: 15px;
   right: 15px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
   border: none;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.7);
-  transition: all 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 .auth-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
   color: white;
 }
 
@@ -110,7 +108,7 @@
   font-weight: 500;
   cursor: pointer;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 .auth-tab:hover {
@@ -142,19 +140,18 @@
 
 .auth-field input {
   padding: 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
   color: white;
   font-size: 15px;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 .auth-field input:focus {
   outline: none;
   border-color: #667eea;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .auth-field input::placeholder {
@@ -164,13 +161,13 @@
 .auth-submit {
   padding: 14px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: opacity 0.15s ease;
   margin-top: 10px;
   display: flex;
   align-items: center;
@@ -179,8 +176,7 @@
 }
 
 .auth-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  opacity: 0.9;
 }
 
 .auth-submit:disabled {
@@ -271,11 +267,10 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: all 0.2s ease;
 }
 
 .profile-avatar:hover {
-  transform: scale(1.05);
+  opacity: 0.95;
 }
 
 .profile-avatar-image {
@@ -335,11 +330,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 .remove-picture-btn:hover {
-  transform: scale(1.1);
   background: #dc2626;
 }
 
@@ -819,4 +813,409 @@
   background: #dc2626;
   transform: translateY(-1px);
   box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+}
+/* Responsive Design */
+
+/* Tablets (768px and below) */
+@media (max-width: 768px) {
+  .auth-modal-overlay {
+    padding: 1rem;
+  }
+
+  .auth-modal {
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 90vw;
+  }
+
+  .profile-modal {
+    border-radius: 16px;
+    padding: 1.5rem;
+    max-width: 90vw;
+  }
+
+  .auth-modal-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .auth-field input {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+  }
+
+  .auth-submit {
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .profile-field {
+    gap: 0.5rem;
+  }
+
+  .profile-field label {
+    font-size: 0.95rem;
+  }
+
+  .profile-field-value {
+    font-size: 0.95rem;
+  }
+}
+
+/* Mobile Phones (600px and below) */
+@media (max-width: 600px) {
+  .auth-modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .auth-modal {
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 100vw;
+  }
+
+  .profile-modal {
+    border-radius: 12px;
+    padding: 1.25rem;
+    max-width: 100vw;
+    max-height: 90vh;
+  }
+
+  .auth-modal-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .auth-modal-header p {
+    font-size: 0.9rem;
+  }
+
+  .auth-modal-close {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    border-radius: 6px;
+  }
+
+  .auth-tabs {
+    gap: 0.5rem;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-tab {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+
+  .auth-form {
+    gap: 1rem;
+  }
+
+  .auth-field {
+    gap: 0.6rem;
+  }
+
+  .auth-field label {
+    font-size: 0.9rem;
+  }
+
+  .auth-field input {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .auth-submit {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    min-height: 44px;
+  }
+
+  .profile-section {
+    margin-bottom: 1rem;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .profile-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+    margin: 0 auto;
+  }
+
+  .profile-avatar-spinner {
+    width: 25px;
+    height: 25px;
+    border-width: 2px;
+  }
+
+  .remove-picture-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+    border-width: 1.5px;
+  }
+
+  .profile-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .profile-header p {
+    font-size: 0.85rem;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .upload-picture-btn,
+  .logout-btn {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .profile-field {
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .profile-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .profile-field-value {
+    font-size: 0.9rem;
+  }
+
+  .profile-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+  }
+
+  .profile-history {
+    margin-top: 1rem;
+  }
+
+  .history-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .history-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .history-item {
+    border-radius: 8px;
+  }
+
+  .history-image {
+    height: 100px;
+    border-radius: 6px;
+  }
+
+  .history-actions {
+    gap: 0.35rem;
+    padding: 0.4rem;
+  }
+
+  .history-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+  }
+
+  .confirm-dialog {
+    max-width: 85vw;
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+
+  .confirm-dialog h3 {
+    font-size: 1.1rem;
+  }
+
+  .confirm-dialog p {
+    font-size: 0.9rem;
+  }
+
+  .confirm-buttons {
+    gap: 0.5rem;
+  }
+
+  .confirm-button,
+  .confirm-dialog-delete {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    min-height: 40px;
+  }
+}
+
+/* Small phones (480px and below) */
+@media (max-width: 480px) {
+  .auth-modal {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .profile-modal {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .auth-modal-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .auth-modal-header p {
+    font-size: 0.85rem;
+  }
+
+  .auth-modal-close {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .auth-tabs {
+    gap: 0.4rem;
+    padding: 3px;
+  }
+
+  .auth-tab {
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .auth-form {
+    gap: 0.75rem;
+  }
+
+  .auth-field input {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .auth-submit {
+    padding: 0.65rem;
+    font-size: 0.9rem;
+    min-height: 40px;
+  }
+
+  .auth-spinner {
+    width: 16px;
+    height: 16px;
+    border-width: 1.5px;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+  }
+
+  .profile-avatar-spinner {
+    width: 20px;
+    height: 20px;
+    border-width: 1.5px;
+  }
+
+  .remove-picture-btn {
+    width: 18px;
+    height: 18px;
+  }
+
+  .profile-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .profile-header p {
+    font-size: 0.8rem;
+  }
+
+  .upload-picture-btn,
+  .logout-btn {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .profile-field {
+    padding: 0.6rem;
+  }
+
+  .profile-field label {
+    font-size: 0.8rem;
+  }
+
+  .profile-field-value {
+    font-size: 0.85rem;
+  }
+
+  .history-grid {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .history-image {
+    height: 80px;
+  }
+
+  .history-actions {
+    gap: 0.3rem;
+    padding: 0.3rem;
+  }
+
+  .history-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .confirm-dialog {
+    max-width: 90vw;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .confirm-dialog h3 {
+    font-size: 1rem;
+  }
+
+  .confirm-button,
+  .confirm-dialog-delete {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
 }

@@ -1,0 +1,103 @@
+{
+  "app": {
+    "title": "استوديو الصور",
+    "subtitle": "معالجة احترافية للصور",
+    "description": "تغيير حجم وتحسين الصور بتقنية الذكاء الاصطناعي"
+  },
+  "header": {
+    "batch": "المعالجة الجماعية",
+    "language": "اللغة"
+  },
+  "tabs": {
+    "resize": "تغيير الحجم",
+    "upscale": "تحسين بالذكاء الاصطناعي"
+  },
+  "upload": {
+    "title": "رفع صورة",
+    "dragDrop": "اسحب وأفلت صورتك هنا",
+    "or": "أو",
+    "browse": "تصفح الملفات",
+    "pasteClipboard": "لصق من الحافظة",
+    "formats": "الصيغ المدعومة: JPG, PNG, WEBP"
+  },
+  "resize": {
+    "settings": "خيارات تغيير الحجم",
+    "type": "تغيير الحجم بواسطة",
+    "percentage": "النسبة المئوية",
+    "pixels": "البكسل",
+    "width": "العرض",
+    "height": "الارتفاع",
+    "maintainAspect": "الحفاظ على نسبة العرض إلى الارتفاع",
+    "quality": "الجودة",
+    "format": "تنسيق الإخراج",
+    "preset": "الإعدادات السريعة",
+    "newSize": "الحجم الجديد",
+    "button": "تغيير حجم الصورة"
+  },
+  "upscale": {
+    "selectModel": "اختر نموذج الذكاء الاصطناعي",
+    "usesLeft": "استخدامات متبقية",
+    "unlimited": "غير محدود",
+    "description": "استخدام نموذج EDSR للتعلم العميق لتحسين صورتك بمعامل {model} مع الحفاظ على التفاصيل.",
+    "current": "الحالية",
+    "result": "النتيجة",
+    "warning": "قد يستغرق هذا بعض الوقت للصور الكبيرة",
+    "button": "تحسين {model}",
+    "noUses": "لا توجد استخدامات متبقية",
+    "resolutionError": "الدقة عالية جداً"
+  },
+  "progress": {
+    "uploading": "جاري الرفع...",
+    "processing": "معالجة الذكاء الاصطناعي...",
+    "downloading": "جاري التحميل..."
+  },
+  "result": {
+    "title": "النتيجة",
+    "livePreview": "معاينة مباشرة",
+    "previewNote": "معاينة تقريبية بدقة منخفضة",
+    "compare": "مقارنة",
+    "showResult": "إظهار النتيجة",
+    "download": "تحميل",
+    "copyClipboard": "نسخ",
+    "copied": "تم النسخ!",
+    "clear": "مسح"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "register": "تسجيل",
+    "verifyEmail": "تأكيد البريد الإلكتروني",
+    "verificationCode": "أدخل الرمز المكون من 6 أرقام",
+    "resendCode": "إعادة إرسال الرمز",
+    "verify": "تأكيد"
+  },
+  "usage": {
+    "title": "الاستخدام",
+    "upgrade": "ترقية للمزيد",
+    "remaining": "متبقية"
+  },
+  "plans": {
+    "guest": "زائر",
+    "free": "مجاني",
+    "pro": "محترف",
+    "business": "أعمال",
+    "mostPopular": "الأكثر شيوعاً",
+    "perMonth": "/شهر",
+    "perYear": "/سنة",
+    "features": "الميزات",
+    "choose": "اختر الخطة"
+  },
+  "shortcuts": {
+    "paste": "لصق",
+    "save": "حفظ",
+    "clear": "مسح",
+    "switch": "تبديل الوضع"
+  }
+}

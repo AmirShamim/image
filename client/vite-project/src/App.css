@@ -1,4 +1,4 @@
-/* App.css - Optimized Static Background */
+/* App.css - Clean Professional Design */
 
 * {
   box-sizing: border-box;
@@ -11,25 +11,18 @@
   overflow-x: hidden;
 }
 
-/* Static Gradient Background - Much faster than animated shapes */
-.background-shapes {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background: 
-    radial-gradient(ellipse at 0% 0%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 0%, rgba(118, 75, 162, 0.25) 0%, transparent 45%),
-    radial-gradient(ellipse at 100% 100%, rgba(240, 147, 251, 0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 0% 100%, rgba(79, 172, 254, 0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(67, 233, 123, 0.1) 0%, transparent 60%);
+/* Dark Theme (Default) - Clean solid gradient */
+[data-theme="dark"] .app,
+.app {
+  background: linear-gradient(180deg, #1a1c2e 0%, #141520 100%);
 }
 
-/* Hide the shape elements since we're using CSS gradient now */
-.shape {
+/* Light Theme - Clean professional */
+[data-theme="light"] .app {
+  background: linear-gradient(180deg, #f8f9fb 0%, #eef0f4 100%);
+}
+
+/* Minimal accent background */
+.background-shapes {
   display: none;
 }

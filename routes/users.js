@@ -281,7 +281,7 @@ router.get('/images', authenticateToken, (req, res) => {
         const offset = (page - 1) * limit;
 
         const images = db.prepare(`
-            SELECT id, original_filename, stored_filename, operation, created_at 
+            SELECT id, original_filename, stored_filename, operation, cloud_url, cloud_public_id, file_size, dimensions, created_at 
             FROM user_images 
             WHERE user_id = ? 
             ORDER BY created_at DESC 
@@ -301,6 +301,35 @@ router.get('/images', authenticateToken, (req, res) => {
         });
     } catch (error) {
         console.error('Get images error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Delete a specific image from history
+router.delete('/images/:imageId', authenticateToken, async (req, res) => {
+    try {
+        const { imageId } = req.params;
+        const userId = req.user.userId;
+
+        // Get the image to check ownership and get cloud public ID
+        const image = db.prepare('SELECT * FROM user_images WHERE id = ? AND user_id = ?').get(imageId, userId);
+        
+        if (!image) {
+            return res.status(404).json({ error: 'Image not found' });
+        }
+
+        // Delete from Cloudinary if it has a cloud_public_id
+        if (image.cloud_public_id) {
+            const { deleteFromCloudinary } = require('../config/cloudinary');
+            await deleteFromCloudinary(image.cloud_public_id);
+        }
+
+        // Delete from database
+        db.prepare('DELETE FROM user_images WHERE id = ?').run(imageId);
+
+        res.json({ message: 'Image deleted successfully' });
+    } catch (error) {
+        console.error('Delete image error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

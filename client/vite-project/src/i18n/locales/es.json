@@ -1,0 +1,103 @@
+{
+  "app": {
+    "title": "Image Studio",
+    "subtitle": "Procesamiento Profesional de Imágenes",
+    "description": "Redimensiona y mejora imágenes con tecnología IA"
+  },
+  "header": {
+    "batch": "Proceso por Lotes",
+    "language": "Idioma"
+  },
+  "tabs": {
+    "resize": "Redimensionar",
+    "upscale": "Mejorar con IA"
+  },
+  "upload": {
+    "title": "Subir Imagen",
+    "dragDrop": "Arrastra y suelta tu imagen aquí",
+    "or": "o",
+    "browse": "Explorar Archivos",
+    "pasteClipboard": "Pegar desde portapapeles",
+    "formats": "Soportado: JPG, PNG, WEBP"
+  },
+  "resize": {
+    "settings": "Opciones de Redimensión",
+    "type": "Redimensionar Por",
+    "percentage": "Porcentaje",
+    "pixels": "Píxeles",
+    "width": "Ancho",
+    "height": "Alto",
+    "maintainAspect": "Mantener relación de aspecto",
+    "quality": "Calidad",
+    "format": "Formato de Salida",
+    "preset": "Ajustes Rápidos",
+    "newSize": "Nuevo tamaño",
+    "button": "Redimensionar Imagen"
+  },
+  "upscale": {
+    "selectModel": "Seleccionar Modelo IA",
+    "usesLeft": "usos restantes",
+    "unlimited": "ilimitado",
+    "description": "Usando el modelo de aprendizaje profundo EDSR para mejorar tu imagen {model} preservando detalles.",
+    "current": "Actual",
+    "result": "Resultado",
+    "warning": "Esto puede tardar un tiempo para imágenes grandes",
+    "button": "Mejorar {model}",
+    "noUses": "Sin Usos Restantes",
+    "resolutionError": "Resolución Demasiado Alta"
+  },
+  "progress": {
+    "uploading": "Subiendo...",
+    "processing": "Procesando con IA...",
+    "downloading": "Descargando..."
+  },
+  "result": {
+    "title": "Resultado",
+    "livePreview": "Vista Previa en Vivo",
+    "previewNote": "Vista previa aproximada a resolución reducida",
+    "compare": "Comparar",
+    "showResult": "Mostrar Resultado",
+    "download": "Descargar",
+    "copyClipboard": "Copiar",
+    "copied": "¡Copiado!",
+    "clear": "Limpiar"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "username": "Nombre de Usuario",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "haveAccount": "¿Ya tienes cuenta?",
+    "register": "Registrar",
+    "verifyEmail": "Verificar Correo",
+    "verificationCode": "Ingresa el código de 6 dígitos",
+    "resendCode": "Reenviar Código",
+    "verify": "Verificar"
+  },
+  "usage": {
+    "title": "Uso",
+    "upgrade": "Actualizar para Más",
+    "remaining": "restantes"
+  },
+  "plans": {
+    "guest": "Invitado",
+    "free": "Gratis",
+    "pro": "Pro",
+    "business": "Negocios",
+    "mostPopular": "Más Popular",
+    "perMonth": "/mes",
+    "perYear": "/año",
+    "features": "Características",
+    "choose": "Elegir Plan"
+  },
+  "shortcuts": {
+    "paste": "Pegar",
+    "save": "Guardar",
+    "clear": "Limpiar",
+    "switch": "Cambiar Modo"
+  }
+}

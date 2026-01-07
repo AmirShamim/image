@@ -1,0 +1,103 @@
+{
+  "app": {
+    "title": "Image Studio",
+    "subtitle": "Professional Image Processing",
+    "description": "Resize and upscale images with AI technology"
+  },
+  "header": {
+    "batch": "Batch Process",
+    "language": "Language"
+  },
+  "tabs": {
+    "resize": "Resize",
+    "upscale": "AI Upscale"
+  },
+  "upload": {
+    "title": "Upload Image",
+    "dragDrop": "Drag & drop your image here",
+    "or": "or",
+    "browse": "Browse Files",
+    "pasteClipboard": "Paste from clipboard",
+    "formats": "Supported: JPG, PNG, WEBP"
+  },
+  "resize": {
+    "settings": "Resize Options",
+    "type": "Resize By",
+    "percentage": "Percentage",
+    "pixels": "Pixels",
+    "width": "Width",
+    "height": "Height",
+    "maintainAspect": "Maintain aspect ratio",
+    "quality": "Quality",
+    "format": "Output Format",
+    "preset": "Quick Presets",
+    "newSize": "New size",
+    "button": "Resize Image"
+  },
+  "upscale": {
+    "selectModel": "Select AI Model",
+    "usesLeft": "uses left",
+    "unlimited": "unlimited",
+    "description": "Using EDSR deep learning model to upscale your image by {model} while preserving details.",
+    "current": "Current",
+    "result": "Result",
+    "warning": "This may take a while for large images",
+    "button": "Upscale {model}",
+    "noUses": "No Uses Remaining",
+    "resolutionError": "Resolution Too High"
+  },
+  "progress": {
+    "uploading": "Uploading...",
+    "processing": "AI Processing...",
+    "downloading": "Downloading..."
+  },
+  "result": {
+    "title": "Result",
+    "livePreview": "Live Preview",
+    "previewNote": "Approximate preview at reduced resolution",
+    "compare": "Compare",
+    "showResult": "Show Result",
+    "download": "Download",
+    "copyClipboard": "Copy",
+    "copied": "Copied!",
+    "clear": "Clear"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "register": "Register",
+    "verifyEmail": "Verify Email",
+    "verificationCode": "Enter 6-digit code",
+    "resendCode": "Resend Code",
+    "verify": "Verify"
+  },
+  "usage": {
+    "title": "Usage",
+    "upgrade": "Upgrade for More",
+    "remaining": "remaining"
+  },
+  "plans": {
+    "guest": "Guest",
+    "free": "Free",
+    "pro": "Pro",
+    "business": "Business",
+    "mostPopular": "Most Popular",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "features": "Features",
+    "choose": "Choose Plan"
+  },
+  "shortcuts": {
+    "paste": "Paste",
+    "save": "Save",
+    "clear": "Clear",
+    "switch": "Switch Mode"
+  }
+}

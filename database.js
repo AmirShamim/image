@@ -18,6 +18,12 @@ db.exec(`
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         profile_picture TEXT,
+        email_verified INTEGER DEFAULT 0,
+        verification_code TEXT,
+        verification_expires DATETIME,
+        subscription_tier TEXT DEFAULT 'free',
+        subscription_expires DATETIME,
+        stripe_customer_id TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -42,6 +48,28 @@ db.exec(`
         dimensions TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS usage_tracking (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        fingerprint TEXT,
+        operation TEXT NOT NULL,
+        model TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS subscription_plans (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        price_monthly REAL,
+        price_yearly REAL,
+        upscale_2x_limit INTEGER,
+        upscale_4x_limit INTEGER,
+        max_resolution INTEGER,
+        batch_enabled INTEGER DEFAULT 0,
+        watermark INTEGER DEFAULT 1,
+        priority_queue INTEGER DEFAULT 0
     );
 `);
 
@@ -73,6 +101,30 @@ try {
     // Column already exists
 }
 
+// Add cloud_url column if it doesn't exist (migration)
+try {
+    db.exec(`ALTER TABLE user_images ADD COLUMN cloud_url TEXT`);
+} catch (e) {
+    // Column already exists
+}
+
+// Add cloud_public_id column if it doesn't exist (migration)
+try {
+    db.exec(`ALTER TABLE user_images ADD COLUMN cloud_public_id TEXT`);
+} catch (e) {
+    // Column already exists
+}
+
+// Add email verification columns (migration)
+try { db.exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0`); } catch (e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN verification_code TEXT`); } catch (e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN verification_expires DATETIME`); } catch (e) {}
+
+// Add subscription columns (migration)
+try { db.exec(`ALTER TABLE users ADD COLUMN subscription_tier TEXT DEFAULT 'free'`); } catch (e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN subscription_expires DATETIME`); } catch (e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`); } catch (e) {}
+
 // Create indexes for better performance
 db.exec(`
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -80,6 +132,25 @@ db.exec(`
     CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON user_sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_token ON user_sessions(token);
     CREATE INDEX IF NOT EXISTS idx_images_user_id ON user_images(user_id);
+    CREATE INDEX IF NOT EXISTS idx_usage_user_id ON usage_tracking(user_id);
+    CREATE INDEX IF NOT EXISTS idx_usage_fingerprint ON usage_tracking(fingerprint);
 `);
+
+// Insert default subscription plans
+try {
+    const existingPlans = db.prepare('SELECT COUNT(*) as count FROM subscription_plans').get();
+    if (existingPlans.count === 0) {
+        db.exec(`
+            INSERT INTO subscription_plans (id, name, price_monthly, price_yearly, upscale_2x_limit, upscale_4x_limit, max_resolution, batch_enabled, watermark, priority_queue)
+            VALUES 
+                ('guest', 'Guest', 0, 0, 3, 1, 1080, 0, 1, 0),
+                ('free', 'Free', 0, 0, 10, 3, 2160, 0, 0, 0),
+                ('pro', 'Pro', 7.99, 59.99, -1, 30, 3840, 1, 0, 1),
+                ('business', 'Business', 24.99, 199.99, -1, -1, 3840, 1, 0, 1);
+        `);
+    }
+} catch (e) {
+    // Plans table might not exist yet
+}
 
 module.exports = db;

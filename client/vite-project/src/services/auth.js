@@ -92,5 +92,27 @@ export const deleteProfilePicture = async () => {
   return response.data;
 };
 
+// Email verification API calls
+export const verifyEmail = async (email, code) => {
+  const response = await api.post('/api/auth/verify-email', { email, code });
+  return response.data;
+};
+
+export const resendVerification = async (email) => {
+  const response = await api.post('/api/auth/resend-verification', { email });
+  return response.data;
+};
+
+// Usage and subscription API calls
+export const getGuestUsage = async (fingerprint) => {
+  const response = await api.get(`/api/auth/usage/guest?fingerprint=${fingerprint}`);
+  return response.data;
+};
+
+export const getSubscriptionPlans = async () => {
+  const response = await api.get('/api/auth/plans');
+  return response.data;
+};
+
 // Export the api instance for use in other components
 export { api };

@@ -10,9 +10,15 @@ output_path = sys.argv[2]
 mode = sys.argv[3]  # 'upscale' or 'resize'
 options = json.loads(sys.argv[4]) if len(sys.argv) > 4 else {}
 
-def upscale_image(input_path, output_path):
-    """Upscale image using EDSR model (4x)"""
-    model_path = "EDSR_x4.pb"
+def upscale_image(input_path, output_path, options):
+    """Upscale image using EDSR model (2x or 4x)"""
+    model = options.get('model', '4x')
+    if model == '2x':
+        model_path = "EDSR_x2.pb"
+        scale = 2
+    else:
+        model_path = "EDSR_x4.pb"
+        scale = 4
     
     if not os.path.exists(model_path):
         print(f"Error: Model file {model_path} not found", file=sys.stderr)
@@ -20,7 +26,7 @@ def upscale_image(input_path, output_path):
     
     sr = dnn_superres.DnnSuperResImpl_create()
     sr.readModel(model_path)
-    sr.setModel("edsr", 4)
+    sr.setModel("edsr", scale)
     
     image = cv2.imread(input_path)
     if image is None:
@@ -32,7 +38,7 @@ def upscale_image(input_path, output_path):
     
     # Return info about the result
     h, w = result.shape[:2]
-    print(json.dumps({"width": w, "height": h}))
+    print(json.dumps({"width": w, "height": h, "scale": scale}))
 
 def resize_image(input_path, output_path, options):
     """Resize image by pixels or percentage"""
@@ -98,7 +104,7 @@ def resize_image(input_path, output_path, options):
 
 try:
     if mode == 'upscale':
-        upscale_image(input_path, output_path)
+        upscale_image(input_path, output_path, options)
     elif mode == 'resize':
         resize_image(input_path, output_path, options)
     else:

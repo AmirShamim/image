@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../database');
+const { generateVerificationCode, sendVerificationEmail } = require('../services/email');
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ const validateUsername = (username) => {
     return usernameRegex.test(username);
 };
 
-// Register new user
+// Register new user (with email verification)
 router.post('/register', async (req, res) => {
     try {
         const { email, username, password } = req.body;
@@ -47,48 +48,152 @@ router.post('/register', async (req, res) => {
         }
 
         // Check if user already exists
-        const existingUser = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(email.toLowerCase(), username.toLowerCase());
+        const existingUser = db.prepare('SELECT id, email_verified FROM users WHERE email = ? OR username = ?').get(email.toLowerCase(), username.toLowerCase());
         if (existingUser) {
-            return res.status(409).json({ error: 'User with this email or username already exists' });
+            // If user exists but not verified, allow re-registration
+            if (!existingUser.email_verified) {
+                // Delete unverified user to allow fresh registration
+                db.prepare('DELETE FROM users WHERE id = ?').run(existingUser.id);
+            } else {
+                return res.status(409).json({ error: 'User with this email or username already exists' });
+            }
         }
 
         // Hash password
         const salt = await bcrypt.genSalt(12);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create user
+        // Generate verification code
+        const verificationCode = generateVerificationCode();
+        const verificationExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+        // Create user (unverified)
         const userId = uuidv4();
-        db.prepare('INSERT INTO users (id, email, username, password) VALUES (?, ?, ?, ?)').run(
+        db.prepare(`
+            INSERT INTO users (id, email, username, password, email_verified, verification_code, verification_expires, subscription_tier) 
+            VALUES (?, ?, ?, ?, 0, ?, ?, 'free')
+        `).run(
             userId,
             email.toLowerCase(),
             username.toLowerCase(),
-            hashedPassword
+            hashedPassword,
+            verificationCode,
+            verificationExpires.toISOString()
         );
 
+        // Send verification email
+        const emailResult = await sendVerificationEmail(email.toLowerCase(), verificationCode, username);
+        
+        if (!emailResult.success) {
+            console.error('Failed to send verification email:', emailResult.error);
+            // Still allow registration, user can request new code
+        }
+
+        res.status(201).json({
+            message: 'Registration successful. Please check your email for verification code.',
+            requiresVerification: true,
+            email: email.toLowerCase()
+        });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Verify email with code
+router.post('/verify-email', async (req, res) => {
+    try {
+        const { email, code } = req.body;
+
+        if (!email || !code) {
+            return res.status(400).json({ error: 'Email and verification code are required' });
+        }
+
+        // Find user
+        const user = db.prepare(`
+            SELECT * FROM users 
+            WHERE email = ? AND verification_code = ? AND verification_expires > datetime('now')
+        `).get(email.toLowerCase(), code);
+
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid or expired verification code' });
+        }
+
+        // Mark as verified
+        db.prepare(`
+            UPDATE users 
+            SET email_verified = 1, verification_code = NULL, verification_expires = NULL, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        `).run(user.id);
+
         // Generate JWT token
-        const token = jwt.sign({ userId, email: email.toLowerCase(), username: username.toLowerCase() }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const token = jwt.sign(
+            { userId: user.id, email: user.email, username: user.username },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES_IN }
+        );
 
         // Store session
         const sessionId = uuidv4();
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
             sessionId,
-            userId,
+            user.id,
             token,
             expiresAt.toISOString()
         );
 
-        res.status(201).json({
-            message: 'User registered successfully',
+        res.json({
+            message: 'Email verified successfully',
             user: {
-                id: userId,
-                email: email.toLowerCase(),
-                username: username.toLowerCase()
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                email_verified: true,
+                subscription_tier: user.subscription_tier || 'free'
             },
             token
         });
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Verification error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Resend verification code
+router.post('/resend-verification', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+
+        // Find unverified user
+        const user = db.prepare('SELECT * FROM users WHERE email = ? AND email_verified = 0').get(email.toLowerCase());
+
+        if (!user) {
+            return res.status(404).json({ error: 'No unverified account found with this email' });
+        }
+
+        // Generate new code
+        const verificationCode = generateVerificationCode();
+        const verificationExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+        db.prepare(`
+            UPDATE users SET verification_code = ?, verification_expires = ? WHERE id = ?
+        `).run(verificationCode, verificationExpires.toISOString(), user.id);
+
+        // Send email
+        const emailResult = await sendVerificationEmail(email.toLowerCase(), verificationCode, user.username);
+
+        if (!emailResult.success) {
+            return res.status(500).json({ error: 'Failed to send verification email' });
+        }
+
+        res.json({ message: 'Verification code sent successfully' });
+    } catch (error) {
+        console.error('Resend verification error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -99,7 +204,7 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
+            return res.status(400).json({ error: 'Email/username and password are required' });
         }
 
         // Find user by email or username
@@ -116,6 +221,15 @@ router.post('/login', async (req, res) => {
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Check if email is verified
+        if (!user.email_verified) {
+            return res.status(403).json({ 
+                error: 'Please verify your email before logging in',
+                requiresVerification: true,
+                email: user.email
+            });
         }
 
         // Generate JWT token
@@ -144,7 +258,9 @@ router.post('/login', async (req, res) => {
                 id: user.id,
                 email: user.email,
                 username: user.username,
-                profile_picture: user.profile_picture
+                profile_picture: user.profile_picture,
+                email_verified: !!user.email_verified,
+                subscription_tier: user.subscription_tier || 'free'
             },
             token
         });
@@ -190,17 +306,108 @@ router.get('/me', (req, res) => {
         }
 
         // Get user
-        const user = db.prepare('SELECT id, email, username, profile_picture, created_at FROM users WHERE id = ?').get(decoded.userId);
+        const user = db.prepare('SELECT id, email, username, profile_picture, email_verified, subscription_tier, subscription_expires, created_at FROM users WHERE id = ?').get(decoded.userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.json({ user });
+        // Get usage stats for current month
+        const usage = getUsageStats(user.id);
+
+        res.json({ 
+            user: {
+                ...user,
+                email_verified: !!user.email_verified
+            },
+            usage 
+        });
     } catch (error) {
         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
         console.error('Auth verification error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get usage stats for a user (helper function)
+function getUsageStats(userId) {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    
+    const usage2x = db.prepare(`
+        SELECT COUNT(*) as count FROM usage_tracking 
+        WHERE user_id = ? AND model = '2x' AND created_at >= ?
+    `).get(userId, startOfMonth.toISOString());
+    
+    const usage4x = db.prepare(`
+        SELECT COUNT(*) as count FROM usage_tracking 
+        WHERE user_id = ? AND model = '4x' AND created_at >= ?
+    `).get(userId, startOfMonth.toISOString());
+    
+    return {
+        upscale_2x: usage2x?.count || 0,
+        upscale_4x: usage4x?.count || 0,
+        period_start: startOfMonth.toISOString()
+    };
+}
+
+// Get usage for guest/unregistered users (by fingerprint)
+router.get('/usage/guest', (req, res) => {
+    try {
+        const fingerprint = req.query.fingerprint;
+        if (!fingerprint) {
+            return res.status(400).json({ error: 'Fingerprint required' });
+        }
+        
+        // Get total uses (no monthly reset for guests)
+        const usage2x = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE fingerprint = ? AND model = '2x' AND user_id IS NULL
+        `).get(fingerprint);
+        
+        const usage4x = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE fingerprint = ? AND model = '4x' AND user_id IS NULL
+        `).get(fingerprint);
+        
+        // Guest limits from subscription_plans
+        const guestPlan = db.prepare("SELECT upscale_2x_limit, upscale_4x_limit FROM subscription_plans WHERE name = 'guest'").get();
+        const limits = guestPlan ? 
+            { upscale_2x: guestPlan.upscale_2x_limit, upscale_4x: guestPlan.upscale_4x_limit } : 
+            { upscale_2x: 5, upscale_4x: 3 };
+        
+        res.json({
+            usage: {
+                upscale_2x: usage2x?.count || 0,
+                upscale_4x: usage4x?.count || 0
+            },
+            limits,
+            remaining: {
+                upscale_2x: Math.max(0, limits.upscale_2x - (usage2x?.count || 0)),
+                upscale_4x: Math.max(0, limits.upscale_4x - (usage4x?.count || 0))
+            }
+        });
+    } catch (error) {
+        console.error('Guest usage error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get subscription plans
+router.get('/plans', (req, res) => {
+    try {
+        const plans = db.prepare('SELECT * FROM subscription_plans ORDER BY price_monthly ASC').all();
+        res.json({ 
+            plans: plans.map(p => ({
+                ...p,
+                limits: JSON.parse(p.limits || '{}'),
+                features: JSON.parse(p.features || '[]')
+            }))
+        });
+    } catch (error) {
+        console.error('Plans error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

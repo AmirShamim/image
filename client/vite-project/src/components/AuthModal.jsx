@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import VerificationModal from './VerificationModal';
 import './Auth.css';
 
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
@@ -11,8 +12,10 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showVerification, setShowVerification] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
-  const { login, register } = useAuth();
+  const { login, register, setUser } = useAuth();
 
   const resetForm = () => {
     setEmail('');
@@ -46,149 +49,197 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
           setLoading(false);
           return;
         }
-        await register(email, username, password);
-        setSuccess('Account created successfully!');
-        setTimeout(() => onClose(), 1000);
+        const response = await register(email, username, password);
+        
+        // Check if email verification is required
+        if (response.requiresVerification) {
+          setRegisteredEmail(response.email || email);
+          setSuccess('Registration successful! Please check your email for verification code.');
+          setTimeout(() => {
+            setShowVerification(true);
+          }, 1000);
+        } else {
+          setSuccess('Account created successfully!');
+          setTimeout(() => onClose(), 1000);
+        }
       } else {
-        await login(email, password);
-        setSuccess('Login successful!');
-        setTimeout(() => onClose(), 500);
+        const response = await login(email, password);
+        
+        // Check if verification is required
+        if (response.requiresVerification) {
+          setRegisteredEmail(response.email || email);
+          setError('Please verify your email before logging in');
+          setTimeout(() => {
+            setShowVerification(true);
+          }, 1500);
+        } else {
+          setSuccess('Login successful!');
+          setTimeout(() => onClose(), 500);
+        }
       }
     } catch (err) {
-      setError(err.message);
+      const errorMsg = err.response?.data?.error || err.message;
+      
+      // Check if error indicates verification needed
+      if (errorMsg.includes('verify') && err.response?.data?.requiresVerification) {
+        setRegisteredEmail(err.response.data.email || email);
+        setError(errorMsg);
+        setTimeout(() => {
+          setShowVerification(true);
+        }, 1500);
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerified = (response) => {
+    if (response.user && response.token) {
+      setUser(response.user);
+      setSuccess('Email verified! Logging you in...');
+      setTimeout(() => onClose(), 500);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="auth-modal-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="auth-modal-close" onClick={onClose}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-
-        <div className="auth-modal-header">
-          <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-          <p>{mode === 'login' ? 'Sign in to your account' : 'Join us today'}</p>
-        </div>
-
-        <div className="auth-tabs">
-          <button 
-            className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
-            onClick={() => switchMode('login')}
-          >
-            Login
+    <>
+      <div className="auth-modal-overlay" onClick={onClose}>
+        <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+          <button className="auth-modal-close" onClick={onClose}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
-          <button 
-            className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
-            onClick={() => switchMode('register')}
-          >
-            Register
-          </button>
-        </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="auth-success">{success}</div>}
-
-          {mode === 'login' ? (
-            <div className="auth-field">
-              <label htmlFor="emailOrUsername">Email or Username</label>
-              <input
-                type="text"
-                id="emailOrUsername"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email or username"
-                required
-                autoComplete="username"
-              />
-            </div>
-          ) : (
-            <div className="auth-field">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                autoComplete="email"
-              />
-            </div>
-          )}
-
-          {mode === 'register' && (
-            <div className="auth-field">
-              <label htmlFor="username">Username</label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="username"
-                required
-                autoComplete="username"
-                pattern="[a-zA-Z0-9_]{3,30}"
-                title="3-30 characters, letters, numbers, and underscores only"
-              />
-            </div>
-          )}
-
-          <div className="auth-field">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              minLength={6}
-            />
+          <div className="auth-modal-header">
+            <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
+            <p>{mode === 'login' ? 'Sign in to your account' : 'Join us today'}</p>
           </div>
 
-          {mode === 'register' && (
+          <div className="auth-tabs">
+            <button 
+              className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
+              onClick={() => switchMode('login')}
+            >
+              Login
+            </button>
+            <button 
+              className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
+              onClick={() => switchMode('register')}
+            >
+              Register
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && <div className="auth-error">{error}</div>}
+            {success && <div className="auth-success">{success}</div>}
+
+            {mode === 'login' ? (
+              <div className="auth-field">
+                <label htmlFor="emailOrUsername">Email or Username</label>
+                <input
+                  type="text"
+                  id="emailOrUsername"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email or username"
+                  required
+                  autoComplete="username"
+                />
+              </div>
+            ) : (
+              <div className="auth-field">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            )}
+
+            {mode === 'register' && (
+              <div className="auth-field">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="username"
+                  required
+                  autoComplete="username"
+                  pattern="[a-zA-Z0-9_]{3,30}"
+                  title="3-30 characters, letters, numbers, and underscores only"
+                />
+              </div>
+            )}
+
             <div className="auth-field">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="password">Password</label>
               <input
                 type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                autoComplete="new-password"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                minLength={6}
               />
             </div>
-          )}
 
-          <button type="submit" className="auth-submit" disabled={loading}>
-            {loading ? (
-              <span className="auth-spinner"></span>
-            ) : (
-              mode === 'login' ? 'Sign In' : 'Create Account'
+            {mode === 'register' && (
+              <div className="auth-field">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  autoComplete="new-password"
+                />
+              </div>
             )}
-          </button>
-        </form>
 
-        <div className="auth-footer">
-          {mode === 'login' ? (
-            <p>Don't have an account? <button onClick={() => switchMode('register')}>Sign up</button></p>
-          ) : (
-            <p>Already have an account? <button onClick={() => switchMode('login')}>Sign in</button></p>
-          )}
+            <button type="submit" className="auth-submit" disabled={loading}>
+              {loading ? (
+                <span className="auth-spinner"></span>
+              ) : (
+                mode === 'login' ? 'Sign In' : 'Create Account'
+              )}
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            {mode === 'login' ? (
+              <p>Don't have an account? <button onClick={() => switchMode('register')}>Sign up</button></p>
+            ) : (
+              <p>Already have an account? <button onClick={() => switchMode('login')}>Sign in</button></p>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      <VerificationModal 
+        isOpen={showVerification}
+        onClose={() => setShowVerification(false)}
+        email={registeredEmail}
+        onVerified={handleVerified}
+      />
+    </>
   );
 };
 

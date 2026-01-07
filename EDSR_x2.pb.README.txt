@@ -1,0 +1,36 @@
+==========================================================
+EDSR 2x Model Setup Instructions
+==========================================================
+
+To enable 2x AI upscaling, you need to download the EDSR_x2.pb model file.
+
+DOWNLOAD OPTIONS:
+
+1. GitHub Release (Recommended):
+   https://github.com/Saafke/EDSR_Tensorflow/releases
+   - Download EDSR_x2.pb from the releases
+   
+2. OpenCV Model Zoo:
+   https://github.com/opencv/opencv_contrib/tree/master/modules/dnn_superres
+   
+3. Direct Link (if available):
+   https://github.com/fannymonori/TF-ESPCN/raw/master/export/EDSR_x2.pb
+
+INSTALLATION:
+
+1. Download EDSR_x2.pb
+2. Place it in the same directory as EDSR_x4.pb (project root)
+3. Restart your server
+
+FILE LOCATION:
+The model file should be placed at:
+c:\Users\MASTER\Documents\Portfolio\image-resizer\EDSR_x2.pb
+
+VERIFICATION:
+After placing the file, check that both models exist:
+- EDSR_x2.pb (for 2x upscaling)
+- EDSR_x4.pb (for 4x upscaling)
+
+NOTE:
+If the model file is missing, 2x upscaling requests will fail with an error.
+==========================================================

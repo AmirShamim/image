@@ -39,13 +39,19 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authService.login(email, password);
+      
+      // Check if verification is required
+      if (response.requiresVerification) {
+        return response; // Return without setting user/token
+      }
+      
       localStorage.setItem('auth_token', response.token);
       setUser(response.user);
       return response;
     } catch (err) {
       const message = err.response?.data?.error || 'Login failed';
       setError(message);
-      throw new Error(message);
+      throw err; // Throw original error with response data
     }
   }, []);
 
@@ -53,13 +59,19 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authService.register(email, username, password);
+      
+      // Check if verification is required
+      if (response.requiresVerification) {
+        return response; // Return without setting user/token
+      }
+      
       localStorage.setItem('auth_token', response.token);
       setUser(response.user);
       return response;
     } catch (err) {
       const message = err.response?.data?.error || 'Registration failed';
       setError(message);
-      throw new Error(message);
+      throw err; // Throw original error
     }
   }, []);
 

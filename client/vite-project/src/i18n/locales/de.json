@@ -1,0 +1,103 @@
+{
+  "app": {
+    "title": "Image Studio",
+    "subtitle": "Professionelle Bildverarbeitung",
+    "description": "Bilder mit KI-Technologie skalieren und verbessern"
+  },
+  "header": {
+    "batch": "Stapelverarbeitung",
+    "language": "Sprache"
+  },
+  "tabs": {
+    "resize": "Größe ändern",
+    "upscale": "KI-Verbesserung"
+  },
+  "upload": {
+    "title": "Bild hochladen",
+    "dragDrop": "Ziehen Sie Ihr Bild hierher",
+    "or": "oder",
+    "browse": "Dateien durchsuchen",
+    "pasteClipboard": "Aus Zwischenablage einfügen",
+    "formats": "Unterstützt: JPG, PNG, WEBP"
+  },
+  "resize": {
+    "settings": "Größenänderungsoptionen",
+    "type": "Größe ändern nach",
+    "percentage": "Prozentsatz",
+    "pixels": "Pixel",
+    "width": "Breite",
+    "height": "Höhe",
+    "maintainAspect": "Seitenverhältnis beibehalten",
+    "quality": "Qualität",
+    "format": "Ausgabeformat",
+    "preset": "Schnellvorlagen",
+    "newSize": "Neue Größe",
+    "button": "Bildgröße ändern"
+  },
+  "upscale": {
+    "selectModel": "KI-Modell auswählen",
+    "usesLeft": "verbleibende Nutzungen",
+    "unlimited": "unbegrenzt",
+    "description": "Verwendung des EDSR Deep-Learning-Modells zur Verbesserung Ihres Bildes um {model} unter Beibehaltung der Details.",
+    "current": "Aktuell",
+    "result": "Ergebnis",
+    "warning": "Dies kann bei großen Bildern einige Zeit dauern",
+    "button": "{model} verbessern",
+    "noUses": "Keine Nutzungen mehr",
+    "resolutionError": "Auflösung zu hoch"
+  },
+  "progress": {
+    "uploading": "Hochladen...",
+    "processing": "KI-Verarbeitung...",
+    "downloading": "Herunterladen..."
+  },
+  "result": {
+    "title": "Ergebnis",
+    "livePreview": "Live-Vorschau",
+    "previewNote": "Ungefähre Vorschau bei reduzierter Auflösung",
+    "compare": "Vergleichen",
+    "showResult": "Ergebnis Anzeigen",
+    "download": "Herunterladen",
+    "copyClipboard": "Kopieren",
+    "copied": "Kopiert!",
+    "clear": "Löschen"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "signOut": "Abmelden",
+    "email": "E-Mail",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "noAccount": "Kein Konto?",
+    "haveAccount": "Bereits ein Konto?",
+    "register": "Registrieren",
+    "verifyEmail": "E-Mail bestätigen",
+    "verificationCode": "6-stelligen Code eingeben",
+    "resendCode": "Code erneut senden",
+    "verify": "Bestätigen"
+  },
+  "usage": {
+    "title": "Nutzung",
+    "upgrade": "Für mehr upgraden",
+    "remaining": "verbleibend"
+  },
+  "plans": {
+    "guest": "Gast",
+    "free": "Kostenlos",
+    "pro": "Pro",
+    "business": "Business",
+    "mostPopular": "Am beliebtesten",
+    "perMonth": "/Monat",
+    "perYear": "/Jahr",
+    "features": "Funktionen",
+    "choose": "Plan wählen"
+  },
+  "shortcuts": {
+    "paste": "Einfügen",
+    "save": "Speichern",
+    "clear": "Löschen",
+    "switch": "Modus wechseln"
+  }
+}

@@ -1,3 +1,6 @@
+// Load environment variables from .env file
+require('dotenv').config();
+
 const express = require('express');
 const multer = require('multer');
 const { spawn } = require('child_process');
@@ -8,6 +11,9 @@ const { v4: uuidv4 } = require('uuid');
 
 // Import database (initializes tables)
 const db = require('./database');
+
+// Import Cloudinary config
+const { uploadToCloudinary, isCloudinaryConfigured } = require('./config/cloudinary');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -92,20 +98,26 @@ app.post('/get-dimensions', upload.single('image'), (req, res) => {
     });
 });
 
-// Upscale endpoint (AI-powered 4x upscaling)
+// Upscale endpoint (AI-powered 2x/4x upscaling)
 app.post('/upscale', optionalAuth, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
-    const outputPath = `processed/${req.file.filename}_upscaled.jpg`;
     const originalFilename = req.file.originalname;
+    const model = req.body.model === '2x' ? '2x' : '4x'; // default to 4x
+    const outputPath = `processed/${req.file.filename}_upscaled_${model}.jpg`;
 
+    // Usage limits (enforced in frontend, but double-check here)
+    let userId = req.user ? req.user.userId : null;
+    let fingerprint = req.body.fingerprint || null;
+
+    // Call Python script with model param
     const pythonProcess = spawn('python', [
-        'upscale_script.py', 
-        inputPath, 
-        outputPath, 
+        'upscale_script.py',
+        inputPath,
+        outputPath,
         'upscale',
-        '{}'
+        JSON.stringify({ model })
     ]);
 
     pythonProcess.stdout.on('data', (data) => {
@@ -116,32 +128,66 @@ app.post('/upscale', optionalAuth, upload.single('image'), (req, res) => {
         console.error(`Python Error: ${data}`);
     });
 
-    pythonProcess.on('close', (code) => {
+    pythonProcess.on('close', async (code) => {
         if (code !== 0) {
             fs.unlinkSync(inputPath);
             return res.status(500).send('Image processing failed.');
+        }
+
+        let cloudUrl = null;
+        let cloudPublicId = null;
+
+        // Upload to Cloudinary if user is authenticated and Cloudinary is configured
+        if (req.user && isCloudinaryConfigured()) {
+            try {
+                const cloudResult = await uploadToCloudinary(outputPath, {
+                    public_id: `upscale_${req.user.userId}_${Date.now()}`
+                });
+                if (cloudResult.success) {
+                    cloudUrl = cloudResult.url;
+                    cloudPublicId = cloudResult.publicId;
+                    console.log('Uploaded to Cloudinary:', cloudUrl);
+                }
+            } catch (err) {
+                console.error('Cloudinary upload failed:', err);
+            }
         }
 
         // Log image operation if user is authenticated
         if (req.user) {
             try {
                 const imageId = uuidv4();
-                db.prepare('INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation) VALUES (?, ?, ?, ?, ?)').run(
+                db.prepare(`
+                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url, cloud_public_id) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `).run(
                     imageId,
                     req.user.userId,
                     originalFilename,
-                    `${req.file.filename}_upscaled.jpg`,
-                    'upscale'
+                    `${req.file.filename}_upscaled_${model}.jpg`,
+                    'upscale',
+                    cloudUrl,
+                    cloudPublicId
                 );
             } catch (err) {
                 console.error('Failed to log image operation:', err);
             }
         }
 
-        res.download(outputPath, (err) => {
+        // Track usage (user or guest)
+        try {
+            db.prepare(`
+                INSERT INTO usage_tracking (user_id, fingerprint, operation, model, created_at)
+                VALUES (?, ?, 'upscale', ?, datetime('now'))
+            `).run(userId, fingerprint, model);
+        } catch (err) {
+            console.error('Failed to log usage:', err);
+        }
+
+        res.download(outputPath, `upscaled_${model}_${originalFilename}`, (err) => {
             if (err) console.error(err);
             fs.unlinkSync(inputPath);
-            // Optionally clean up processed file after a delay
+            // Clean up processed file after a delay (keep if not uploaded to cloud)
             setTimeout(() => {
                 if (fs.existsSync(outputPath)) {
                     fs.unlinkSync(outputPath);
@@ -189,29 +235,53 @@ app.post('/resize', optionalAuth, upload.single('image'), (req, res) => {
         console.error(`Python Error: ${data}`);
     });
 
-    pythonProcess.on('close', (code) => {
+    pythonProcess.on('close', async (code) => {
         if (code !== 0) {
             fs.unlinkSync(inputPath);
             return res.status(500).send('Image processing failed.');
+        }
+
+        let cloudUrl = null;
+        let cloudPublicId = null;
+
+        // Upload to Cloudinary if user is authenticated and Cloudinary is configured
+        if (req.user && isCloudinaryConfigured()) {
+            try {
+                const cloudResult = await uploadToCloudinary(outputPath, {
+                    public_id: `resize_${req.user.userId}_${Date.now()}`
+                });
+                if (cloudResult.success) {
+                    cloudUrl = cloudResult.url;
+                    cloudPublicId = cloudResult.publicId;
+                    console.log('Uploaded to Cloudinary:', cloudUrl);
+                }
+            } catch (err) {
+                console.error('Cloudinary upload failed:', err);
+            }
         }
 
         // Log image operation if user is authenticated
         if (req.user) {
             try {
                 const imageId = uuidv4();
-                db.prepare('INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation) VALUES (?, ?, ?, ?, ?)').run(
+                db.prepare(`
+                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url, cloud_public_id) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `).run(
                     imageId,
                     req.user.userId,
                     originalFilename,
                     `${req.file.filename}_resized.${format}`,
-                    'resize'
+                    'resize',
+                    cloudUrl,
+                    cloudPublicId
                 );
             } catch (err) {
                 console.error('Failed to log image operation:', err);
             }
         }
 
-        res.download(outputPath, `resized_image.${format}`, (err) => {
+        res.download(outputPath, `resized_${originalFilename.replace(/\.[^.]+$/, '')}.${format}`, (err) => {
             if (err) console.error(err);
             fs.unlinkSync(inputPath);
             setTimeout(() => {
