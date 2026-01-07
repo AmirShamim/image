@@ -54,10 +54,18 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
         // Check if email verification is required
         if (response.requiresVerification) {
           setRegisteredEmail(response.email || email);
-          setSuccess('Registration successful! Please check your email for verification code.');
+          
+          // Check if there was an email sending error
+          if (response.emailError) {
+            setError(response.emailError);
+            setSuccess('Account created! Click "Resend Code" to try sending verification email again.');
+          } else {
+            setSuccess('Registration successful! Please check your email for verification code.');
+          }
+          
           setTimeout(() => {
             setShowVerification(true);
-          }, 1000);
+          }, 1500);
         } else {
           setSuccess('Account created successfully!');
           setTimeout(() => onClose(), 1000);

@@ -49,7 +49,20 @@ const VerificationModal = ({ isOpen, onClose, email, onVerified }) => {
       await resendVerification(email);
       setSuccess('Verification code resent! Check your email.');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to resend code');
+      const errorData = err.response?.data;
+      const errorMsg = errorData?.error || 'Failed to resend code';
+      const errorType = errorData?.errorType;
+      
+      // Add helpful context based on error type
+      if (errorType === 'DNS_ERROR' || errorType === 'CONNECTION_ERROR') {
+        setError(`${errorMsg} Please try again in a few moments.`);
+      } else if (errorType === 'CONFIG_ERROR') {
+        setError('Email service is currently unavailable. Please contact support.');
+      } else if (errorType === 'RATE_LIMIT') {
+        setError('Too many attempts. Please wait a few minutes before trying again.');
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setResendLoading(false);
     }

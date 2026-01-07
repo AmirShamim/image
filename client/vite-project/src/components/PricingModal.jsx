@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { getSubscriptionPlans } from '../services/auth';
+import { getSubscriptionPlans, api } from '../services/auth';
+import { useAuth } from '../context/AuthContext';
 import './PricingModal.css';
 
 const PricingModal = ({ isOpen, onClose }) => {
+  const { isAuthenticated } = useAuth();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [upgrading, setUpgrading] = useState(false);
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' or 'yearly'
 
   useEffect(() => {
@@ -24,9 +27,33 @@ const PricingModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleUpgrade = (planName) => {
-    // TODO: Integrate with Stripe
-    alert(`Upgrade to ${planName} - Stripe integration coming soon!`);
+  const handleUpgrade = async (planName) => {
+    if (!isAuthenticated) {
+      alert('Please sign in to upgrade your plan');
+      return;
+    }
+
+    setUpgrading(true);
+    try {
+      const response = await api.post('/api/stripe/create-checkout-session', {
+        planName,
+        billingCycle
+      });
+      
+      // Redirect to Stripe Checkout
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      if (err.response?.status === 503) {
+        alert('Payment system is not yet configured. Please contact support.');
+      } else {
+        alert('Failed to start checkout. Please try again.');
+      }
+    } finally {
+      setUpgrading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -114,9 +141,9 @@ const PricingModal = ({ isOpen, onClose }) => {
                   <button 
                     className={`plan-button ${plan.name === 'pro' ? 'featured-button' : ''}`}
                     onClick={() => handleUpgrade(plan.name)}
-                    disabled={plan.name === 'free'}
+                    disabled={plan.name === 'free' || upgrading}
                   >
-                    {plan.name === 'free' ? 'Current Plan' : 'Upgrade Now'}
+                    {upgrading ? 'Processing...' : plan.name === 'free' ? 'Current Plan' : 'Upgrade Now'}
                   </button>
                 </div>
               );

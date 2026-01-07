@@ -18,6 +18,7 @@ const { uploadToCloudinary, isCloudinaryConfigured } = require('./config/cloudin
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const stripeRoutes = require('./routes/stripe');
 
 // Import middleware
 const { optionalAuth } = require('./middleware/auth');
@@ -47,6 +48,9 @@ app.use('/api/auth', authRoutes);
 
 // User routes
 app.use('/api/users', userRoutes);
+
+// Stripe routes (webhook needs raw body, handled inside the route)
+app.use('/api/stripe', stripeRoutes);
 
 // Serve static files from React build in production
 if (isProduction) {

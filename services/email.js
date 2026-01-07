@@ -1,5 +1,10 @@
 const nodemailer = require('nodemailer');
 
+// Check if SMTP is properly configured
+const isSmtpConfigured = () => {
+    return !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+};
+
 // Email configuration - using environment variables
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -8,8 +13,70 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
-    }
+    },
+    // Add connection timeout
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
 });
+
+// Categorize email errors for user-friendly messages
+const categorizeEmailError = (error) => {
+    const errorCode = error.code || '';
+    const errorMessage = error.message || '';
+    
+    // DNS/Network errors
+    if (errorCode === 'ENOTFOUND' || errorCode === 'EBADNAME' || errorMessage.includes('EBADNAME') || errorMessage.includes('ENOTFOUND')) {
+        return {
+            type: 'DNS_ERROR',
+            userMessage: 'Email service is temporarily unavailable. Please try again later or contact support.',
+            technicalMessage: 'DNS resolution failed for SMTP host'
+        };
+    }
+    
+    // Connection errors
+    if (errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT' || errorCode === 'ECONNRESET') {
+        return {
+            type: 'CONNECTION_ERROR',
+            userMessage: 'Unable to connect to email service. Please try again in a few minutes.',
+            technicalMessage: `Connection failed: ${errorCode}`
+        };
+    }
+    
+    // Authentication errors
+    if (errorCode === 'EAUTH' || errorMessage.includes('authentication') || errorMessage.includes('Invalid login') || errorMessage.includes('535')) {
+        return {
+            type: 'AUTH_ERROR',
+            userMessage: 'Email service configuration error. Please contact support.',
+            technicalMessage: 'SMTP authentication failed - check credentials'
+        };
+    }
+    
+    // Rate limiting
+    if (errorMessage.includes('rate limit') || errorMessage.includes('too many') || errorMessage.includes('421')) {
+        return {
+            type: 'RATE_LIMIT',
+            userMessage: 'Too many emails sent. Please wait a few minutes and try again.',
+            technicalMessage: 'SMTP rate limit exceeded'
+        };
+    }
+    
+    // Invalid recipient
+    if (errorMessage.includes('recipient') || errorMessage.includes('550') || errorMessage.includes('invalid address')) {
+        return {
+            type: 'INVALID_RECIPIENT',
+            userMessage: 'The email address appears to be invalid. Please check and try again.',
+            technicalMessage: 'Invalid recipient address'
+        };
+    }
+    
+    // Default error
+    return {
+        type: 'UNKNOWN_ERROR',
+        userMessage: 'Failed to send verification email. Please try again later.',
+        technicalMessage: error.message
+    };
+};
 
 // Generate 6-digit verification code
 const generateVerificationCode = () => {
@@ -87,11 +154,28 @@ const sendVerificationEmail = async (email, code, username) => {
     };
 
     try {
+        // Check if SMTP is configured
+        if (!isSmtpConfigured()) {
+            console.error('SMTP not configured - SMTP_USER and SMTP_PASS are required');
+            return { 
+                success: false, 
+                error: 'Email service is not configured. Please contact support.',
+                errorType: 'CONFIG_ERROR'
+            };
+        }
+        
         await transporter.sendMail(mailOptions);
         return { success: true };
     } catch (error) {
         console.error('Email send error:', error);
-        return { success: false, error: error.message };
+        const categorized = categorizeEmailError(error);
+        console.error(`Email error type: ${categorized.type}, Technical: ${categorized.technicalMessage}`);
+        return { 
+            success: false, 
+            error: categorized.userMessage,
+            errorType: categorized.type,
+            technicalError: categorized.technicalMessage
+        };
     }
 };
 
@@ -138,16 +222,34 @@ const sendPasswordResetEmail = async (email, code, username) => {
     };
 
     try {
+        // Check if SMTP is configured
+        if (!isSmtpConfigured()) {
+            console.error('SMTP not configured - SMTP_USER and SMTP_PASS are required');
+            return { 
+                success: false, 
+                error: 'Email service is not configured. Please contact support.',
+                errorType: 'CONFIG_ERROR'
+            };
+        }
+        
         await transporter.sendMail(mailOptions);
         return { success: true };
     } catch (error) {
         console.error('Email send error:', error);
-        return { success: false, error: error.message };
+        const categorized = categorizeEmailError(error);
+        console.error(`Email error type: ${categorized.type}, Technical: ${categorized.technicalMessage}`);
+        return { 
+            success: false, 
+            error: categorized.userMessage,
+            errorType: categorized.type,
+            technicalError: categorized.technicalMessage
+        };
     }
 };
 
 module.exports = {
     generateVerificationCode,
     sendVerificationEmail,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    isSmtpConfigured
 };

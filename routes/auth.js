@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../database');
-const { generateVerificationCode, sendVerificationEmail } = require('../services/email');
+const { generateVerificationCode, sendVerificationEmail, isSmtpConfigured } = require('../services/email');
 
 const router = express.Router();
 
@@ -86,7 +86,15 @@ router.post('/register', async (req, res) => {
         
         if (!emailResult.success) {
             console.error('Failed to send verification email:', emailResult.error);
-            // Still allow registration, user can request new code
+            // Return error to user but keep the registration (they can resend)
+            return res.status(201).json({
+                message: 'Account created, but we couldn\'t send the verification email.',
+                requiresVerification: true,
+                email: email.toLowerCase(),
+                emailError: emailResult.error,
+                emailErrorType: emailResult.errorType,
+                canResend: true
+            });
         }
 
         res.status(201).json({
@@ -188,7 +196,11 @@ router.post('/resend-verification', async (req, res) => {
         const emailResult = await sendVerificationEmail(email.toLowerCase(), verificationCode, user.username);
 
         if (!emailResult.success) {
-            return res.status(500).json({ error: 'Failed to send verification email' });
+            return res.status(500).json({ 
+                error: emailResult.error || 'Failed to send verification email',
+                errorType: emailResult.errorType,
+                canRetry: emailResult.errorType !== 'CONFIG_ERROR'
+            });
         }
 
         res.json({ message: 'Verification code sent successfully' });
