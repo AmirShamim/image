@@ -17,6 +17,7 @@ db.exec(`
         email TEXT UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
+        profile_picture TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -35,11 +36,42 @@ db.exec(`
         user_id TEXT NOT NULL,
         original_filename TEXT NOT NULL,
         stored_filename TEXT NOT NULL,
+        thumbnail_filename TEXT,
         operation TEXT NOT NULL,
+        file_size INTEGER,
+        dimensions TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 `);
+
+// Add profile_picture column if it doesn't exist (migration)
+try {
+    db.exec(`ALTER TABLE users ADD COLUMN profile_picture TEXT`);
+} catch (e) {
+    // Column already exists
+}
+
+// Add thumbnail_filename column if it doesn't exist (migration)
+try {
+    db.exec(`ALTER TABLE user_images ADD COLUMN thumbnail_filename TEXT`);
+} catch (e) {
+    // Column already exists
+}
+
+// Add file_size column if it doesn't exist (migration)
+try {
+    db.exec(`ALTER TABLE user_images ADD COLUMN file_size INTEGER`);
+} catch (e) {
+    // Column already exists
+}
+
+// Add dimensions column if it doesn't exist (migration)
+try {
+    db.exec(`ALTER TABLE user_images ADD COLUMN dimensions TEXT`);
+} catch (e) {
+    // Column already exists
+}
 
 // Create indexes for better performance
 db.exec(`

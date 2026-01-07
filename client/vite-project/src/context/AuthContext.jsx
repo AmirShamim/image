@@ -112,6 +112,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const uploadProfilePicture = useCallback(async (file) => {
+    setError(null);
+    try {
+      const response = await authService.uploadProfilePicture(file);
+      setUser(response.user);
+      return response;
+    } catch (err) {
+      const message = err.response?.data?.error || 'Profile picture upload failed';
+      setError(message);
+      throw new Error(message);
+    }
+  }, []);
+
+  const deleteProfilePicture = useCallback(async () => {
+    setError(null);
+    try {
+      const response = await authService.deleteProfilePicture();
+      setUser(response.user);
+      return response;
+    } catch (err) {
+      const message = err.response?.data?.error || 'Profile picture deletion failed';
+      setError(message);
+      throw new Error(message);
+    }
+  }, []);
+
   const clearError = useCallback(() => setError(null), []);
 
   const value = {
@@ -125,6 +151,8 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     changePassword,
     deleteAccount,
+    uploadProfilePicture,
+    deleteProfilePicture,
     clearError
   };
 

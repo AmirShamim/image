@@ -15,7 +15,7 @@ const ImageUpscaler = () => {
 
     try {
       // Expecting a blob (image file) response
-      const response = await axios.post('http://localhost:5000/upscale', formData, {
+      const response = await axios.post('/upscale', formData, {
         responseType: 'blob', 
       });
 

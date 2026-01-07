@@ -18,7 +18,7 @@ const authenticateToken = (req, res, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
 
         // Check if session exists and is valid
-        const session = db.prepare('SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime("now")').get(token);
+        const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
         
         if (!session) {
             return res.status(401).json({ error: 'Session expired or invalid. Please login again.' });
@@ -56,7 +56,7 @@ const optionalAuth = (req, res, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
 
         // Check if session exists and is valid
-        const session = db.prepare('SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime("now")').get(token);
+        const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
         
         if (session) {
             req.user = decoded;

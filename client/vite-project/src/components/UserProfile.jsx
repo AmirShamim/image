@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, getImageHistory } from '../services/auth';
 import './Auth.css';
 
 const UserProfile = ({ isOpen, onClose }) => {
-  const { user, logout, updateProfile, changePassword, deleteAccount } = useAuth();
+  const { user, logout, updateProfile, changePassword, deleteAccount, uploadProfilePicture, deleteProfilePicture } = useAuth();
   const [activeSection, setActiveSection] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const fileInputRef = useRef(null);
   
   // Profile form
   const [email, setEmail] = useState('');
@@ -30,6 +31,9 @@ const UserProfile = ({ isOpen, onClose }) => {
   
   // Profile stats
   const [profileStats, setProfileStats] = useState(null);
+  
+  // Profile picture upload
+  const [uploadingPicture, setUploadingPicture] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -141,6 +145,62 @@ const UserProfile = ({ isOpen, onClose }) => {
     });
   };
 
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleProfilePictureChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Only image files are allowed (jpeg, jpg, png, gif, webp)');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be less than 5MB');
+      return;
+    }
+
+    setUploadingPicture(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await uploadProfilePicture(file);
+      setSuccess('Profile picture updated successfully!');
+      loadProfile();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingPicture(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveProfilePicture = async () => {
+    setUploadingPicture(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await deleteProfilePicture();
+      setSuccess('Profile picture removed successfully!');
+      loadProfile();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingPicture(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -154,8 +214,49 @@ const UserProfile = ({ isOpen, onClose }) => {
         </button>
 
         <div className="profile-header">
-          <div className="profile-avatar">
-            {user?.username?.[0]?.toUpperCase() || 'U'}
+          <div className="profile-avatar-container">
+            <div 
+              className={`profile-avatar ${uploadingPicture ? 'uploading' : ''}`}
+              onClick={handleProfilePictureClick}
+              title="Click to change profile picture"
+            >
+              {user?.profile_picture ? (
+                <img 
+                  src={user.profile_picture} 
+                  alt={user?.username || 'User'} 
+                  className="profile-avatar-image"
+                />
+              ) : (
+                user?.username?.[0]?.toUpperCase() || 'U'
+              )}
+              <div className="profile-avatar-overlay">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+              </div>
+              {uploadingPicture && <div className="profile-avatar-spinner"></div>}
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleProfilePictureChange}
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+              style={{ display: 'none' }}
+            />
+            {user?.profile_picture && (
+              <button 
+                className="remove-picture-btn"
+                onClick={handleRemoveProfilePicture}
+                disabled={uploadingPicture}
+                title="Remove profile picture"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            )}
           </div>
           <h2>{user?.username}</h2>
           <p>{user?.email}</p>

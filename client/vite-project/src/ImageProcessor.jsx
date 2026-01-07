@@ -3,8 +3,9 @@ import axios from 'axios';
 import './ImageProcessor.css';
 import UserButton from './components/UserButton';
 
-// Use relative URL in production, localhost in development
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:5000';
+// In development, Vite proxy handles forwarding to backend
+// In production, requests go to same origin
+const API_URL = '';
 
 // Create axios instance with auth interceptor
 const api = axios.create({

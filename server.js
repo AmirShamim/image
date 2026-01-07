@@ -30,6 +30,12 @@ const upload = multer({
 app.use(cors());
 app.use(express.json());
 
+// Serve profile pictures statically
+app.use('/profile_pictures', express.static(path.join(__dirname, 'profile_pictures')));
+
+// Serve processed images for history thumbnails
+app.use('/processed', express.static(path.join(__dirname, 'processed')));
+
 // Auth routes
 app.use('/api/auth', authRoutes);
 

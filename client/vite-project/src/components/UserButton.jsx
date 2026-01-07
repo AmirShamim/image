@@ -24,7 +24,15 @@ const UserButton = () => {
       <div className="user-section">
         <button className="user-btn" onClick={() => setShowProfile(true)}>
           <span className="user-avatar">
-            {user.username?.[0]?.toUpperCase() || 'U'}
+            {user.profile_picture ? (
+              <img 
+                src={user.profile_picture} 
+                alt={user.username} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+              />
+            ) : (
+              user.username?.[0]?.toUpperCase() || 'U'
+            )}
           </span>
           <span>{user.username}</span>
         </button>

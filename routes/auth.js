@@ -143,7 +143,8 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
-                username: user.username
+                username: user.username,
+                profile_picture: user.profile_picture
             },
             token
         });
@@ -183,13 +184,13 @@ router.get('/me', (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
 
         // Check if session exists and is valid
-        const session = db.prepare('SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime("now")').get(token);
+        const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
         if (!session) {
             return res.status(401).json({ error: 'Session expired or invalid' });
         }
 
         // Get user
-        const user = db.prepare('SELECT id, email, username, created_at FROM users WHERE id = ?').get(decoded.userId);
+        const user = db.prepare('SELECT id, email, username, profile_picture, created_at FROM users WHERE id = ?').get(decoded.userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }

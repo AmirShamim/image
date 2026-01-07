@@ -1,14 +1,49 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Ensure profile pictures directory exists
+const profilePicsDir = path.join(__dirname, '..', 'profile_pictures');
+if (!fs.existsSync(profilePicsDir)) {
+    fs.mkdirSync(profilePicsDir, { recursive: true });
+}
+
+// Configure multer for profile picture uploads
+const profilePicStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, profilePicsDir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${req.user.userId}_${Date.now()}${ext}`);
+    }
+});
+
+const profilePicUpload = multer({
+    storage: profilePicStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'));
+    }
+});
+
 // Get user profile
 router.get('/profile', authenticateToken, (req, res) => {
     try {
-        const user = db.prepare('SELECT id, email, username, created_at, updated_at FROM users WHERE id = ?').get(req.user.userId);
+        const user = db.prepare('SELECT id, email, username, profile_picture, created_at, updated_at FROM users WHERE id = ?').get(req.user.userId);
         
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -81,7 +116,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
 
         db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...params);
 
-        const updatedUser = db.prepare('SELECT id, email, username, created_at, updated_at FROM users WHERE id = ?').get(userId);
+        const updatedUser = db.prepare('SELECT id, email, username, profile_picture, created_at, updated_at FROM users WHERE id = ?').get(userId);
 
         res.json({
             message: 'Profile updated successfully',
@@ -89,6 +124,72 @@ router.put('/profile', authenticateToken, async (req, res) => {
         });
     } catch (error) {
         console.error('Update profile error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Upload profile picture
+router.post('/profile/picture', authenticateToken, profilePicUpload.single('profilePicture'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const userId = req.user.userId;
+        const picturePath = `/profile_pictures/${req.file.filename}`;
+
+        // Get old profile picture to delete
+        const oldUser = db.prepare('SELECT profile_picture FROM users WHERE id = ?').get(userId);
+        
+        // Update user with new profile picture
+        db.prepare('UPDATE users SET profile_picture = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(picturePath, userId);
+
+        // Delete old profile picture if exists
+        if (oldUser && oldUser.profile_picture) {
+            const oldPicPath = path.join(__dirname, '..', oldUser.profile_picture);
+            if (fs.existsSync(oldPicPath)) {
+                fs.unlinkSync(oldPicPath);
+            }
+        }
+
+        const updatedUser = db.prepare('SELECT id, email, username, profile_picture, created_at, updated_at FROM users WHERE id = ?').get(userId);
+
+        res.json({
+            message: 'Profile picture updated successfully',
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error('Upload profile picture error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Delete profile picture
+router.delete('/profile/picture', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        // Get current profile picture
+        const user = db.prepare('SELECT profile_picture FROM users WHERE id = ?').get(userId);
+        
+        if (user && user.profile_picture) {
+            const picPath = path.join(__dirname, '..', user.profile_picture);
+            if (fs.existsSync(picPath)) {
+                fs.unlinkSync(picPath);
+            }
+        }
+
+        // Update user to remove profile picture
+        db.prepare('UPDATE users SET profile_picture = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(userId);
+
+        const updatedUser = db.prepare('SELECT id, email, username, profile_picture, created_at, updated_at FROM users WHERE id = ?').get(userId);
+
+        res.json({
+            message: 'Profile picture removed successfully',
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error('Delete profile picture error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

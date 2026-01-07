@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:5000';
+// In development, Vite proxy handles forwarding to backend
+// In production, requests go to same origin
+const API_URL = '';
 
 // Create axios instance with auth interceptor
 const api = axios.create({
@@ -65,6 +67,23 @@ export const deleteAccount = async (password) => {
 
 export const getImageHistory = async (page = 1, limit = 20) => {
   const response = await api.get(`/api/users/images?page=${page}&limit=${limit}`);
+  return response.data;
+};
+
+// Profile picture API calls
+export const uploadProfilePicture = async (file) => {
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+  const response = await api.post('/api/users/profile/picture', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const deleteProfilePicture = async () => {
+  const response = await api.delete('/api/users/profile/picture');
   return response.data;
 };
 
