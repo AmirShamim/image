@@ -97,18 +97,33 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
           {error && <div className="auth-error">{error}</div>}
           {success && <div className="auth-success">{success}</div>}
 
-          <div className="auth-field">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              required
-              autoComplete="email"
-            />
-          </div>
+          {mode === 'login' ? (
+            <div className="auth-field">
+              <label htmlFor="emailOrUsername">Email or Username</label>
+              <input
+                type="text"
+                id="emailOrUsername"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email or username"
+                required
+                autoComplete="username"
+              />
+            </div>
+          ) : (
+            <div className="auth-field">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                autoComplete="email"
+              />
+            </div>
+          )}
 
           {mode === 'register' && (
             <div className="auth-field">

@@ -70,6 +70,11 @@ export const getImageHistory = async (page = 1, limit = 20) => {
   return response.data;
 };
 
+export const deleteHistoryImage = async (imageId) => {
+  const response = await api.delete(`/api/users/images/${imageId}`);
+  return response.data;
+};
+
 // Profile picture API calls
 export const uploadProfilePicture = async (file) => {
   const formData = new FormData();

@@ -518,10 +518,35 @@
   padding: 12px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .history-icon {
   font-size: 24px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-thumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.history-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .history-details {
@@ -529,6 +554,7 @@
   flex-direction: column;
   gap: 3px;
   overflow: hidden;
+  flex: 1;
 }
 
 .history-filename {
@@ -542,6 +568,53 @@
 .history-meta {
   color: rgba(255, 255, 255, 0.5);
   font-size: 12px;
+}
+
+.history-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.history-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.history-action-btn.download {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.history-action-btn.download:hover {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.history-action-btn.delete {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.history-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.history-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-spinner.small {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
 }
 
 .history-pagination {
@@ -635,4 +708,115 @@
   justify-content: center;
   font-size: 12px;
   font-weight: 600;
+}
+
+/* Confirmation Dialog */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-dialog {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirm-dialog h3 {
+  color: white;
+  font-size: 20px;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.confirm-dialog p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.confirm-dialog p strong {
+  color: white;
+  font-weight: 600;
+}
+
+.confirm-dialog .warning-text {
+  color: #fca5a5;
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.confirm-dialog-actions button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.confirm-dialog-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.confirm-dialog-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.confirm-dialog-delete {
+  background: #ef4444;
+  color: white;
+}
+
+.confirm-dialog-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
 }

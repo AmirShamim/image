@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getProfile, getImageHistory } from '../services/auth';
+import { getProfile, getImageHistory, deleteHistoryImage } from '../services/auth';
 import './Auth.css';
 
 const UserProfile = ({ isOpen, onClose }) => {
@@ -34,6 +34,11 @@ const UserProfile = ({ isOpen, onClose }) => {
   
   // Profile picture upload
   const [uploadingPicture, setUploadingPicture] = useState(false);
+  
+  // Image deletion
+  const [deletingImageId, setDeletingImageId] = useState(null);
+  const [imageToDelete, setImageToDelete] = useState(null);
+  const [showDeleteImageConfirm, setShowDeleteImageConfirm] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -198,6 +203,43 @@ const UserProfile = ({ isOpen, onClose }) => {
       setError(err.message);
     } finally {
       setUploadingPicture(false);
+    }
+  };
+
+  const handleDownloadImage = (image) => {
+    if (image.cloud_url) {
+      // Open cloud URL in new tab to download
+      window.open(image.cloud_url, '_blank');
+    }
+  };
+
+  const handleDeleteImageClick = (image) => {
+    setImageToDelete(image);
+    setShowDeleteImageConfirm(true);
+  };
+
+  const handleCancelDeleteImage = () => {
+    setImageToDelete(null);
+    setShowDeleteImageConfirm(false);
+  };
+
+  const handleConfirmDeleteImage = async () => {
+    if (!imageToDelete) return;
+
+    setDeletingImageId(imageToDelete.id);
+    setShowDeleteImageConfirm(false);
+    
+    try {
+      await deleteHistoryImage(imageToDelete.id);
+      // Reload the history and profile stats
+      await loadImageHistory();
+      await loadProfile();
+      setSuccess('Image deleted successfully!');
+    } catch (err) {
+      setError(err.message || 'Failed to delete image');
+    } finally {
+      setDeletingImageId(null);
+      setImageToDelete(null);
     }
   };
 
@@ -407,14 +449,50 @@ const UserProfile = ({ isOpen, onClose }) => {
                   <div className="history-list">
                     {imageHistory.map((image) => (
                       <div key={image.id} className="history-item">
-                        <div className="history-icon">
-                          {image.operation === 'upscale' ? '🔍' : '📐'}
-                        </div>
+                        {image.cloud_url ? (
+                          <div className="history-thumbnail">
+                            <img src={image.cloud_url} alt={image.original_filename} />
+                          </div>
+                        ) : (
+                          <div className="history-icon">
+                            {image.operation === 'upscale' ? '🔍' : '📐'}
+                          </div>
+                        )}
                         <div className="history-details">
                           <span className="history-filename">{image.original_filename}</span>
                           <span className="history-meta">
                             {image.operation} • {formatDate(image.created_at)}
                           </span>
+                        </div>
+                        <div className="history-actions">
+                          {image.cloud_url && (
+                            <button 
+                              className="history-action-btn download"
+                              onClick={() => handleDownloadImage(image)}
+                              title="Download"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                            </button>
+                          )}
+                          <button 
+                            className="history-action-btn delete"
+                            onClick={() => handleDeleteImageClick(image)}
+                            disabled={deletingImageId === image.id}
+                            title="Delete"
+                          >
+                            {deletingImageId === image.id ? (
+                              <span className="auth-spinner small"></span>
+                            ) : (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            )}
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -453,6 +531,33 @@ const UserProfile = ({ isOpen, onClose }) => {
           </button>
         </div>
       </div>
+
+      {/* Delete Image Confirmation Dialog */}
+      {showDeleteImageConfirm && imageToDelete && (
+        <div className="confirm-dialog-overlay" onClick={handleCancelDeleteImage}>
+          <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Image?</h3>
+            <p>
+              Are you sure you want to delete <strong>{imageToDelete.original_filename}</strong>?
+            </p>
+            <p className="warning-text">This action cannot be undone.</p>
+            <div className="confirm-dialog-actions">
+              <button 
+                className="confirm-dialog-cancel"
+                onClick={handleCancelDeleteImage}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-dialog-delete"
+                onClick={handleConfirmDeleteImage}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
