@@ -1,17 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
+import UserProfile from './UserProfile';
 import './Header.css';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const location = useLocation();
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navLinks = [
     { path: '/', label: 'Home' },
@@ -86,13 +101,77 @@ const Header = () => {
             </button>
 
             {user ? (
-              <div className="user-menu">
-                <div className="user-avatar">
-                  {(user.name || user.email || 'U').charAt(0).toUpperCase()}
-                </div>
-                <button onClick={logout} className="logout-btn">
-                  Sign Out
+              <div className="user-menu" ref={dropdownRef}>
+                <button 
+                  className="user-avatar-btn"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                >
+                  {user.profile_picture ? (
+                    <img 
+                      src={user.profile_picture} 
+                      alt={user.username || 'Profile'} 
+                      className="user-avatar-img"
+                    />
+                  ) : (
+                    <div className="user-avatar">
+                      {(user.username || user.email || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <svg className={`dropdown-arrow ${userDropdownOpen ? 'open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
                 </button>
+                
+                {userDropdownOpen && (
+                  <div className="user-dropdown">
+                    <div className="user-dropdown-header">
+                      <span className="user-dropdown-name">{user.username || 'User'}</span>
+                      <span className="user-dropdown-email">{user.email}</span>
+                      <span className="user-dropdown-tier">{user.subscription_tier || 'Free'} Plan</span>
+                    </div>
+                    <div className="user-dropdown-divider" />
+                    <button 
+                      className="user-dropdown-item"
+                      onClick={() => {
+                        setProfileModalOpen(true);
+                        setUserDropdownOpen(false);
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      Profile & Settings
+                    </button>
+                    <Link 
+                      to="/pricing" 
+                      className="user-dropdown-item"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                      </svg>
+                      Upgrade Plan
+                    </Link>
+                    <div className="user-dropdown-divider" />
+                    <button 
+                      className="user-dropdown-item logout"
+                      onClick={() => {
+                        logout();
+                        setUserDropdownOpen(false);
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                      Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="auth-buttons">
@@ -122,6 +201,11 @@ const Header = () => {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         initialMode={authMode}
+      />
+
+      <UserProfile
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
       />
     </>
   );
