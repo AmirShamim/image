@@ -1,0 +1,156 @@
+.about-page {
+  min-height: 100vh;
+  padding-top: 60px;
+}
+
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.page-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.content-section {
+  margin-bottom: 3rem;
+}
+
+.content-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.content-section p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.feature-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: var(--accent-color);
+}
+
+.feature-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.feature-item h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.feature-item p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 3rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.cta-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.cta-section p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent-color);
+  color: #0f1117;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.cta-primary:hover {
+  opacity: 0.9;
+}
+
+.cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s ease;
+}
+
+.cta-secondary:hover {
+  border-color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .page-container {
+    padding: 40px 20px 60px;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .cta-section {
+    padding: 2rem;
+  }
+}

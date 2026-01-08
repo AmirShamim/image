@@ -9,17 +9,7 @@
   width: 100%;
   position: relative;
   overflow-x: hidden;
-}
-
-/* Dark Theme (Default) - Clean solid gradient */
-[data-theme="dark"] .app,
-.app {
-  background: linear-gradient(180deg, #1a1c2e 0%, #141520 100%);
-}
-
-/* Light Theme - Clean professional */
-[data-theme="light"] .app {
-  background: linear-gradient(180deg, #f8f9fb 0%, #eef0f4 100%);
+  background: var(--bg-primary);
 }
 
 /* Minimal accent background */

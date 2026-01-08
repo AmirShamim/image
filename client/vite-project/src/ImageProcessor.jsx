@@ -73,9 +73,42 @@ const ImageProcessor = () => {
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
   
   // Upscale model selection and usage tracking
-  const [upscaleModel, setUpscaleModel] = useState('4x');
+  const [upscaleModel, setUpscaleModel] = useState('4x'); // Scale: 2x, 3x, 4x
+  const [aiModelType, setAiModelType] = useState('realesrgan-fast'); // AI Model
   const [usage, setUsage] = useState({ upscale_2x: 0, upscale_4x: 0 });
   const [limits, setLimits] = useState({ upscale_2x: 5, upscale_4x: 3 });
+  
+  // AI Model configurations - Updated with Real-ESRGAN
+  const AI_MODELS = {
+    'realesrgan-fast': { 
+      name: 'Real-ESRGAN Fast', 
+      description: 'Good quality, fast', 
+      icon: '⚡', 
+      scales: ['2x', '3x', '4x'], 
+      tier: 'free' 
+    },
+    'realesrgan': { 
+      name: 'Real-ESRGAN', 
+      description: 'Best quality', 
+      icon: '✨', 
+      scales: ['4x'], 
+      tier: 'pro' 
+    },
+    'realesrgan-anime': { 
+      name: 'Real-ESRGAN Anime', 
+      description: 'Best for anime/art', 
+      icon: '🎨', 
+      scales: ['2x', '4x'], 
+      tier: 'free' 
+    },
+    'edsr': { 
+      name: 'EDSR (Legacy)', 
+      description: 'Good quality, slow', 
+      icon: '🐢', 
+      scales: ['2x', '4x'], 
+      tier: 'pro' 
+    }
+  };
   
   // Upscale validation
   const [upscaleError, setUpscaleError] = useState('');
@@ -129,6 +162,22 @@ const ImageProcessor = () => {
     const used = usage[modelKey] || 0;
     if (limit === -1) return '∞';
     return Math.max(0, limit - used);
+  };
+  
+  // Check if AI model type is available for user's tier
+  const canUseAiModelType = (modelType) => {
+    const modelInfo = AI_MODELS[modelType];
+    if (!modelInfo) return false;
+    if (modelInfo.tier === 'pro') {
+      const tier = user?.subscription_tier || 'guest';
+      return tier === 'pro' || tier === 'business';
+    }
+    return true;
+  };
+  
+  // Get available scales for current AI model
+  const getAvailableScales = () => {
+    return AI_MODELS[aiModelType]?.scales || ['2x', '4x'];
   };
   
   // Live preview
@@ -395,13 +444,20 @@ const ImageProcessor = () => {
       return;
     }
     
+    // Check AI model availability
+    if (!canUseAiModelType(aiModelType)) {
+      alert(`${AI_MODELS[aiModelType].name} model requires a Pro or Business subscription.`);
+      return;
+    }
+    
     setLoading(true);
     setProgress(0);
     setProgressStage('uploading');
 
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('model', upscaleModel);
+    formData.append('scale', upscaleModel);
+    formData.append('modelType', aiModelType);
     
     // Add fingerprint for guest users
     if (!user) {
@@ -838,33 +894,68 @@ const ImageProcessor = () => {
                 <div className={`upscale-info ${upscaleError ? 'disabled' : ''}`}>
                   <div className="info-icon">🤖</div>
                   
+                  {/* AI Model Type Selection */}
                   <div className="model-selection">
-                    <label>{t('upscale.selectModel')}:</label>
-                    <div className="model-buttons">
-                      <button
-                        className={`model-btn ${upscaleModel === '2x' ? 'active' : ''}`}
-                        onClick={() => setUpscaleModel('2x')}
-                        disabled={loading}
-                      >
-                        <div className="model-name">2x</div>
-                        <div className="model-uses">
-                          {getRemainingUses()} {limits.upscale_2x === -1 ? t('upscale.unlimited') : t('upscale.usesLeft')}
-                        </div>
-                      </button>
-                      <button
-                        className={`model-btn ${upscaleModel === '4x' ? 'active' : ''}`}
-                        onClick={() => setUpscaleModel('4x')}
-                        disabled={loading}
-                      >
-                        <div className="model-name">4x</div>
-                        <div className="model-uses">
-                          {upscaleModel === '4x' ? getRemainingUses() : limits.upscale_4x === -1 ? '∞' : (limits.upscale_4x - (usage.upscale_4x || 0))} {limits.upscale_4x === -1 ? t('upscale.unlimited') : t('upscale.usesLeft')}
-                        </div>
-                      </button>
+                    <label>AI Model:</label>
+                    <div className="model-buttons ai-model-buttons">
+                      {Object.entries(AI_MODELS).map(([key, model]) => {
+                        const isAvailable = canUseAiModelType(key);
+                        return (
+                          <button
+                            key={key}
+                            className={`model-btn ai-model-btn ${aiModelType === key ? 'active' : ''} ${!isAvailable ? 'locked' : ''}`}
+                            onClick={() => {
+                              if (isAvailable) {
+                                setAiModelType(key);
+                                // Reset scale if not available for this model
+                                const availableScales = model.scales;
+                                if (!availableScales.includes(upscaleModel)) {
+                                  setUpscaleModel(availableScales[0]);
+                                }
+                              }
+                            }}
+                            disabled={loading || !isAvailable}
+                            title={!isAvailable ? 'Requires Pro subscription' : model.description}
+                          >
+                            <div className="model-icon">{model.icon}</div>
+                            <div className="model-name">{model.name}</div>
+                            <div className="model-desc">{model.description}</div>
+                            {!isAvailable && <div className="lock-icon">🔒</div>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   
-                  <p>{t('upscale.description', { model: upscaleModel })}</p>
+                  {/* Scale Selection */}
+                  <div className="model-selection">
+                    <label>{t('upscale.selectModel')}:</label>
+                    <div className="model-buttons">
+                      {getAvailableScales().map((scale) => {
+                        const scaleNum = scale.replace('x', '');
+                        const modelKey = `upscale_${scaleNum}x`;
+                        const limit = limits[modelKey] || limits[`upscale_${scaleNum === '3' ? '2' : scaleNum}x`] || 5;
+                        const used = usage[modelKey] || usage[`upscale_${scaleNum === '3' ? '2' : scaleNum}x`] || 0;
+                        const remaining = limit === -1 ? '∞' : Math.max(0, limit - used);
+                        
+                        return (
+                          <button
+                            key={scale}
+                            className={`model-btn ${upscaleModel === scale ? 'active' : ''}`}
+                            onClick={() => setUpscaleModel(scale)}
+                            disabled={loading}
+                          >
+                            <div className="model-name">{scale}</div>
+                            <div className="model-uses">
+                              {remaining} {limit === -1 ? t('upscale.unlimited') : t('upscale.usesLeft')}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  <p>Using <strong>{AI_MODELS[aiModelType].name}</strong> model to upscale your image by <strong>{upscaleModel}</strong></p>
                   <div className="upscale-preview">
                     <div className="preview-box">
                       <span className="preview-label">{t('upscale.current')}</span>
@@ -873,7 +964,7 @@ const ImageProcessor = () => {
                     <div className="arrow">→</div>
                     <div className="preview-box result">
                       <span className="preview-label">{t('upscale.result')}</span>
-                      <span className="preview-size">{originalDimensions.width * (upscaleModel === '2x' ? 2 : 4)} × {originalDimensions.height * (upscaleModel === '2x' ? 2 : 4)}</span>
+                      <span className="preview-size">{originalDimensions.width * parseInt(upscaleModel)} × {originalDimensions.height * parseInt(upscaleModel)}</span>
                     </div>
                   </div>
                   <p className="warning">⚠️ {t('upscale.warning')}</p>
@@ -899,15 +990,15 @@ const ImageProcessor = () => {
                 )}
 
                 <button 
-                  className={`process-button upscale ${upscaleError ? 'disabled-error' : ''} ${!canUseUpscaleModel() ? 'disabled-limit' : ''}`}
+                  className={`process-button upscale ${upscaleError ? 'disabled-error' : ''} ${!canUseUpscaleModel() || !canUseAiModelType(aiModelType) ? 'disabled-limit' : ''}`}
                   onClick={handleUpscale}
-                  disabled={loading || !!upscaleError || !canUseUpscaleModel()}
-                  title={upscaleError || !canUseUpscaleModel() ? 'No remaining upscales for this model' : `Upscale image ${upscaleModel} using AI`}
+                  disabled={loading || !!upscaleError || !canUseUpscaleModel() || !canUseAiModelType(aiModelType)}
+                  title={upscaleError || !canUseUpscaleModel() ? 'No remaining upscales for this model' : `Upscale image ${upscaleModel} using ${AI_MODELS[aiModelType].name}`}
                 >
                   {loading ? (
                     <>
                       <span className="spinner"></span>
-                      {t('progress.processing')} {upscaleModel}... {Math.round(progress)}%
+                      {t('progress.processing')} {AI_MODELS[aiModelType].name} {upscaleModel}... {Math.round(progress)}%
                     </>
                   ) : upscaleError ? (
                     <>
@@ -922,7 +1013,7 @@ const ImageProcessor = () => {
                   ) : (
                     <>
                       <span>🚀</span>
-                      {t('upscale.button', { model: upscaleModel })}
+                      Upscale with {AI_MODELS[aiModelType].name} ({upscaleModel})
                     </>
                   )}
                 </button>

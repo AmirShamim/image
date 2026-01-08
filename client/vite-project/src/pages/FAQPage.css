@@ -1,0 +1,141 @@
+.faq-page {
+  min-height: 100vh;
+  padding-top: 60px;
+}
+
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.page-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.faq-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  gap: 1rem;
+}
+
+.faq-question span {
+  flex: 1;
+}
+
+.faq-question svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.faq-item.open .faq-question svg {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 200px;
+}
+
+.faq-answer p {
+  padding: 0 1.25rem 1rem;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.faq-contact {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.faq-contact h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.faq-contact p {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.contact-btn {
+  display: inline-block;
+  background: var(--accent-color);
+  color: #0f1117;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.contact-btn:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .page-container {
+    padding: 40px 20px 60px;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .faq-question {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
+}

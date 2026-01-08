@@ -1,0 +1,410 @@
+.api-page {
+  min-height: 100vh;
+  padding: 2rem;
+  padding-top: 80px; /* Space for fixed header */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 80px; /* Space for fixed header */
+}
+
+.api-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.api-header .back-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.api-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.api-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+[data-theme="dark"] .api-header p {
+  color: #aaa;
+}
+
+/* Tabs */
+.api-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 1rem;
+}
+
+[data-theme="dark"] .api-tabs {
+  border-color: #333;
+}
+
+.api-tabs button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #666;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.api-tabs button:hover {
+  background: #f0f0f0;
+}
+
+.api-tabs button.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+[data-theme="dark"] .api-tabs button {
+  color: #aaa;
+}
+
+[data-theme="dark"] .api-tabs button:hover {
+  background: #333;
+}
+
+/* Content */
+.api-content {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .api-content {
+  background: #1a1a2e;
+}
+
+.api-section {
+  margin-bottom: 2rem;
+}
+
+.api-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.api-section h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.api-section p {
+  line-height: 1.6;
+  color: #555;
+}
+
+[data-theme="dark"] .api-section p {
+  color: #bbb;
+}
+
+/* Code Blocks */
+.code-block {
+  background: #1e1e2e;
+  color: #a6e3a1;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 1rem 0;
+}
+
+/* Info Box */
+.info-box {
+  background: rgba(0, 198, 167, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--accent-color);
+}
+
+[data-theme="dark"] .info-box {
+  background: rgba(0, 198, 167, 0.05);
+}
+
+.info-box h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-color);
+}
+
+.info-box p {
+  margin: 0;
+}
+
+.info-box a {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Tables */
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.api-table th,
+.api-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.api-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .api-table th {
+  background: #252540;
+}
+
+[data-theme="dark"] .api-table td {
+  border-color: #333;
+}
+
+/* Endpoints */
+.endpoints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.endpoint-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+[data-theme="dark"] .endpoint-card {
+  background: #252540;
+  border-color: #333;
+}
+
+.endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.method-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.method-badge.get {
+  background: #4caf50;
+  color: white;
+}
+
+.method-badge.post {
+  background: #2196f3;
+  color: white;
+}
+
+.method-badge.put {
+  background: #ff9800;
+  color: white;
+}
+
+.method-badge.delete {
+  background: #f44336;
+  color: white;
+}
+
+.endpoint-path {
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  color: #333;
+}
+
+[data-theme="dark"] .endpoint-path {
+  color: #eee;
+}
+
+.endpoint-desc {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+[data-theme="dark"] .endpoint-desc {
+  color: #aaa;
+}
+
+.endpoint-params h4,
+.endpoint-example h4 {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.params-table th,
+.params-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+[data-theme="dark"] .params-table td {
+  border-color: #444;
+}
+
+.params-table code {
+  background: #e0e0e0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+[data-theme="dark"] .params-table code {
+  background: #333;
+}
+
+/* SDK Cards */
+.sdk-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sdk-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+[data-theme="dark"] .sdk-card {
+  background: #252540;
+  border-color: #333;
+}
+
+.sdk-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sdk-icon {
+  font-size: 1.5rem;
+}
+
+.sdk-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.sdk-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sdk-link:hover {
+  text-decoration: underline;
+}
+
+/* CTA Section */
+.api-cta {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.api-cta h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.api-cta p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.api-cta .cta-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: white;
+  color: #667eea;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: transform 0.3s ease;
+}
+
+.api-cta .cta-button:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .api-page {
+    padding: 1rem;
+  }
+
+  .api-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .api-tabs {
+    flex-wrap: wrap;
+  }
+
+  .api-tabs button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .api-content {
+    padding: 1rem;
+  }
+
+  .endpoint-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .api-table,
+  .params-table {
+    font-size: 0.8rem;
+  }
+
+  .api-cta {
+    padding: 2rem 1rem;
+  }
+}
