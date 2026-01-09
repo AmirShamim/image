@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -17,12 +19,20 @@ import UpscalePage from './pages/UpscalePage';
 import ResizePage from './pages/ResizePage';
 import ComingSoonPage from './pages/ComingSoonPage';
 
-function App() {
+// RTL languages
+const rtlLanguages = ['ar', 'he', 'fa', 'ur'];
+
+function AppContent() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const isRtl = rtlLanguages.includes(i18n.language);
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
   return (
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <div className="app">
+    <div className="app">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/tools" element={<ToolsPage />} />
@@ -43,7 +53,16 @@ function App() {
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
             </Routes>
-          </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

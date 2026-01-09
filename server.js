@@ -102,26 +102,144 @@ app.post('/get-dimensions', upload.single('image'), (req, res) => {
     });
 });
 
-// Upscale endpoint (AI-powered 2x/4x upscaling)
-app.post('/upscale', optionalAuth, upload.single('image'), (req, res) => {
+// Upscale endpoint (AI-powered 2x/3x/4x upscaling with model selection)
+app.post('/upscale', optionalAuth, upload.single('image'), async (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
     const originalFilename = req.file.originalname;
-    const model = req.body.model === '2x' ? '2x' : '4x'; // default to 4x
-    const outputPath = `processed/${req.file.filename}_upscaled_${model}.jpg`;
+    
+    // Parse scale (2x, 3x, 4x)
+    const scaleInput = req.body.scale || req.body.model || '2x';
+    const scale = scaleInput.replace('x', '');
+    const validScales = ['2', '3', '4'];
+    const finalScale = validScales.includes(scale) ? scale : '2';
+    
+    // Parse model type (realesrgan, realesrgan-fast, realesrgan-anime, edsr, fsrcnn, espcn)
+    const modelType = req.body.modelType || 'realesrgan-fast';
+    const validModels = ['realesrgan', 'realesrgan-fast', 'realesrgan-anime', 'edsr', 'fsrcnn', 'espcn'];
+    const finalModelType = validModels.includes(modelType) ? modelType : 'realesrgan-fast';
+    
+    const outputPath = `processed/${req.file.filename}_upscaled_${finalModelType}_${finalScale}x.jpg`;
 
-    // Usage limits (enforced in frontend, but double-check here)
+    // Get user info and limits
     let userId = req.user ? req.user.userId : null;
     let fingerprint = req.body.fingerprint || null;
+    let subscriptionTier = 'guest';
+    
+    // Get subscription tier for authenticated users
+    if (userId) {
+        try {
+            const user = db.prepare('SELECT subscription_tier FROM users WHERE id = ?').get(userId);
+            if (user && user.subscription_tier) {
+                subscriptionTier = user.subscription_tier;
+            }
+        } catch (err) {
+            console.error('Failed to get user subscription:', err);
+        }
+    }
 
-    // Call Python script with model param
+    // Get plan limits
+    const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get(subscriptionTier);
+    const dailyLimit = finalScale === '2' 
+        ? (plan?.upscale_2x_limit ?? 3) 
+        : (plan?.upscale_4x_limit ?? 1);
+    
+    // Check if Real-ESRGAN Pro is allowed for this tier
+    if (finalModelType === 'realesrgan' && !['pro', 'business'].includes(subscriptionTier)) {
+        fs.unlinkSync(inputPath);
+        return res.status(403).json({
+            error: 'Model not available',
+            message: 'Real-ESRGAN Pro model is only available for Pro and Business subscribers.',
+            upgradeUrl: '/pricing'
+        });
+    }
+    
+    // -1 means unlimited
+    if (dailyLimit !== -1) {
+        // Count today's usage
+        let usageCount = 0;
+        try {
+            if (userId) {
+                const result = db.prepare(`
+                    SELECT COUNT(*) as count FROM usage_tracking 
+                    WHERE user_id = ? AND model = ? AND date(created_at) = date('now')
+                `).get(userId, `${finalScale}x`);
+                usageCount = result?.count || 0;
+            } else if (fingerprint) {
+                const result = db.prepare(`
+                    SELECT COUNT(*) as count FROM usage_tracking 
+                    WHERE fingerprint = ? AND model = ? AND date(created_at) = date('now')
+                `).get(fingerprint, `${finalScale}x`);
+                usageCount = result?.count || 0;
+            }
+        } catch (err) {
+            console.error('Failed to check usage:', err);
+        }
+
+        // Enforce limit
+        if (usageCount >= dailyLimit) {
+            fs.unlinkSync(inputPath);
+            return res.status(429).json({
+                error: 'Daily limit reached',
+                message: `You've used all ${dailyLimit} ${finalScale}x upscales for today. Upgrade to Pro for more.`,
+                limit: dailyLimit,
+                used: usageCount,
+                upgradeUrl: '/pricing',
+                resetsAt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
+            });
+        }
+    }
+
+    // Check file size limits based on tier
+    const maxFileSizeMB = subscriptionTier === 'business' ? 100 : 
+                          subscriptionTier === 'pro' ? 25 : 
+                          subscriptionTier === 'free' ? 10 : 5;
+    
+    if (req.file.size > maxFileSizeMB * 1024 * 1024) {
+        fs.unlinkSync(inputPath);
+        return res.status(413).json({
+            error: 'File too large',
+            message: `Max file size for ${subscriptionTier} tier is ${maxFileSizeMB}MB. Upgrade for larger files.`,
+            maxSize: maxFileSizeMB * 1024 * 1024,
+            fileSize: req.file.size
+        });
+    }
+
+    // Check image dimensions for upscaling limits
+    // 4x: max 1024px, 3x: max 1536px, 2x: max 2048px
+    const sharp = require('sharp');
+    try {
+        const metadata = await sharp(inputPath).metadata();
+        const sizeLimits = { '4': 1024, '3': 1536, '2': 2048 };
+        const maxDimension = sizeLimits[finalScale] || 2048;
+        
+        if (metadata.width > maxDimension || metadata.height > maxDimension) {
+            fs.unlinkSync(inputPath);
+            return res.status(400).json({
+                error: 'Image too large for this scale',
+                message: `${finalScale}x upscaling requires images ≤${maxDimension}px. Your image is ${metadata.width}×${metadata.height}px. Use a smaller scale or resize first.`,
+                limit: maxDimension,
+                imageWidth: metadata.width,
+                imageHeight: metadata.height
+            });
+        }
+    } catch (err) {
+        console.error('Failed to check image dimensions:', err);
+        // Continue anyway if we can't check dimensions
+    }
+
+    // Call Python script with model type, scale, and tier
     const pythonProcess = spawn('python', [
         'upscale_script.py',
         inputPath,
         outputPath,
         'upscale',
-        JSON.stringify({ model })
+        JSON.stringify({ 
+            model: `${finalScale}x`, 
+            modelType: finalModelType,
+            tier: subscriptionTier 
+        })
     ]);
 
     pythonProcess.stdout.on('data', (data) => {
@@ -168,7 +286,7 @@ app.post('/upscale', optionalAuth, upload.single('image'), (req, res) => {
                     imageId,
                     req.user.userId,
                     originalFilename,
-                    `${req.file.filename}_upscaled_${model}.jpg`,
+                    `${req.file.filename}_upscaled_${finalModelType}_${finalScale}x.jpg`,
                     'upscale',
                     cloudUrl,
                     cloudPublicId
@@ -183,12 +301,12 @@ app.post('/upscale', optionalAuth, upload.single('image'), (req, res) => {
             db.prepare(`
                 INSERT INTO usage_tracking (user_id, fingerprint, operation, model, created_at)
                 VALUES (?, ?, 'upscale', ?, datetime('now'))
-            `).run(userId, fingerprint, model);
+            `).run(userId, fingerprint, `${finalScale}x`);
         } catch (err) {
             console.error('Failed to log usage:', err);
         }
 
-        res.download(outputPath, `upscaled_${model}_${originalFilename}`, (err) => {
+        res.download(outputPath, `upscaled_${finalModelType}_${finalScale}x_${originalFilename}`, (err) => {
             if (err) console.error(err);
             fs.unlinkSync(inputPath);
             // Clean up processed file after a delay (keep if not uploaded to cloud)

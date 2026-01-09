@@ -1,0 +1,12 @@
+# robots.txt for ImageStudio
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://imagestudio.app/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1
+
+# Block API endpoints
+Disallow: /api/

@@ -11,8 +11,8 @@ const HomePage = () => {
   const tools = [
     {
       id: 'upscale',
-      title: 'AI Upscaler',
-      description: 'Enlarge images up to 4x with AI enhancement.',
+      title: t('home.tools.upscale.title'),
+      description: t('home.tools.upscale.description'),
       path: '/upscale',
       available: true,
       icon: (
@@ -23,8 +23,8 @@ const HomePage = () => {
     },
     {
       id: 'resize',
-      title: 'Image Resizer',
-      description: 'Resize to any dimension for web or print.',
+      title: t('home.tools.resize.title'),
+      description: t('home.tools.resize.description'),
       path: '/resize',
       available: true,
       icon: (
@@ -35,8 +35,8 @@ const HomePage = () => {
     },
     {
       id: 'compress',
-      title: 'Compressor',
-      description: 'Reduce file size without quality loss.',
+      title: t('home.tools.compress.title'),
+      description: t('home.tools.compress.description'),
       path: '/compress',
       available: false,
       icon: (
@@ -47,8 +47,8 @@ const HomePage = () => {
     },
     {
       id: 'remove-bg',
-      title: 'Background Remover',
-      description: 'Remove backgrounds instantly with AI.',
+      title: t('home.tools.removeBg.title'),
+      description: t('home.tools.removeBg.description'),
       path: '/remove-background',
       available: false,
       icon: (
@@ -59,8 +59,8 @@ const HomePage = () => {
     },
     {
       id: 'convert',
-      title: 'Format Converter',
-      description: 'Convert between JPG, PNG, WebP, and more.',
+      title: t('home.tools.convert.title'),
+      description: t('home.tools.convert.description'),
       path: '/convert',
       available: false,
       icon: (
@@ -70,10 +70,10 @@ const HomePage = () => {
       )
     },
     {
-      id: 'batch',
-      title: 'Batch Processing',
-      description: 'Process multiple images at once.',
-      path: '/batch',
+      id: 'crop',
+      title: t('home.tools.crop.title'),
+      description: t('home.tools.crop.description'),
+      path: '/crop',
       available: false,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -85,8 +85,8 @@ const HomePage = () => {
 
   const features = [
     {
-      title: 'Fast Processing',
-      description: 'Optimized servers process your images in seconds.',
+      title: t('home.features.aiUpscale.title'),
+      description: t('home.features.aiUpscale.description'),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -94,8 +94,8 @@ const HomePage = () => {
       )
     },
     {
-      title: 'Secure & Private',
-      description: 'Images are encrypted and auto-deleted after processing.',
+      title: t('home.features.presets.title'),
+      description: t('home.features.presets.description'),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -103,8 +103,8 @@ const HomePage = () => {
       )
     },
     {
-      title: 'No Watermarks',
-      description: 'Download clean images without any branding.',
+      title: t('home.features.batch.title'),
+      description: t('home.features.batch.description'),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -112,8 +112,8 @@ const HomePage = () => {
       )
     },
     {
-      title: 'Mobile Friendly',
-      description: 'Works on desktop, tablet, and mobile devices.',
+      title: t('home.features.privacy.title'),
+      description: t('home.features.privacy.description'),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
@@ -129,22 +129,21 @@ const HomePage = () => {
       <section className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">
-            Professional Image Tools<br />
-            <span className="accent-text">Powered by AI</span>
+            {t('home.hero.title')}<br />
+            <span className="accent-text">{t('home.hero.subtitle')}</span>
           </h1>
           <p className="hero-subtitle">
-            Upscale, resize, and optimize your images with professional-grade tools.
-            Fast, secure, and easy to use.
+            {t('home.hero.description')}
           </p>
           <div className="hero-cta">
             <Link to="/upscale" className="cta-primary">
-              Try AI Upscaler
+              {t('home.hero.cta')}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>
             <Link to="/tools" className="cta-secondary">
-              View All Tools
+              {t('home.hero.ctaSecondary')}
             </Link>
           </div>
         </div>
@@ -153,8 +152,8 @@ const HomePage = () => {
       {/* Tools Grid Section */}
       <section className="tools-section">
         <div className="section-header">
-          <h2>Image Processing Tools</h2>
-          <p>Everything you need to edit and enhance your images</p>
+          <h2>{t('home.tools.title')}</h2>
+          <p>{t('tools.subtitle')}</p>
         </div>
         <div className="tools-grid">
           {tools.map((tool) => (
@@ -163,7 +162,7 @@ const HomePage = () => {
               key={tool.id} 
               className={`tool-card ${!tool.available ? 'coming-soon' : ''}`}
             >
-              {!tool.available && <span className="tool-badge">Coming Soon</span>}
+              {!tool.available && <span className="tool-badge">{t('tools.comingSoon')}</span>}
               <div className="tool-icon">{tool.icon}</div>
               <h3 className="tool-title">{tool.title}</h3>
               <p className="tool-description">{tool.description}</p>
@@ -175,8 +174,7 @@ const HomePage = () => {
       {/* Features Section */}
       <section className="features-section">
         <div className="section-header">
-          <h2>Why Choose ImageStudio?</h2>
-          <p>Built for professionals who need reliable tools</p>
+          <h2>{t('home.features.title')}</h2>
         </div>
         <div className="features-grid">
           {features.map((feature, index) => (
@@ -192,10 +190,10 @@ const HomePage = () => {
       {/* CTA Section */}
       <section className="cta-section">
         <div className="cta-content">
-          <h2>Ready to Get Started?</h2>
-          <p>Start processing your images for free today.</p>
+          <h2>{t('home.hero.cta')}</h2>
+          <p>{t('home.hero.description')}</p>
           <Link to="/upscale" className="cta-button">
-            Get Started
+            {t('header.getStarted')}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>

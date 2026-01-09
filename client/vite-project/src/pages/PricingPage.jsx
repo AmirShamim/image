@@ -1,54 +1,39 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './PricingPage.css';
 
 const PricingPage = () => {
+  const { t } = useTranslation();
   const [billingCycle, setBillingCycle] = useState('monthly');
   const { user } = useAuth();
 
   const plans = [
     {
-      name: 'Free',
+      name: t('pricing.plans.free.name'),
       price: { monthly: 0, yearly: 0 },
-      description: 'For trying out ImageStudio',
-      features: [
-        '3 AI upscales per day',
-        '2x upscaling',
-        'Unlimited resizing',
-        '10MB max file size',
-      ],
-      cta: 'Get Started',
+      description: t('pricing.plans.free.description'),
+      features: t('pricing.plans.free.features', { returnObjects: true }),
+      cta: t('pricing.getStarted'),
       highlighted: false
     },
     {
-      name: 'Pro',
+      name: t('pricing.plans.pro.name'),
       price: { monthly: 9, yearly: 90 },
-      description: 'For power users',
-      features: [
-        '50 AI upscales per day',
-        '2x and 4x upscaling',
-        'All image tools',
-        '25MB max file size',
-        'Priority processing',
-      ],
-      cta: 'Upgrade to Pro',
+      description: t('pricing.plans.pro.description'),
+      features: t('pricing.plans.pro.features', { returnObjects: true }),
+      cta: t('header.upgradePlan'),
       highlighted: true
     },
     {
-      name: 'Business',
+      name: t('pricing.plans.business.name'),
       price: { monthly: 29, yearly: 290 },
-      description: 'For teams',
-      features: [
-        'Unlimited AI upscales',
-        'All upscaling models',
-        'API access',
-        '100MB max file size',
-        'Priority support',
-      ],
-      cta: 'Contact Sales',
+      description: t('pricing.plans.business.description'),
+      features: t('pricing.plans.business.features', { returnObjects: true }),
+      cta: t('nav.contact'),
       highlighted: false
     }
   ];
@@ -59,19 +44,19 @@ const PricingPage = () => {
       
       <div className="page-container">
         <div className="page-header">
-          <h1>Pricing</h1>
-          <p>Simple, transparent pricing</p>
+          <h1>{t('pricing.title')}</h1>
+          <p>{t('pricing.subtitle')}</p>
         </div>
 
         <div className="billing-toggle">
-          <span className={billingCycle === 'monthly' ? 'active' : ''}>Monthly</span>
+          <span className={billingCycle === 'monthly' ? 'active' : ''}>{t('pricing.monthly')}</span>
           <button 
             className="toggle-switch"
             onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
           >
             <span className={`toggle-thumb ${billingCycle === 'yearly' ? 'yearly' : ''}`}></span>
           </button>
-          <span className={billingCycle === 'yearly' ? 'active' : ''}>Yearly</span>
+          <span className={billingCycle === 'yearly' ? 'active' : ''}>{t('pricing.yearly')}</span>
         </div>
 
         <div className="plans-grid">

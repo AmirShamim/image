@@ -1,103 +1,165 @@
 {
   "app": {
-    "title": "图像工作室",
+    "title": "ImageStudio",
     "subtitle": "专业图像处理",
-    "description": "使用AI技术调整和提升图像质量"
+    "description": "使用AI调整和增强图像"
+  },
+  "nav": {
+    "home": "首页",
+    "tools": "工具",
+    "pricing": "价格",
+    "api": "API",
+    "about": "关于",
+    "faq": "常见问题",
+    "contact": "联系我们"
   },
   "header": {
-    "batch": "批处理",
-    "language": "语言"
+    "batch": "批量处理",
+    "language": "语言",
+    "signIn": "登录",
+    "getStarted": "开始使用",
+    "profile": "个人资料与设置",
+    "upgradePlan": "升级计划",
+    "signOut": "退出"
   },
-  "tabs": {
-    "resize": "调整大小",
-    "upscale": "AI增强"
+  "home": {
+    "hero": {
+      "title": "专业图像工具",
+      "subtitle": "AI驱动",
+      "description": "AI放大、社交媒体尺寸调整、批量处理。快速、免费、无需注册。",
+      "cta": "开始处理",
+      "ctaSecondary": "查看所有工具"
+    },
+    "features": {
+      "title": "为什么选择ImageStudio？",
+      "aiUpscale": {
+        "title": "AI放大",
+        "description": "使用Real-ESRGAN技术将分辨率提高至4倍"
+      },
+      "presets": {
+        "title": "社交媒体预设",
+        "description": "一键调整Instagram、YouTube、Facebook、Twitter等尺寸"
+      },
+      "batch": {
+        "title": "批量处理",
+        "description": "一次处理多张图片。批量操作节省时间"
+      },
+      "privacy": {
+        "title": "隐私优先",
+        "description": "您的图片在1小时内处理并删除。我们从不存储您的文件"
+      }
+    }
   },
-  "upload": {
-    "title": "上传图片",
-    "dragDrop": "将图片拖放到这里",
-    "or": "或",
-    "browse": "浏览文件",
-    "pasteClipboard": "从剪贴板粘贴",
-    "formats": "支持格式：JPG、PNG、WEBP"
-  },
-  "resize": {
-    "settings": "调整大小选项",
-    "type": "调整方式",
-    "percentage": "百分比",
-    "pixels": "像素",
-    "width": "宽度",
-    "height": "高度",
-    "maintainAspect": "保持纵横比",
-    "quality": "质量",
-    "format": "输出格式",
-    "preset": "快速预设",
-    "newSize": "新尺寸",
-    "button": "调整图片大小"
+  "tools": {
+    "title": "所有图像工具",
+    "subtitle": "带AI功能的专业图像处理套件",
+    "available": "现已可用",
+    "comingSoon": "即将推出",
+    "tryNow": "立即尝试"
   },
   "upscale": {
+    "title": "AI图像放大器",
+    "subtitle": "使用AI驱动的放大技术增强您的图像",
     "selectModel": "选择AI模型",
+    "scaleFactor": "放大倍数",
     "usesLeft": "剩余次数",
-    "unlimited": "无限",
-    "description": "使用EDSR深度学习模型将图像放大{model}倍并保留细节。",
-    "current": "当前",
-    "result": "结果",
-    "warning": "对于大图像可能需要一些时间",
-    "button": "放大{model}",
-    "noUses": "无剩余次数",
-    "resolutionError": "分辨率过高"
+    "unlimited": "无限制",
+    "button": "{{scale}}倍放大",
+    "processing": "AI正在增强您的图像...",
+    "success": "图像放大成功！"
   },
-  "progress": {
-    "uploading": "上传中...",
-    "processing": "AI处理中...",
-    "downloading": "下载中..."
+  "resize": {
+    "title": "图像尺寸调整器",
+    "subtitle": "将图像调整为任意尺寸。",
+    "mode": {
+      "single": "单张图片",
+      "batch": "批量处理"
+    },
+    "settings": "调整设置",
+    "dimensions": "尺寸",
+    "percentage": "百分比",
+    "presets": "预设",
+    "width": "宽度",
+    "height": "高度",
+    "maintainAspect": "保持宽高比",
+    "quality": "质量",
+    "format": "输出格式",
+    "button": "调整图像大小"
+  },
+  "upload": {
+    "title": "上传图像",
+    "dragDrop": "将图像拖放到此处",
+    "orClick": "或点击浏览",
+    "browse": "选择图像",
+    "formats": "支持JPG、PNG、WebP、GIF",
+    "maxSize": "最大{{size}}MB"
   },
   "result": {
     "title": "结果",
-    "livePreview": "实时预览",
-    "previewNote": "降低分辨率的近似预览",
-    "compare": "对比",
-    "showResult": "显示结果",
+    "original": "原图",
+    "processed": "处理后",
     "download": "下载",
-    "copyClipboard": "复制",
-    "copied": "已复制！",
-    "clear": "清除"
+    "resizeAnother": "调整另一张",
+    "upscaleAnother": "放大另一张"
+  },
+  "pricing": {
+    "title": "简单透明的价格",
+    "subtitle": "选择适合您需求的计划。",
+    "monthly": "月付",
+    "yearly": "年付",
+    "perMonth": "/月",
+    "popular": "最受欢迎",
+    "choosePlan": "选择计划",
+    "getStarted": "免费开始"
+  },
+  "faq": {
+    "title": "常见问题",
+    "subtitle": "查找关于ImageStudio的常见问题答案"
+  },
+  "about": {
+    "title": "关于ImageStudio",
+    "subtitle": "为所有人提供的专业图像处理工具"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "有问题或反馈？我们很乐意听取您的意见。",
+    "form": {
+      "name": "您的姓名",
+      "email": "电子邮件",
+      "subject": "主题",
+      "message": "留言",
+      "submit": "发送消息",
+      "success": "消息发送成功！"
+    }
+  },
+  "footer": {
+    "tagline": "AI驱动的专业图像工具",
+    "product": "产品",
+    "resources": "资源",
+    "legal": "法律",
+    "copyright": "© {{year}} ImageStudio. 保留所有权利。"
   },
   "auth": {
     "signIn": "登录",
     "signUp": "注册",
     "signOut": "退出",
     "email": "电子邮件",
-    "username": "用户名",
-    "password": "密码",
-    "forgotPassword": "忘记密码？",
-    "noAccount": "没有账户？",
-    "haveAccount": "已有账户？",
-    "register": "注册",
-    "verifyEmail": "验证邮箱",
-    "verificationCode": "输入6位数字代码",
-    "resendCode": "重新发送代码",
-    "verify": "验证"
+    "password": "密码"
   },
-  "usage": {
-    "title": "使用情况",
-    "upgrade": "升级获取更多",
-    "remaining": "剩余"
+  "errors": {
+    "generic": "出了点问题。请重试。",
+    "network": "网络错误。请检查您的连接。"
   },
-  "plans": {
-    "guest": "访客",
-    "free": "免费",
-    "pro": "专业版",
-    "business": "商业版",
-    "mostPopular": "最受欢迎",
-    "perMonth": "/月",
-    "perYear": "/年",
-    "features": "功能",
-    "choose": "选择计划"
-  },
-  "shortcuts": {
-    "paste": "粘贴",
+  "common": {
+    "loading": "加载中...",
+    "processing": "处理中...",
+    "done": "完成",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
     "save": "保存",
-    "clear": "清除",
-    "switch": "切换模式"
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步"
   }
 }

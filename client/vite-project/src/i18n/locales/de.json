@@ -1,103 +1,165 @@
 {
   "app": {
-    "title": "Image Studio",
+    "title": "ImageStudio",
     "subtitle": "Professionelle Bildverarbeitung",
-    "description": "Bilder mit KI-Technologie skalieren und verbessern"
+    "description": "Bilder mit KI skalieren und verbessern"
+  },
+  "nav": {
+    "home": "Start",
+    "tools": "Werkzeuge",
+    "pricing": "Preise",
+    "api": "API",
+    "about": "Über uns",
+    "faq": "FAQ",
+    "contact": "Kontakt"
   },
   "header": {
     "batch": "Stapelverarbeitung",
-    "language": "Sprache"
+    "language": "Sprache",
+    "signIn": "Anmelden",
+    "getStarted": "Loslegen",
+    "profile": "Profil & Einstellungen",
+    "upgradePlan": "Plan upgraden",
+    "signOut": "Abmelden"
   },
-  "tabs": {
-    "resize": "Größe ändern",
-    "upscale": "KI-Verbesserung"
+  "home": {
+    "hero": {
+      "title": "Professionelle Bildwerkzeuge",
+      "subtitle": "KI-gestützt",
+      "description": "KI-Hochskalierung, Größenänderung für Social Media, Stapelverarbeitung. Schnell, kostenlos, ohne Registrierung.",
+      "cta": "Verarbeitung starten",
+      "ctaSecondary": "Alle Werkzeuge anzeigen"
+    },
+    "features": {
+      "title": "Warum ImageStudio wählen?",
+      "aiUpscale": {
+        "title": "KI-Hochskalierung",
+        "description": "Auflösung bis 4x mit Real-ESRGAN-Technologie verbessern"
+      },
+      "presets": {
+        "title": "Social Media Vorlagen",
+        "description": "Ein-Klick-Größenänderung für Instagram, YouTube, Facebook, Twitter und mehr"
+      },
+      "batch": {
+        "title": "Stapelverarbeitung",
+        "description": "Mehrere Bilder gleichzeitig verarbeiten. Zeit sparen mit Massenoperationen"
+      },
+      "privacy": {
+        "title": "Datenschutz zuerst",
+        "description": "Ihre Bilder werden verarbeitet und in 1 Stunde gelöscht. Wir speichern niemals Ihre Dateien"
+      }
+    }
   },
-  "upload": {
-    "title": "Bild hochladen",
-    "dragDrop": "Ziehen Sie Ihr Bild hierher",
-    "or": "oder",
-    "browse": "Dateien durchsuchen",
-    "pasteClipboard": "Aus Zwischenablage einfügen",
-    "formats": "Unterstützt: JPG, PNG, WEBP"
+  "tools": {
+    "title": "Alle Bildwerkzeuge",
+    "subtitle": "Professionelle Bildverarbeitungssuite mit KI-Funktionen",
+    "available": "Jetzt verfügbar",
+    "comingSoon": "Demnächst",
+    "tryNow": "Jetzt testen"
+  },
+  "upscale": {
+    "title": "KI-Bildvergrößerer",
+    "subtitle": "Verbessern Sie Ihre Bilder mit KI-gestützter Hochskalierung",
+    "selectModel": "KI-Modell auswählen",
+    "scaleFactor": "Skalierungsfaktor",
+    "usesLeft": "verbleibende Nutzungen",
+    "unlimited": "unbegrenzt",
+    "button": "{{scale}}x Hochskalieren",
+    "processing": "KI verbessert Ihr Bild...",
+    "success": "Bild erfolgreich hochskaliert!"
   },
   "resize": {
-    "settings": "Größenänderungsoptionen",
-    "type": "Größe ändern nach",
-    "percentage": "Prozentsatz",
-    "pixels": "Pixel",
+    "title": "Bildgrößenänderer",
+    "subtitle": "Ändern Sie die Größe Ihrer Bilder auf beliebige Dimensionen.",
+    "mode": {
+      "single": "Einzelbild",
+      "batch": "Stapelverarbeitung"
+    },
+    "settings": "Größeneinstellungen",
+    "dimensions": "Dimensionen",
+    "percentage": "Prozent",
+    "presets": "Vorlagen",
     "width": "Breite",
     "height": "Höhe",
     "maintainAspect": "Seitenverhältnis beibehalten",
     "quality": "Qualität",
     "format": "Ausgabeformat",
-    "preset": "Schnellvorlagen",
-    "newSize": "Neue Größe",
     "button": "Bildgröße ändern"
   },
-  "upscale": {
-    "selectModel": "KI-Modell auswählen",
-    "usesLeft": "verbleibende Nutzungen",
-    "unlimited": "unbegrenzt",
-    "description": "Verwendung des EDSR Deep-Learning-Modells zur Verbesserung Ihres Bildes um {model} unter Beibehaltung der Details.",
-    "current": "Aktuell",
-    "result": "Ergebnis",
-    "warning": "Dies kann bei großen Bildern einige Zeit dauern",
-    "button": "{model} verbessern",
-    "noUses": "Keine Nutzungen mehr",
-    "resolutionError": "Auflösung zu hoch"
-  },
-  "progress": {
-    "uploading": "Hochladen...",
-    "processing": "KI-Verarbeitung...",
-    "downloading": "Herunterladen..."
+  "upload": {
+    "title": "Bild hochladen",
+    "dragDrop": "Bild hier ablegen",
+    "orClick": "oder klicken zum Durchsuchen",
+    "browse": "Bild auswählen",
+    "formats": "Unterstützt JPG, PNG, WebP, GIF",
+    "maxSize": "Max {{size}}MB"
   },
   "result": {
     "title": "Ergebnis",
-    "livePreview": "Live-Vorschau",
-    "previewNote": "Ungefähre Vorschau bei reduzierter Auflösung",
-    "compare": "Vergleichen",
-    "showResult": "Ergebnis Anzeigen",
+    "original": "Original",
+    "processed": "Verarbeitet",
     "download": "Herunterladen",
-    "copyClipboard": "Kopieren",
-    "copied": "Kopiert!",
-    "clear": "Löschen"
+    "resizeAnother": "Anderes Bild skalieren",
+    "upscaleAnother": "Anderes Bild hochskalieren"
+  },
+  "pricing": {
+    "title": "Einfache, transparente Preise",
+    "subtitle": "Wählen Sie den Plan, der zu Ihren Bedürfnissen passt.",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "perMonth": "/Monat",
+    "popular": "Beliebteste",
+    "choosePlan": "Plan wählen",
+    "getStarted": "Kostenlos starten"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Finden Sie Antworten auf häufige Fragen zu ImageStudio"
+  },
+  "about": {
+    "title": "Über ImageStudio",
+    "subtitle": "Professionelle Bildverarbeitungswerkzeuge für alle"
+  },
+  "contact": {
+    "title": "Kontaktieren Sie uns",
+    "subtitle": "Haben Sie Fragen oder Feedback? Wir freuen uns von Ihnen zu hören.",
+    "form": {
+      "name": "Ihr Name",
+      "email": "E-Mail",
+      "subject": "Betreff",
+      "message": "Nachricht",
+      "submit": "Nachricht senden",
+      "success": "Nachricht erfolgreich gesendet!"
+    }
+  },
+  "footer": {
+    "tagline": "Professionelle KI-gestützte Bildwerkzeuge",
+    "product": "Produkt",
+    "resources": "Ressourcen",
+    "legal": "Rechtliches",
+    "copyright": "© {{year}} ImageStudio. Alle Rechte vorbehalten."
   },
   "auth": {
     "signIn": "Anmelden",
     "signUp": "Registrieren",
     "signOut": "Abmelden",
     "email": "E-Mail",
-    "username": "Benutzername",
-    "password": "Passwort",
-    "forgotPassword": "Passwort vergessen?",
-    "noAccount": "Kein Konto?",
-    "haveAccount": "Bereits ein Konto?",
-    "register": "Registrieren",
-    "verifyEmail": "E-Mail bestätigen",
-    "verificationCode": "6-stelligen Code eingeben",
-    "resendCode": "Code erneut senden",
-    "verify": "Bestätigen"
+    "password": "Passwort"
   },
-  "usage": {
-    "title": "Nutzung",
-    "upgrade": "Für mehr upgraden",
-    "remaining": "verbleibend"
+  "errors": {
+    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "network": "Netzwerkfehler. Überprüfen Sie Ihre Verbindung."
   },
-  "plans": {
-    "guest": "Gast",
-    "free": "Kostenlos",
-    "pro": "Pro",
-    "business": "Business",
-    "mostPopular": "Am beliebtesten",
-    "perMonth": "/Monat",
-    "perYear": "/Jahr",
-    "features": "Funktionen",
-    "choose": "Plan wählen"
-  },
-  "shortcuts": {
-    "paste": "Einfügen",
+  "common": {
+    "loading": "Laden...",
+    "processing": "Verarbeiten...",
+    "done": "Fertig",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
     "save": "Speichern",
-    "clear": "Löschen",
-    "switch": "Modus wechseln"
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter"
   }
 }

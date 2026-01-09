@@ -1,102 +1,423 @@
 {
   "app": {
-    "title": "Image Studio",
-    "subtitle": "Traitement d'Images Professionnel",
-    "description": "Redimensionnez et améliorez les images avec l'IA"
+    "title": "ImageStudio",
+    "subtitle": "Traitement Professionnel d'Images",
+    "description": "Redimensionnez et améliorez vos images avec l'IA"
+  },
+  "seo": {
+    "home": {
+      "title": "ImageStudio - Agrandisseur d'Images IA et Redimensionneur Gratuit",
+      "description": "Agrandissez vos images jusqu'à 4x avec l'IA. Redimensionnez pour Instagram, YouTube, Facebook. Gratuit, rapide, sans inscription."
+    },
+    "upscale": {
+      "title": "Agrandisseur d'Images IA - Améliorez vos Photos jusqu'à 4x | ImageStudio",
+      "description": "Agrandissement d'images IA gratuit avec Real-ESRGAN. Agrandissez vos photos sans perte de qualité. Sans filigrane."
+    },
+    "resize": {
+      "title": "Redimensionneur d'Images - Redimensionnez pour Toute Plateforme | ImageStudio",
+      "description": "Redimensionnez vos images pour Instagram, YouTube, Twitter, Facebook. Traitement par lots disponible. Outil en ligne gratuit."
+    },
+    "tools": {
+      "title": "Tous les Outils d'Images - Agrandir, Redimensionner, Convertir et Plus | ImageStudio",
+      "description": "Suite complète d'outils de traitement d'images. Agrandissement IA, redimensionnement, compression, conversion de formats."
+    }
+  },
+  "nav": {
+    "home": "Accueil",
+    "tools": "Outils",
+    "pricing": "Tarifs",
+    "api": "API",
+    "about": "À Propos",
+    "faq": "FAQ",
+    "contact": "Contact"
   },
   "header": {
     "batch": "Traitement par Lots",
-    "language": "Langue"
+    "language": "Langue",
+    "signIn": "Connexion",
+    "getStarted": "Commencer",
+    "profile": "Profil et Paramètres",
+    "upgradePlan": "Améliorer le Plan",
+    "signOut": "Déconnexion"
   },
-  "tabs": {
-    "resize": "Redimensionner",
-    "upscale": "Améliorer par IA"
+  "home": {
+    "hero": {
+      "title": "Outils d'Images Professionnels",
+      "subtitle": "Propulsé par l'IA",
+      "description": "Agrandissez avec l'IA, redimensionnez pour les réseaux sociaux, traitez par lots. Rapide, gratuit, sans inscription.",
+      "cta": "Commencer le Traitement",
+      "ctaSecondary": "Voir Tous les Outils"
+    },
+    "features": {
+      "title": "Pourquoi choisir ImageStudio?",
+      "aiUpscale": {
+        "title": "Agrandissement IA",
+        "description": "Améliorez la résolution jusqu'à 4x avec la technologie Real-ESRGAN"
+      },
+      "presets": {
+        "title": "Préréglages Réseaux Sociaux",
+        "description": "Redimensionnement en un clic pour Instagram, YouTube, Facebook, Twitter et plus"
+      },
+      "batch": {
+        "title": "Traitement par Lots",
+        "description": "Traitez plusieurs images à la fois. Gagnez du temps avec les opérations en masse"
+      },
+      "privacy": {
+        "title": "Confidentialité d'Abord",
+        "description": "Vos images sont traitées et supprimées en 1 heure. Nous ne stockons jamais vos fichiers"
+      }
+    },
+    "tools": {
+      "title": "Outils de Traitement d'Images",
+      "upscale": {
+        "title": "Agrandir IA",
+        "description": "Améliorez la résolution avec l'IA"
+      },
+      "resize": {
+        "title": "Redimensionner",
+        "description": "Changez les dimensions"
+      },
+      "compress": {
+        "title": "Compresser",
+        "description": "Réduisez la taille du fichier"
+      },
+      "convert": {
+        "title": "Convertir",
+        "description": "Changez le format"
+      },
+      "crop": {
+        "title": "Recadrer",
+        "description": "Recadrez vos images"
+      },
+      "removeBg": {
+        "title": "Supprimer le Fond",
+        "description": "Suppression de fond par IA"
+      }
+    },
+    "stats": {
+      "imagesProcessed": "Images Traitées",
+      "activeUsers": "Utilisateurs Actifs",
+      "uptime": "Disponibilité",
+      "satisfaction": "Satisfaction"
+    }
+  },
+  "tools": {
+    "title": "Tous les Outils d'Images",
+    "subtitle": "Suite professionnelle de traitement d'images avec fonctionnalités IA",
+    "available": "Disponible Maintenant",
+    "comingSoon": "Bientôt Disponible",
+    "tryNow": "Essayer Maintenant"
+  },
+  "upscale": {
+    "title": "Agrandisseur d'Images IA",
+    "subtitle": "Améliorez vos images avec l'agrandissement propulsé par l'IA",
+    "selectModel": "Sélectionner le Modèle IA",
+    "models": {
+      "realesrgan": {
+        "name": "Real-ESRGAN",
+        "description": "Meilleure qualité pour les photos"
+      },
+      "realesrganFast": {
+        "name": "Real-ESRGAN Rapide",
+        "description": "Traitement rapide, bonne qualité"
+      },
+      "realesrganAnime": {
+        "name": "Real-ESRGAN Anime",
+        "description": "Optimisé pour l'art et l'anime"
+      }
+    },
+    "scaleFactor": "Facteur d'Échelle",
+    "usesLeft": "utilisations restantes",
+    "unlimited": "illimité",
+    "warning": "Cela peut prendre du temps pour les grandes images",
+    "button": "Agrandir {{scale}}x",
+    "processing": "L'IA améliore votre image...",
+    "resolutionLimit": "La résolution de l'image est trop élevée. Maximum: {{max}}px pour l'agrandissement {{scale}}x",
+    "success": "Image agrandie avec succès!"
+  },
+  "resize": {
+    "title": "Redimensionneur d'Images",
+    "subtitle": "Redimensionnez vos images à n'importe quelle dimension. Parfait pour les réseaux sociaux, sites web ou impression.",
+    "mode": {
+      "single": "Image Unique",
+      "batch": "Traitement par Lots"
+    },
+    "settings": "Paramètres de Redimensionnement",
+    "dimensions": "Dimensions",
+    "percentage": "Pourcentage",
+    "presets": "Préréglages",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "widthPx": "Largeur (px)",
+    "heightPx": "Hauteur (px)",
+    "maintainAspect": "Conserver le ratio",
+    "quality": "Qualité",
+    "format": "Format de Sortie",
+    "button": "Redimensionner l'Image",
+    "buttonDimensions": "Redimensionner à {{width}} × {{height}}",
+    "presetsList": {
+      "instagramPost": "Publication Instagram",
+      "instagramStory": "Story Instagram",
+      "facebookCover": "Couverture Facebook",
+      "twitterHeader": "En-tête Twitter",
+      "youtubeThumbnail": "Miniature YouTube",
+      "hdVideo": "HD 1080p",
+      "uhd4k": "4K UHD",
+      "passport": "Photo Passeport"
+    },
+    "batch": {
+      "title": "Traitement par Lots",
+      "dropHere": "Déposez plusieurs images ici",
+      "selectImages": "Sélectionner des Images",
+      "settings": "Paramètres du Lot",
+      "settingsInfo": "Ces paramètres s'appliquent à toutes les images",
+      "quickPresets": "Préréglages Rapides",
+      "processAll": "Traiter {{count}} Images",
+      "processing": "Traitement {{current}}/{{total}}...",
+      "downloadAll": "Tout Télécharger (ZIP)",
+      "clearAll": "Tout Effacer",
+      "images": "{{count}} Images",
+      "completed": "{{count}} terminées"
+    }
   },
   "upload": {
     "title": "Télécharger une Image",
-    "dragDrop": "Glissez et déposez votre image ici",
-    "or": "ou",
-    "browse": "Parcourir les Fichiers",
+    "dragDrop": "Déposez votre image ici",
+    "dragDropMultiple": "Déposez plusieurs images ici",
+    "orClick": "ou cliquez pour parcourir",
+    "browse": "Sélectionner une Image",
+    "browseMultiple": "Sélectionner des Images",
     "pasteClipboard": "Coller depuis le presse-papiers",
-    "formats": "Supporté : JPG, PNG, WEBP"
-  },
-  "resize": {
-    "settings": "Paramètres de Redimensionnement",
-    "type": "Type de Redimensionnement",
-    "percentage": "Pourcentage",
-    "pixels": "Pixels Personnalisés",
-    "width": "Largeur",
-    "height": "Hauteur",
-    "maintainAspect": "Maintenir le Rapport d'Aspect",
-    "quality": "Qualité",
-    "format": "Format",
-    "preset": "Préréglages Rapides",
-    "button": "Redimensionner l'Image"
-  },
-  "upscale": {
-    "selectModel": "Sélectionner le Modèle IA",
-    "usesLeft": "utilisations restantes",
-    "unlimited": "illimité",
-    "description": "Utilisation du modèle d'apprentissage profond EDSR pour améliorer votre image {model} en préservant les détails.",
-    "current": "Actuel",
-    "result": "Résultat",
-    "warning": "Cela peut prendre du temps pour les grandes images",
-    "button": "Améliorer {model}",
-    "noUses": "Plus d'Utilisations",
-    "resolutionError": "Résolution Trop Élevée"
-  },
-  "progress": {
-    "uploading": "Téléchargement...",
-    "processing": "Traitement IA...",
-    "downloading": "Téléchargement..."
+    "formats": "Supporte JPG, PNG, WebP, GIF",
+    "maxSize": "Max {{size}}MB"
   },
   "result": {
     "title": "Résultat",
-    "livePreview": "Aperçu en Direct",
-    "previewNote": "Aperçu approximatif à résolution réduite",
-    "compare": "Comparer",
-    "showResult": "Afficher le Résultat",
+    "original": "Original",
+    "processed": "Traité",
+    "resized": "Redimensionné",
+    "upscaled": "Agrandi",
     "download": "Télécharger",
-    "copyClipboard": "Copier",
-    "copied": "Copié !",
-    "clear": "Effacer"
+    "resizeAnother": "Redimensionner une Autre",
+    "upscaleAnother": "Agrandir une Autre",
+    "compare": "Comparer",
+    "copyClipboard": "Copier dans le Presse-papiers",
+    "copied": "Copié!"
   },
-  "auth": {
-    "signIn": "Se Connecter",
-    "signUp": "S'Inscrire",
-    "signOut": "Se Déconnecter",
-    "email": "E-mail",
-    "username": "Nom d'Utilisateur",
-    "password": "Mot de Passe",
-    "forgotPassword": "Mot de passe oublié ?",
-    "noAccount": "Pas de compte ?",
-    "haveAccount": "Vous avez déjà un compte ?",
-    "register": "S'Inscrire",
-    "verifyEmail": "Vérifier l'E-mail",
-    "verificationCode": "Entrez le code à 6 chiffres",
-    "resendCode": "Renvoyer le Code",
-    "verify": "Vérifier"
-  },
-  "usage": {
-    "title": "Utilisation",
-    "upgrade": "Mettre à Niveau",
-    "remaining": "restantes"
-  },
-  "plans": {
-    "guest": "Invité",
-    "free": "Gratuit",
-    "pro": "Pro",
-    "business": "Entreprise",
-    "mostPopular": "Le Plus Populaire",
+  "pricing": {
+    "title": "Tarification Simple et Transparente",
+    "subtitle": "Choisissez le plan adapté à vos besoins. Passez à un plan supérieur ou inférieur à tout moment.",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "savePercent": "Économisez {{percent}}%",
     "perMonth": "/mois",
     "perYear": "/an",
-    "features": "Fonctionnalités",
-    "choose": "Choisir le Plan"
+    "popular": "Le Plus Populaire",
+    "currentPlan": "Plan Actuel",
+    "choosePlan": "Choisir le Plan",
+    "getStarted": "Commencer Gratuitement",
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "price": "0",
+        "description": "Parfait pour un usage occasionnel",
+        "features": [
+          "5 agrandissements IA par jour",
+          "20 redimensionnements par jour",
+          "Qualité de sortie basique",
+          "Vitesse de traitement standard",
+          "Support par email"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "9",
+        "description": "Pour les utilisateurs avancés et créateurs",
+        "features": [
+          "Agrandissements IA illimités",
+          "Redimensionnements illimités",
+          "Qualité de sortie maximale",
+          "Traitement prioritaire",
+          "Traitement par lots",
+          "Accès API",
+          "Support prioritaire"
+        ]
+      },
+      "business": {
+        "name": "Entreprise",
+        "price": "29",
+        "description": "Pour les équipes et entreprises",
+        "features": [
+          "Tout ce qui est dans Pro",
+          "Gestion d'équipe",
+          "Accès API avancé",
+          "Intégrations personnalisées",
+          "Support dédié",
+          "Garantie SLA",
+          "Facturation"
+        ]
+      }
+    }
   },
-  "shortcuts": {
-    "paste": "Coller",
+  "faq": {
+    "title": "Questions Fréquentes",
+    "subtitle": "Trouvez des réponses aux questions courantes sur ImageStudio",
+    "questions": {
+      "free": {
+        "q": "ImageStudio est-il gratuit?",
+        "a": "Oui! ImageStudio offre l'agrandissement IA et le redimensionnement d'images gratuitement sans inscription. Les utilisateurs gratuits ont 5 agrandissements IA et 20 redimensionnements par jour. Passez à Pro pour un accès illimité."
+      },
+      "aiUpscaling": {
+        "q": "Qu'est-ce que l'agrandissement d'images par IA?",
+        "a": "L'agrandissement par IA utilise des modèles d'apprentissage profond comme Real-ESRGAN pour augmenter intelligemment la résolution. Contrairement aux méthodes traditionnelles, l'IA préserve et améliore les détails, résultant en des images plus nettes et de meilleure qualité."
+      },
+      "formats": {
+        "q": "Quels formats d'images sont supportés?",
+        "a": "ImageStudio supporte les formats JPG, PNG, WebP et GIF en entrée et sortie. Vous pouvez aussi convertir entre formats pendant le traitement."
+      },
+      "privacy": {
+        "q": "Qu'arrive-t-il à mes images téléchargées?",
+        "a": "Votre confidentialité est notre priorité. Les images téléchargées sont traitées immédiatement et supprimées automatiquement en 1 heure. Nous ne stockons, partageons ou utilisons jamais vos images à d'autres fins."
+      },
+      "maxSize": {
+        "q": "Quelle est la taille maximale de fichier?",
+        "a": "Les utilisateurs gratuits peuvent télécharger des images jusqu'à 10MB. Les utilisateurs Pro peuvent télécharger jusqu'à 25MB. Pour l'agrandissement IA, il y a des limites de résolution pour assurer des résultats de qualité."
+      },
+      "batch": {
+        "q": "Puis-je traiter plusieurs images à la fois?",
+        "a": "Oui! Notre fonction de traitement par lots vous permet de redimensionner plusieurs images à la fois avec les mêmes paramètres. Téléchargez plusieurs fichiers et téléchargez-les tous dans un fichier ZIP."
+      },
+      "api": {
+        "q": "Offrez-vous une API?",
+        "a": "Oui, les utilisateurs Pro et Entreprise ont accès à notre API REST pour le traitement programmatique d'images. Consultez la documentation API pour les détails d'intégration."
+      },
+      "quality": {
+        "q": "Comment est la qualité de sortie?",
+        "a": "Nous utilisons Real-ESRGAN, l'un des meilleurs modèles d'agrandissement IA disponibles. Les résultats sont significativement meilleurs que les méthodes traditionnelles d'interpolation."
+      }
+    }
+  },
+  "about": {
+    "title": "À Propos d'ImageStudio",
+    "subtitle": "Outils professionnels de traitement d'images pour tous",
+    "mission": {
+      "title": "Notre Mission",
+      "description": "Fournir des outils de traitement d'images de niveau professionnel accessibles à tous. Nous croyons que l'amélioration d'images de haute qualité ne devrait pas nécessiter de logiciels coûteux ou d'expertise technique."
+    },
+    "technology": {
+      "title": "Technologie",
+      "description": "ImageStudio est propulsé par Real-ESRGAN, un modèle IA de pointe pour la super-résolution d'images. Combiné aux technologies web modernes, nous offrons des résultats rapides et de haute qualité directement dans votre navigateur."
+    },
+    "values": {
+      "privacy": {
+        "title": "Confidentialité d'Abord",
+        "description": "Vos images vous appartiennent. Nous traitons et supprimons, jamais nous ne stockons."
+      },
+      "quality": {
+        "title": "Focus sur la Qualité",
+        "description": "Nous utilisons les meilleurs modèles IA pour des résultats supérieurs."
+      },
+      "accessibility": {
+        "title": "Accessible",
+        "description": "Outils gratuits qui fonctionnent sur n'importe quel appareil, navigateur."
+      }
+    }
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Vous avez des questions ou des commentaires? Nous serions ravis de vous entendre.",
+    "form": {
+      "name": "Votre Nom",
+      "email": "Email",
+      "subject": "Sujet",
+      "message": "Message",
+      "submit": "Envoyer le Message",
+      "sending": "Envoi en cours...",
+      "success": "Message envoyé avec succès!",
+      "error": "Erreur lors de l'envoi. Veuillez réessayer."
+    },
+    "info": {
+      "email": "support@imagestudio.app",
+      "response": "Nous répondons généralement sous 24 heures"
+    }
+  },
+  "api": {
+    "title": "Documentation API",
+    "subtitle": "Intégrez ImageStudio dans vos applications",
+    "getAccess": "Obtenir l'Accès API",
+    "endpoints": {
+      "title": "Points d'Accès",
+      "upscale": "Agrandir l'Image",
+      "resize": "Redimensionner l'Image"
+    },
+    "authentication": {
+      "title": "Authentification",
+      "description": "Toutes les requêtes API nécessitent une clé API. Incluez-la dans l'en-tête Authorization."
+    },
+    "rateLimit": {
+      "title": "Limites de Taux",
+      "description": "Pro: 100 requêtes/heure. Entreprise: 1000 requêtes/heure."
+    }
+  },
+  "footer": {
+    "tagline": "Outils d'images professionnels propulsés par l'IA",
+    "product": "Produit",
+    "resources": "Ressources",
+    "legal": "Mentions Légales",
+    "copyright": "© {{year}} ImageStudio. Tous droits réservés."
+  },
+  "auth": {
+    "signIn": "Connexion",
+    "signUp": "Inscription",
+    "signOut": "Déconnexion",
+    "email": "Email",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le Mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "noAccount": "Vous n'avez pas de compte?",
+    "haveAccount": "Vous avez déjà un compte?",
+    "register": "S'inscrire",
+    "createAccount": "Créer un Compte",
+    "welcomeBack": "Bon Retour",
+    "verifyEmail": "Vérifier l'Email",
+    "verificationCode": "Entrez le code à 6 chiffres",
+    "resendCode": "Renvoyer le Code",
+    "verify": "Vérifier",
+    "checkEmail": "Vérifiez votre email pour le code de vérification"
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "network": "Erreur réseau. Vérifiez votre connexion.",
+    "fileSize": "Le fichier est trop volumineux. Taille max {{size}}MB.",
+    "fileType": "Type de fichier non supporté. Utilisez JPG, PNG, WebP ou GIF.",
+    "limitReached": "Limite quotidienne atteinte. Passez à Pro pour plus!",
+    "processing": "Erreur de traitement. Veuillez réessayer."
+  },
+  "common": {
+    "loading": "Chargement...",
+    "processing": "Traitement...",
+    "done": "Terminé",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
     "save": "Enregistrer",
-    "clear": "Effacer",
-    "switch": "Changer de Mode"
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "learnMore": "En Savoir Plus",
+    "viewAll": "Voir Tout",
+    "tryFree": "Essayer Gratuitement"
+  },
+  "comingSoon": {
+    "title": "Bientôt Disponible",
+    "subtitle": "Nous travaillons dur pour vous apporter cette fonctionnalité",
+    "notify": "Soyez notifié quand c'est prêt",
+    "emailPlaceholder": "Entrez votre email",
+    "notifyButton": "Me Notifier",
+    "exploreOther": "Explorer les Outils Disponibles"
   }
 }

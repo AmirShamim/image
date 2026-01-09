@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './ContactPage.css';
 
 const ContactPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,8 +34,8 @@ const ContactPage = () => {
       
       <div className="page-container">
         <div className="page-header">
-          <h1>Contact</h1>
-          <p>Get in touch with us</p>
+          <h1>{t('contact.title')}</h1>
+          <p>{t('contact.subtitle')}</p>
         </div>
 
         {submitted ? (
@@ -42,8 +44,8 @@ const ContactPage = () => {
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
               <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
-            <h3>Message Sent</h3>
-            <p>We'll get back to you within 24 hours.</p>
+            <h3>{t('contact.form.success')}</h3>
+            <p>{t('contact.info.response')}</p>
             <button 
               className="btn-secondary"
               onClick={() => {
@@ -51,14 +53,14 @@ const ContactPage = () => {
                 setFormData({ name: '', email: '', subject: '', message: '' });
               }}
             >
-              Send Another
+              {t('common.back')}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="contact-form">
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="name">Name</label>
+                <label htmlFor="name">{t('contact.form.name')}</label>
                 <input
                   type="text"
                   id="name"
@@ -66,11 +68,11 @@ const ContactPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  placeholder="Your name"
+                  placeholder={t('contact.form.name')}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t('contact.form.email')}</label>
                 <input
                   type="email"
                   id="email"
@@ -84,7 +86,7 @@ const ContactPage = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="subject">Subject</label>
+              <label htmlFor="subject">{t('contact.form.subject')}</label>
               <select
                 id="subject"
                 name="subject"
@@ -102,7 +104,7 @@ const ContactPage = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="message">Message</label>
+              <label htmlFor="message">{t('contact.form.message')}</label>
               <textarea
                 id="message"
                 name="message"
@@ -110,19 +112,19 @@ const ContactPage = () => {
                 onChange={handleChange}
                 required
                 rows="5"
-                placeholder="How can we help?"
+                placeholder={t('contact.form.message')}
               ></textarea>
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Sending...' : 'Send Message'}
+              {loading ? t('contact.form.sending') : t('contact.form.submit')}
             </button>
           </form>
         )}
 
         <div className="contact-info">
           <p>
-            For general inquiries: <a href="mailto:support@imagestudio.app">support@imagestudio.app</a>
+            {t('contact.info.email')}: <a href="mailto:support@imagestudio.app">support@imagestudio.app</a>
           </p>
         </div>
       </div>

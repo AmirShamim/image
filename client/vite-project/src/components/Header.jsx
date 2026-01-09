@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import UserProfile from './UserProfile';
+import LanguageSelector from './LanguageSelector';
 import './Header.css';
 
 const Header = () => {
+  const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
@@ -29,13 +32,13 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/tools', label: 'Tools' },
-    { path: '/pricing', label: 'Pricing' },
-    { path: '/api', label: 'API' },
-    { path: '/about', label: 'About' },
-    { path: '/faq', label: 'FAQ' },
-    { path: '/contact', label: 'Contact' }
+    { path: '/', label: t('nav.home') },
+    { path: '/tools', label: t('nav.tools') },
+    { path: '/pricing', label: t('nav.pricing') },
+    { path: '/api', label: t('nav.api') },
+    { path: '/about', label: t('nav.about') },
+    { path: '/faq', label: t('nav.faq') },
+    { path: '/contact', label: t('nav.contact') }
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -83,6 +86,8 @@ const Header = () => {
           </nav>
 
           <div className="header-actions">
+            <LanguageSelector />
+            
             <button 
               className="theme-toggle" 
               onClick={toggleTheme}
@@ -141,7 +146,7 @@ const Header = () => {
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                       </svg>
-                      Profile & Settings
+                      {t('header.profile')}
                     </button>
                     <Link 
                       to="/pricing" 
@@ -153,7 +158,7 @@ const Header = () => {
                         <path d="M2 17l10 5 10-5"/>
                         <path d="M2 12l10 5 10-5"/>
                       </svg>
-                      Upgrade Plan
+                      {t('header.upgradePlan')}
                     </Link>
                     <div className="user-dropdown-divider" />
                     <button 
@@ -168,7 +173,7 @@ const Header = () => {
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" y1="12" x2="9" y2="12"/>
                       </svg>
-                      Sign Out
+                      {t('header.signOut')}
                     </button>
                   </div>
                 )}
@@ -176,10 +181,10 @@ const Header = () => {
             ) : (
               <div className="auth-buttons">
                 <button onClick={() => openAuth('login')} className="login-btn">
-                  Sign In
+                  {t('header.signIn')}
                 </button>
                 <button onClick={() => openAuth('register')} className="signup-btn">
-                  Get Started
+                  {t('header.getStarted')}
                 </button>
               </div>
             )}

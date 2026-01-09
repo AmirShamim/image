@@ -1,31 +1,32 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './AboutPage.css';
 
 const AboutPage = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="about-page">
       <Header />
       
       <div className="page-container">
         <div className="page-header">
-          <h1>About ImageStudio</h1>
-          <p>Professional image processing tools for everyone</p>
+          <h1>{t('about.title')}</h1>
+          <p>{t('about.subtitle')}</p>
         </div>
 
         <section className="content-section">
-          <h2>Our Mission</h2>
+          <h2>{t('about.mission.title')}</h2>
           <p>
-            We're building accessible, professional-grade image editing tools powered by AI.
-            Our goal is to make powerful image processing available to everyone, regardless 
-            of technical skill or budget.
+            {t('about.mission.description')}
           </p>
         </section>
 
         <section className="content-section">
-          <h2>What We Offer</h2>
+          <h2>{t('about.technology.title')}</h2>
           <div className="features-list">
             <div className="feature-item">
               <div className="feature-icon">
@@ -34,8 +35,8 @@ const AboutPage = () => {
                 </svg>
               </div>
               <div>
-                <h3>AI Upscaling</h3>
-                <p>Enlarge images up to 4x using Real-ESRGAN technology.</p>
+                <h3>{t('home.features.aiUpscale.title')}</h3>
+                <p>{t('home.features.aiUpscale.description')}</p>
               </div>
             </div>
             <div className="feature-item">
@@ -45,8 +46,8 @@ const AboutPage = () => {
                 </svg>
               </div>
               <div>
-                <h3>Image Resizing</h3>
-                <p>Resize images to exact dimensions for any platform.</p>
+                <h3>{t('home.tools.resize.title')}</h3>
+                <p>{t('home.tools.resize.description')}</p>
               </div>
             </div>
             <div className="feature-item">
@@ -56,27 +57,26 @@ const AboutPage = () => {
                 </svg>
               </div>
               <div>
-                <h3>Privacy First</h3>
-                <p>Your images are encrypted and automatically deleted after processing.</p>
+                <h3>{t('home.features.privacy.title')}</h3>
+                <p>{t('home.features.privacy.description')}</p>
               </div>
             </div>
           </div>
         </section>
 
         <section className="content-section">
-          <h2>Technology</h2>
+          <h2>{t('about.technology.title')}</h2>
           <p>
-            Built with React, Node.js, and Python. Our AI upscaling uses Real-ESRGAN, 
-            a state-of-the-art super-resolution model that delivers professional results.
+            {t('about.technology.description')}
           </p>
         </section>
 
         <section className="cta-section">
-          <h2>Get Started</h2>
-          <p>Try our tools for free — no signup required.</p>
+          <h2>{t('header.getStarted')}</h2>
+          <p>{t('home.hero.description')}</p>
           <div className="cta-buttons">
-            <Link to="/upscale" className="cta-primary">Try AI Upscaler</Link>
-            <Link to="/tools" className="cta-secondary">View All Tools</Link>
+            <Link to="/upscale" className="cta-primary">{t('home.hero.cta')}</Link>
+            <Link to="/tools" className="cta-secondary">{t('home.hero.ctaSecondary')}</Link>
           </div>
         </section>
       </div>

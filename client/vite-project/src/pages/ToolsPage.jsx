@@ -112,8 +112,8 @@ const ToolsPage = () => {
       <Header />
       
       <div className="tools-header">
-        <h1>All Tools</h1>
-        <p>Professional image processing tools for every need</p>
+        <h1>{t('tools.title')}</h1>
+        <p>{t('tools.subtitle')}</p>
       </div>
 
       <div className="tools-grid">
@@ -123,7 +123,7 @@ const ToolsPage = () => {
             key={tool.id} 
             className={`tool-card ${!tool.available ? 'coming-soon' : ''}`}
           >
-            {!tool.available && <span className="tool-badge">Coming Soon</span>}
+            {!tool.available && <span className="tool-badge">{t('tools.comingSoon')}</span>}
             <div className="tool-icon">{tool.icon}</div>
             <h3 className="tool-title">{tool.title}</h3>
             <p className="tool-description">{tool.description}</p>

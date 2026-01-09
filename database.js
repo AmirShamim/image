@@ -143,10 +143,10 @@ try {
         db.exec(`
             INSERT INTO subscription_plans (id, name, price_monthly, price_yearly, upscale_2x_limit, upscale_4x_limit, max_resolution, batch_enabled, watermark, priority_queue)
             VALUES 
-                ('guest', 'Guest', 0, 0, 3, 1, 1080, 0, 1, 0),
-                ('free', 'Free', 0, 0, 10, 3, 2160, 0, 0, 0),
-                ('pro', 'Pro', 7.99, 59.99, -1, 30, 3840, 1, 0, 1),
-                ('business', 'Business', 24.99, 199.99, -1, -1, 3840, 1, 0, 1);
+                ('guest', 'Guest', 0, 0, 3, 1, 1080, 0, 0, 0),
+                ('free', 'Free', 0, 0, 5, 2, 2160, 0, 0, 0),
+                ('pro', 'Pro', 4.99, 49.99, 50, 20, 3840, 1, 0, 1),
+                ('business', 'Business', 14.99, 149.99, -1, 100, 7680, 1, 0, 1);
         `);
     }
 } catch (e) {

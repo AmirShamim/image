@@ -1,66 +1,370 @@
 {
   "app": {
-    "title": "Image Studio",
+    "title": "ImageStudio",
     "subtitle": "Professional Image Processing",
     "description": "Resize and upscale images with AI technology"
   },
+  "seo": {
+    "home": {
+      "title": "ImageStudio - Free AI Image Upscaler & Resizer",
+      "description": "Upscale images up to 4x with AI. Resize for Instagram, YouTube, Facebook. Free, fast, no signup required."
+    },
+    "upscale": {
+      "title": "AI Image Upscaler - Enhance Photos up to 4x | ImageStudio",
+      "description": "Free AI-powered image upscaling using Real-ESRGAN. Enlarge photos without losing quality. No watermarks."
+    },
+    "resize": {
+      "title": "Image Resizer - Resize Photos for Any Platform | ImageStudio",
+      "description": "Resize images for Instagram, YouTube, Twitter, Facebook. Batch processing available. Free online tool."
+    },
+    "tools": {
+      "title": "All Image Tools - Upscale, Resize, Convert & More | ImageStudio",
+      "description": "Complete suite of image processing tools. AI upscaling, resizing, compression, format conversion."
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "tools": "Tools",
+    "pricing": "Pricing",
+    "api": "API",
+    "about": "About",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
   "header": {
     "batch": "Batch Process",
-    "language": "Language"
+    "language": "Language",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "profile": "Profile & Settings",
+    "upgradePlan": "Upgrade Plan",
+    "signOut": "Sign Out"
   },
-  "tabs": {
-    "resize": "Resize",
-    "upscale": "AI Upscale"
+  "home": {
+    "hero": {
+      "title": "Professional Image Tools",
+      "subtitle": "AI-Powered",
+      "description": "Upscale images with AI, resize for social media, batch process files. Fast, free, no signup required.",
+      "cta": "Start Processing",
+      "ctaSecondary": "View All Tools"
+    },
+    "features": {
+      "title": "Why Choose ImageStudio?",
+      "aiUpscale": {
+        "title": "AI Upscaling",
+        "description": "Enhance image resolution up to 4x using Real-ESRGAN deep learning technology"
+      },
+      "presets": {
+        "title": "Social Media Presets",
+        "description": "One-click resize for Instagram, YouTube, Facebook, Twitter and more"
+      },
+      "batch": {
+        "title": "Batch Processing",
+        "description": "Process multiple images at once. Save time with bulk operations"
+      },
+      "privacy": {
+        "title": "Privacy First",
+        "description": "Your images are processed and deleted within 1 hour. We never store your files"
+      }
+    },
+    "tools": {
+      "title": "Image Processing Tools",
+      "upscale": {
+        "title": "AI Upscale",
+        "description": "Enhance resolution with AI"
+      },
+      "resize": {
+        "title": "Resize",
+        "description": "Change image dimensions"
+      },
+      "compress": {
+        "title": "Compress",
+        "description": "Reduce file size"
+      },
+      "convert": {
+        "title": "Convert",
+        "description": "Change image format"
+      },
+      "crop": {
+        "title": "Crop",
+        "description": "Trim your images"
+      },
+      "removeBg": {
+        "title": "Remove Background",
+        "description": "AI background removal"
+      }
+    },
+    "stats": {
+      "imagesProcessed": "Images Processed",
+      "activeUsers": "Active Users",
+      "uptime": "Uptime",
+      "satisfaction": "Satisfaction"
+    }
   },
-  "upload": {
-    "title": "Upload Image",
-    "dragDrop": "Drag & drop your image here",
-    "or": "or",
-    "browse": "Browse Files",
-    "pasteClipboard": "Paste from clipboard",
-    "formats": "Supported: JPG, PNG, WEBP"
+  "tools": {
+    "title": "All Image Tools",
+    "subtitle": "Professional image processing suite with AI-powered features",
+    "available": "Available Now",
+    "comingSoon": "Coming Soon",
+    "tryNow": "Try Now"
+  },
+  "upscale": {
+    "title": "AI Image Upscaler",
+    "subtitle": "Enhance your images with AI-powered upscaling",
+    "selectModel": "Select AI Model",
+    "models": {
+      "realesrgan": {
+        "name": "Real-ESRGAN",
+        "description": "Best quality for photos"
+      },
+      "realesrganFast": {
+        "name": "Real-ESRGAN Fast",
+        "description": "Quick processing, good quality"
+      },
+      "realesrganAnime": {
+        "name": "Real-ESRGAN Anime",
+        "description": "Optimized for artwork & anime"
+      }
+    },
+    "scaleFactor": "Scale Factor",
+    "usesLeft": "uses left",
+    "unlimited": "unlimited",
+    "warning": "This may take a while for large images",
+    "button": "Upscale {{scale}}x",
+    "processing": "AI is enhancing your image...",
+    "resolutionLimit": "Image resolution is too high. Maximum: {{max}}px for {{scale}}x upscaling",
+    "success": "Image upscaled successfully!"
   },
   "resize": {
-    "settings": "Resize Options",
-    "type": "Resize By",
+    "title": "Image Resizer",
+    "subtitle": "Resize your images to any dimension. Perfect for social media, websites, or printing.",
+    "mode": {
+      "single": "Single Image",
+      "batch": "Batch Process"
+    },
+    "settings": "Resize Settings",
+    "dimensions": "Dimensions",
     "percentage": "Percentage",
-    "pixels": "Pixels",
+    "presets": "Presets",
     "width": "Width",
     "height": "Height",
+    "widthPx": "Width (px)",
+    "heightPx": "Height (px)",
     "maintainAspect": "Maintain aspect ratio",
     "quality": "Quality",
     "format": "Output Format",
-    "preset": "Quick Presets",
-    "newSize": "New size",
-    "button": "Resize Image"
+    "button": "Resize Image",
+    "buttonDimensions": "Resize to {{width}} × {{height}}",
+    "presetsList": {
+      "instagramPost": "Instagram Post",
+      "instagramStory": "Instagram Story",
+      "facebookCover": "Facebook Cover",
+      "twitterHeader": "Twitter Header",
+      "youtubeThumbnail": "YouTube Thumbnail",
+      "hdVideo": "HD 1080p",
+      "uhd4k": "4K UHD",
+      "passport": "Passport Photo"
+    },
+    "batch": {
+      "title": "Batch Processing",
+      "dropHere": "Drop multiple images here",
+      "selectImages": "Select Images",
+      "settings": "Batch Settings",
+      "settingsInfo": "These settings apply to all images",
+      "quickPresets": "Quick Presets",
+      "processAll": "Process {{count}} Images",
+      "processing": "Processing {{current}}/{{total}}...",
+      "downloadAll": "Download All (ZIP)",
+      "clearAll": "Clear All",
+      "images": "{{count}} Images",
+      "completed": "{{count}} completed"
+    }
   },
-  "upscale": {
-    "selectModel": "Select AI Model",
-    "usesLeft": "uses left",
-    "unlimited": "unlimited",
-    "description": "Using EDSR deep learning model to upscale your image by {model} while preserving details.",
-    "current": "Current",
-    "result": "Result",
-    "warning": "This may take a while for large images",
-    "button": "Upscale {model}",
-    "noUses": "No Uses Remaining",
-    "resolutionError": "Resolution Too High"
-  },
-  "progress": {
-    "uploading": "Uploading...",
-    "processing": "AI Processing...",
-    "downloading": "Downloading..."
+  "upload": {
+    "title": "Upload Image",
+    "dragDrop": "Drop your image here",
+    "dragDropMultiple": "Drop multiple images here",
+    "orClick": "or click to browse",
+    "browse": "Select Image",
+    "browseMultiple": "Select Images",
+    "pasteClipboard": "Paste from clipboard",
+    "formats": "Supports JPG, PNG, WebP, GIF",
+    "maxSize": "Max {{size}}MB"
   },
   "result": {
     "title": "Result",
-    "livePreview": "Live Preview",
-    "previewNote": "Approximate preview at reduced resolution",
-    "compare": "Compare",
-    "showResult": "Show Result",
+    "original": "Original",
+    "processed": "Processed",
+    "resized": "Resized",
+    "upscaled": "Upscaled",
     "download": "Download",
-    "copyClipboard": "Copy",
-    "copied": "Copied!",
-    "clear": "Clear"
+    "resizeAnother": "Resize Another",
+    "upscaleAnother": "Upscale Another",
+    "compare": "Compare",
+    "copyClipboard": "Copy to Clipboard",
+    "copied": "Copied!"
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that fits your needs. Upgrade or downgrade anytime.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "savePercent": "Save {{percent}}%",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "popular": "Most Popular",
+    "currentPlan": "Current Plan",
+    "choosePlan": "Choose Plan",
+    "getStarted": "Get Started Free",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "0",
+        "description": "Perfect for occasional use",
+        "features": [
+          "5 AI upscales per day",
+          "20 image resizes per day",
+          "Basic quality output",
+          "Standard processing speed",
+          "Email support"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "9",
+        "description": "For power users and creators",
+        "features": [
+          "Unlimited AI upscales",
+          "Unlimited resizes",
+          "Maximum quality output",
+          "Priority processing",
+          "Batch processing",
+          "API access",
+          "Priority support"
+        ]
+      },
+      "business": {
+        "name": "Business",
+        "price": "29",
+        "description": "For teams and enterprises",
+        "features": [
+          "Everything in Pro",
+          "Team management",
+          "Advanced API access",
+          "Custom integrations",
+          "Dedicated support",
+          "SLA guarantee",
+          "Invoice billing"
+        ]
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about ImageStudio",
+    "questions": {
+      "free": {
+        "q": "Is ImageStudio free to use?",
+        "a": "Yes! ImageStudio offers free AI upscaling and image resizing with no signup required. Free users get 5 AI upscales and 20 resizes per day. Upgrade to Pro for unlimited access."
+      },
+      "aiUpscaling": {
+        "q": "What is AI image upscaling?",
+        "a": "AI image upscaling uses deep learning models like Real-ESRGAN to intelligently increase image resolution. Unlike traditional methods, AI preserves and even enhances details, resulting in sharper, higher-quality images."
+      },
+      "formats": {
+        "q": "What image formats are supported?",
+        "a": "ImageStudio supports JPG, PNG, WebP, and GIF formats for both input and output. You can also convert between formats during processing."
+      },
+      "privacy": {
+        "q": "What happens to my uploaded images?",
+        "a": "Your privacy is our priority. Uploaded images are processed immediately and automatically deleted within 1 hour. We never store, share, or use your images for any other purpose."
+      },
+      "maxSize": {
+        "q": "What is the maximum file size?",
+        "a": "Free users can upload images up to 10MB. Pro users can upload images up to 25MB. For AI upscaling, there are resolution limits to ensure quality results."
+      },
+      "batch": {
+        "q": "Can I process multiple images at once?",
+        "a": "Yes! Our batch processing feature lets you resize multiple images at once with the same settings. Upload multiple files and download them all as a ZIP archive."
+      },
+      "api": {
+        "q": "Do you offer an API?",
+        "a": "Yes, Pro and Business users have access to our REST API for programmatic image processing. Check the API documentation for integration details."
+      },
+      "quality": {
+        "q": "How is the output quality?",
+        "a": "We use Real-ESRGAN, one of the best AI upscaling models available. Results are significantly better than traditional bicubic or bilinear interpolation methods."
+      }
+    }
+  },
+  "about": {
+    "title": "About ImageStudio",
+    "subtitle": "Professional image processing tools for everyone",
+    "mission": {
+      "title": "Our Mission",
+      "description": "To provide professional-grade image processing tools that are accessible to everyone. We believe high-quality image enhancement shouldn't require expensive software or technical expertise."
+    },
+    "technology": {
+      "title": "Technology",
+      "description": "ImageStudio is powered by Real-ESRGAN, a state-of-the-art AI model for image super-resolution. Combined with modern web technologies, we deliver fast, high-quality results directly in your browser."
+    },
+    "values": {
+      "privacy": {
+        "title": "Privacy First",
+        "description": "Your images are yours. We process and delete, never store."
+      },
+      "quality": {
+        "title": "Quality Focus",
+        "description": "We use the best AI models for superior results."
+      },
+      "accessibility": {
+        "title": "Accessible",
+        "description": "Free tools that work on any device, any browser."
+      }
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have questions or feedback? We'd love to hear from you.",
+    "form": {
+      "name": "Your Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Failed to send message. Please try again."
+    },
+    "info": {
+      "email": "support@imagestudio.app",
+      "response": "We typically respond within 24 hours"
+    }
+  },
+  "api": {
+    "title": "API Documentation",
+    "subtitle": "Integrate ImageStudio into your applications",
+    "getAccess": "Get API Access",
+    "endpoints": {
+      "title": "Endpoints",
+      "upscale": "Upscale Image",
+      "resize": "Resize Image"
+    },
+    "authentication": {
+      "title": "Authentication",
+      "description": "All API requests require an API key. Include it in the Authorization header."
+    },
+    "rateLimit": {
+      "title": "Rate Limits",
+      "description": "Pro: 100 requests/hour. Business: 1000 requests/hour."
+    }
+  },
+  "footer": {
+    "tagline": "Professional image tools powered by AI",
+    "product": "Product",
+    "resources": "Resources",
+    "legal": "Legal",
+    "copyright": "© {{year}} ImageStudio. All rights reserved."
   },
   "auth": {
     "signIn": "Sign In",
@@ -69,35 +373,51 @@
     "email": "Email",
     "username": "Username",
     "password": "Password",
+    "confirmPassword": "Confirm Password",
     "forgotPassword": "Forgot Password?",
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
     "register": "Register",
+    "createAccount": "Create Account",
+    "welcomeBack": "Welcome Back",
     "verifyEmail": "Verify Email",
     "verificationCode": "Enter 6-digit code",
     "resendCode": "Resend Code",
-    "verify": "Verify"
+    "verify": "Verify",
+    "checkEmail": "Check your email for the verification code"
   },
-  "usage": {
-    "title": "Usage",
-    "upgrade": "Upgrade for More",
-    "remaining": "remaining"
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "fileSize": "File is too large. Maximum size is {{size}}MB.",
+    "fileType": "File type not supported. Please use JPG, PNG, WebP, or GIF.",
+    "limitReached": "Daily limit reached. Upgrade for more!",
+    "processing": "Error processing image. Please try again."
   },
-  "plans": {
-    "guest": "Guest",
-    "free": "Free",
-    "pro": "Pro",
-    "business": "Business",
-    "mostPopular": "Most Popular",
-    "perMonth": "/month",
-    "perYear": "/year",
-    "features": "Features",
-    "choose": "Choose Plan"
-  },
-  "shortcuts": {
-    "paste": "Paste",
+  "common": {
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "done": "Done",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
     "save": "Save",
-    "clear": "Clear",
-    "switch": "Switch Mode"
+    "delete": "Delete",
+    "remove": "Remove",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "tryFree": "Try Free"
+  },
+  "comingSoon": {
+    "title": "Coming Soon",
+    "subtitle": "We're working hard to bring you this feature",
+    "notify": "Get notified when it's ready",
+    "emailPlaceholder": "Enter your email",
+    "notifyButton": "Notify Me",
+    "exploreOther": "Explore Available Tools"
   }
 }

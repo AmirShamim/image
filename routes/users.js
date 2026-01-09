@@ -334,4 +334,114 @@ router.delete('/images/:imageId', authenticateToken, async (req, res) => {
     }
 });
 
+// Get usage stats and remaining limits
+router.get('/usage', authenticateToken, (req, res) => {
+    try {
+        const userId = req.user.userId;
+        
+        // Get user subscription tier
+        const user = db.prepare('SELECT subscription_tier, subscription_expires FROM users WHERE id = ?').get(userId);
+        const tier = user?.subscription_tier || 'free';
+        
+        // Check if subscription is expired
+        let activeTier = tier;
+        if (user?.subscription_expires && new Date(user.subscription_expires) < new Date()) {
+            activeTier = 'free';
+        }
+        
+        // Get plan limits
+        const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get(activeTier);
+        
+        // Get today's usage
+        const usage2x = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE user_id = ? AND model = '2x' AND date(created_at) = date('now')
+        `).get(userId);
+        
+        const usage4x = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE user_id = ? AND model = '4x' AND date(created_at) = date('now')
+        `).get(userId);
+        
+        // Get this month's total usage
+        const monthlyUsage = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE user_id = ? AND date(created_at) >= date('now', 'start of month')
+        `).get(userId);
+        
+        res.json({
+            tier: activeTier,
+            plan: plan ? {
+                name: plan.name,
+                priceMonthly: plan.price_monthly,
+                priceYearly: plan.price_yearly,
+                maxResolution: plan.max_resolution,
+                batchEnabled: plan.batch_enabled === 1,
+                priorityQueue: plan.priority_queue === 1
+            } : null,
+            usage: {
+                today: {
+                    upscale2x: { used: usage2x?.count || 0, limit: plan?.upscale_2x_limit ?? 5 },
+                    upscale4x: { used: usage4x?.count || 0, limit: plan?.upscale_4x_limit ?? 2 }
+                },
+                thisMonth: monthlyUsage?.count || 0
+            },
+            limits: {
+                upscale2x: plan?.upscale_2x_limit ?? 5,
+                upscale4x: plan?.upscale_4x_limit ?? 2,
+                maxFileSizeMB: activeTier === 'business' ? 100 : activeTier === 'pro' ? 25 : 10
+            },
+            subscriptionExpires: user?.subscription_expires,
+            resetsAt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
+        });
+    } catch (error) {
+        console.error('Get usage error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get usage for guest (by fingerprint)
+router.post('/guest-usage', (req, res) => {
+    try {
+        const { fingerprint } = req.body;
+        
+        if (!fingerprint) {
+            return res.status(400).json({ error: 'Fingerprint required' });
+        }
+        
+        // Get guest plan limits
+        const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get('guest');
+        
+        // Get today's usage
+        const usage2x = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE fingerprint = ? AND model = '2x' AND date(created_at) = date('now')
+        `).get(fingerprint);
+        
+        const usage4x = db.prepare(`
+            SELECT COUNT(*) as count FROM usage_tracking 
+            WHERE fingerprint = ? AND model = '4x' AND date(created_at) = date('now')
+        `).get(fingerprint);
+        
+        res.json({
+            tier: 'guest',
+            usage: {
+                today: {
+                    upscale2x: { used: usage2x?.count || 0, limit: plan?.upscale_2x_limit ?? 3 },
+                    upscale4x: { used: usage4x?.count || 0, limit: plan?.upscale_4x_limit ?? 1 }
+                }
+            },
+            limits: {
+                upscale2x: plan?.upscale_2x_limit ?? 3,
+                upscale4x: plan?.upscale_4x_limit ?? 1,
+                maxFileSizeMB: 5
+            },
+            resetsAt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
+        });
+    } catch (error) {
+        console.error('Get guest usage error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;

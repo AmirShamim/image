@@ -1,23 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './Footer.css';
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     product: [
-      { label: 'All Tools', path: '/tools' },
-      { label: 'AI Upscaler', path: '/upscale' },
-      { label: 'Image Resizer', path: '/resize' },
-      { label: 'Compressor', path: '/compress' },
-      { label: 'Pricing', path: '/pricing' }
+      { label: t('tools.title'), path: '/tools' },
+      { label: t('home.tools.upscale.title'), path: '/upscale' },
+      { label: t('home.tools.resize.title'), path: '/resize' },
+      { label: t('home.tools.compress.title'), path: '/compress' },
+      { label: t('nav.pricing'), path: '/pricing' }
     ],
     resources: [
-      { label: 'API Documentation', path: '/api' },
-      { label: 'FAQ', path: '/faq' },
-      { label: 'About', path: '/about' },
-      { label: 'Contact', path: '/contact' }
+      { label: t('api.title'), path: '/api' },
+      { label: t('nav.faq'), path: '/faq' },
+      { label: t('nav.about'), path: '/about' },
+      { label: t('nav.contact'), path: '/contact' }
     ],
     legal: [
       { label: 'Privacy Policy', path: '/privacy' },
@@ -47,13 +49,13 @@ const Footer = () => {
               <span className="logo-text">ImageStudio</span>
             </Link>
             <p className="footer-tagline">
-              Professional image processing tools powered by AI.
+              {t('footer.tagline')}
             </p>
           </div>
 
           <div className="footer-links">
             <div className="footer-column">
-              <h4>Product</h4>
+              <h4>{t('footer.product')}</h4>
               <ul>
                 {footerLinks.product.map((link, index) => (
                   <li key={index}>
@@ -64,7 +66,7 @@ const Footer = () => {
             </div>
 
             <div className="footer-column">
-              <h4>Resources</h4>
+              <h4>{t('footer.resources')}</h4>
               <ul>
                 {footerLinks.resources.map((link, index) => (
                   <li key={index}>
@@ -75,7 +77,7 @@ const Footer = () => {
             </div>
 
             <div className="footer-column">
-              <h4>Legal</h4>
+              <h4>{t('footer.legal')}</h4>
               <ul>
                 {footerLinks.legal.map((link, index) => (
                   <li key={index}>
@@ -89,7 +91,7 @@ const Footer = () => {
 
         <div className="footer-bottom">
           <p className="copyright">
-            © {currentYear} ImageStudio. All rights reserved.
+            {t('footer.copyright', { year: currentYear })}
           </p>
         </div>
       </div>

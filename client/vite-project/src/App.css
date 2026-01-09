@@ -12,6 +12,40 @@
   background: var(--bg-primary);
 }
 
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .hero-cta,
+[dir="rtl"] .auth-buttons,
+[dir="rtl"] .header-actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .cta-primary svg,
+[dir="rtl"] .cta-button svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .nav-links {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .footer-links {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .user-dropdown {
+  left: 0;
+  right: auto;
+}
+
+[dir="rtl"] .dropdown-arrow {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
 /* Minimal accent background */
 .background-shapes {
   display: none;
