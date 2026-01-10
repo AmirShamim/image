@@ -284,6 +284,19 @@
   margin-top: 0.25rem;
 }
 
+.user-dropdown-tier.admin-tier {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
+.admin-crown {
+  margin-left: 0.25rem;
+  font-size: 0.85em;
+}
+
 .user-dropdown-divider {
   height: 1px;
   background: var(--border-color);

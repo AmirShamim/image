@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
+import ScrollToTop from './components/ScrollToTop';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -33,7 +35,8 @@ function AppContent() {
 
   return (
     <div className="app">
-            <Routes>
+      <ScrollToTop />
+      <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/tools" element={<ToolsPage />} />
               <Route path="/upscale" element={<UpscalePage />} />
@@ -62,7 +65,9 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <AppContent />
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

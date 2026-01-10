@@ -1,6 +1,24 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import axios from 'axios';
 import JSZip from 'jszip';
+import ImageComparison from './ImageComparison';
+import { useAuth } from '../context/AuthContext';
+import {
+  getProcessingCount,
+  incrementProcessingCount,
+  canProcessImages,
+  getRemainingCount,
+  getDailyLimit,
+  saveProcessedImages,
+  getProcessedImages,
+  clearProcessedImages,
+  hasCachedImages,
+  setBatchInProgress,
+  isBatchInProgress,
+  blobToBase64,
+  setUserTier,
+  isAdminUser,
+} from '../utils/storageUtils';
 import './BatchProcessor.css';
 
 const API_URL = '';
@@ -42,6 +60,7 @@ const PRESET_SIZES = {
 };
 
 const BatchProcessor = ({ isOpen, onClose }) => {
+  const { user, isAdmin, isPremium, canBypassLimits } = useAuth();
   const [images, setImages] = useState([]);
   const [globalSettings, setGlobalSettings] = useState({
     resizeType: 'percentage',
@@ -58,6 +77,56 @@ const BatchProcessor = ({ isOpen, onClose }) => {
   const [showPresets, setShowPresets] = useState(false);
   const [presetCategory, setPresetCategory] = useState('social');
   const fileInputRef = useRef(null);
+
+  // Rate limiting and caching state
+  const [remainingCount, setRemainingCount] = useState(getRemainingCount());
+  const [showCachedNotice, setShowCachedNotice] = useState(false);
+  const [cachedImages, setCachedImages] = useState([]);
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonImage, setComparisonImage] = useState(null);
+
+  // Sync user tier with storage for rate limiting
+  useEffect(() => {
+    if (user) {
+      if (isAdmin) {
+        setUserTier('admin');
+      } else if (user.subscription_tier === 'enterprise') {
+        setUserTier('enterprise');
+      } else if (user.subscription_tier === 'pro' || isPremium) {
+        setUserTier('pro');
+      } else {
+        setUserTier('free');
+      }
+    } else {
+      setUserTier('free');
+    }
+  }, [user, isAdmin, isPremium]);
+
+  // Load cached images and check limits on mount
+  useEffect(() => {
+    if (isOpen) {
+      // Admin/Premium users bypass limits
+      if (canBypassLimits) {
+        setRemainingCount(Infinity);
+        setHasReachedLimit(false);
+      } else {
+        setRemainingCount(getRemainingCount());
+        setHasReachedLimit(getRemainingCount() === 0);
+      }
+
+      if (hasCachedImages()) {
+        const cached = getProcessedImages();
+        setCachedImages(cached);
+        setShowCachedNotice(true);
+      }
+
+      // Check if a batch was interrupted
+      if (isBatchInProgress()) {
+        setBatchInProgress(false);
+      }
+    }
+  }, [isOpen, canBypassLimits]);
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -176,11 +245,25 @@ const BatchProcessor = ({ isOpen, onClose }) => {
   };
 
   const processImages = async () => {
+    // Prevent processing if already in progress
+    if (processing) {
+      return;
+    }
+
+    // Check rate limit before processing (admins/premium users bypass)
+    if (!canBypassLimits && !canProcessImages(images.length)) {
+      setHasReachedLimit(true);
+      alert(`Daily limit reached! You can only process ${getDailyLimit()} images per day. You have ${getRemainingCount()} remaining.`);
+      return;
+    }
+
     setProcessing(true);
+    setBatchInProgress(true);
     setProcessedCount(0);
 
     const zip = new JSZip();
-    
+    const processedResults = [];
+
     for (let i = 0; i < images.length; i++) {
       const img = images[i];
       const settings = img.useCustomSettings ? img.customSettings : globalSettings;
@@ -225,7 +308,20 @@ const BatchProcessor = ({ isOpen, onClose }) => {
         const arrayBuffer = await response.data.arrayBuffer();
         zip.file(fileName, arrayBuffer);
 
-        setImages(prev => prev.map(item => 
+        // Convert to base64 for caching
+        const base64Data = await blobToBase64(response.data);
+
+        processedResults.push({
+          id: img.id,
+          originalName: img.name,
+          originalPreview: img.preview,
+          processedBase64: base64Data,
+          fileName: fileName,
+          timestamp: new Date().toISOString(),
+          settings: { ...settings },
+        });
+
+        setImages(prev => prev.map(item =>
           item.id === img.id 
             ? { ...item, status: 'done', result: resultUrl, progress: 100 } 
             : item
@@ -240,7 +336,24 @@ const BatchProcessor = ({ isOpen, onClose }) => {
       }
     }
 
+    // Update rate limit count
+    const successfulCount = processedResults.length;
+    if (successfulCount > 0) {
+      incrementProcessingCount(successfulCount);
+      setRemainingCount(getRemainingCount());
+
+      // Save to localStorage for recovery
+      saveProcessedImages(processedResults);
+      setCachedImages(prev => [...prev, ...processedResults]);
+    }
+
     setProcessing(false);
+    setBatchInProgress(false);
+
+    // Check if limit reached after processing
+    if (getRemainingCount() === 0) {
+      setHasReachedLimit(true);
+    }
   };
 
   const downloadAll = async () => {
@@ -279,6 +392,36 @@ const BatchProcessor = ({ isOpen, onClose }) => {
     setProcessedCount(0);
   };
 
+  const clearCachedImages = () => {
+    clearProcessedImages();
+    setCachedImages([]);
+    setShowCachedNotice(false);
+  };
+
+  const openComparison = (img) => {
+    if (img.preview && img.result) {
+      setComparisonImage({
+        before: img.preview,
+        after: img.result,
+        name: img.name,
+      });
+      setShowComparison(true);
+    }
+  };
+
+  const closeComparison = () => {
+    setShowComparison(false);
+    setComparisonImage(null);
+  };
+
+  const downloadCachedImage = (cachedImg) => {
+    if (!cachedImg.processedBase64) return;
+    const link = document.createElement('a');
+    link.href = cachedImg.processedBase64;
+    link.download = cachedImg.fileName || `processed_${cachedImg.originalName}`;
+    link.click();
+  };
+
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -291,14 +434,63 @@ const BatchProcessor = ({ isOpen, onClose }) => {
     <div className="batch-overlay" onClick={onClose}>
       <div className="batch-modal" onClick={e => e.stopPropagation()}>
         <div className="batch-header">
-          <h2>📦 Batch Processing</h2>
+          <div className="batch-header-left">
+            <h2>📦 Batch Processing</h2>
+            {canBypassLimits ? (
+              <div className="usage-badge admin-badge">
+                {isAdmin ? '👑 Admin' : '⭐ Premium'} • Unlimited
+              </div>
+            ) : (
+              <div className={`usage-badge ${hasReachedLimit ? 'limit-reached' : ''}`}>
+                {remainingCount}/{getDailyLimit()} remaining today
+              </div>
+            )}
+          </div>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
         <div className="batch-content">
           {/* Left Panel - Image List */}
           <div className="batch-images-panel">
-            <div 
+            {/* Cached Images Notice */}
+            {showCachedNotice && cachedImages.length > 0 && (
+              <div className="cached-notice">
+                <div className="cached-notice-content">
+                  <span className="cached-icon">💾</span>
+                  <div className="cached-text">
+                    <strong>Previously processed images found!</strong>
+                    <span>{cachedImages.length} image(s) recovered from your last session</span>
+                  </div>
+                </div>
+                <div className="cached-actions">
+                  <button
+                    className="view-cached-btn"
+                    onClick={() => {/* Toggle cached view */}}
+                  >
+                    View
+                  </button>
+                  <button
+                    className="clear-cached-btn"
+                    onClick={clearCachedImages}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Limit Reached Warning */}
+            {hasReachedLimit && (
+              <div className="limit-warning">
+                <span className="warning-icon">⚠️</span>
+                <div className="warning-text">
+                  <strong>Daily limit reached!</strong>
+                  <span>You've used all {getDailyLimit()} free processes for today. Come back tomorrow!</span>
+                </div>
+              </div>
+            )}
+
+            <div
               className={`batch-upload-area ${dragActive ? 'drag-active' : ''}`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -362,13 +554,22 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         {img.useCustomSettings ? '⚙️' : '🔗'}
                       </button>
                       {img.status === 'done' && (
-                        <button 
-                          className="download-single-btn"
-                          onClick={() => downloadSingle(img)}
-                          title="Download"
-                        >
-                          ⬇️
-                        </button>
+                        <>
+                          <button
+                            className="compare-btn"
+                            onClick={() => openComparison(img)}
+                            title="Compare before/after"
+                          >
+                            🔍
+                          </button>
+                          <button
+                            className="download-single-btn"
+                            onClick={() => downloadSingle(img)}
+                            title="Download"
+                          >
+                            ⬇️
+                          </button>
+                        </>
                       )}
                       <button 
                         className="remove-btn"
@@ -601,12 +802,20 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               <button 
                 className="process-all-btn"
                 onClick={processImages}
-                disabled={images.length === 0 || processing}
+                disabled={images.length === 0 || processing || (!canBypassLimits && (hasReachedLimit || !canProcessImages(images.length)))}
               >
                 {processing ? (
                   <>
                     <span className="spinner"></span>
                     Processing... ({processedCount}/{images.length})
+                  </>
+                ) : !canBypassLimits && hasReachedLimit ? (
+                  <>
+                    🚫 Limit Reached
+                  </>
+                ) : !canBypassLimits && !canProcessImages(images.length) ? (
+                  <>
+                    ⚠️ Exceeds Limit ({images.length} &gt; {remainingCount})
                   </>
                 ) : (
                   <>
@@ -629,6 +838,28 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             </div>
           </div>
         </div>
+
+        {/* Comparison Modal */}
+        {showComparison && comparisonImage && (
+          <div className="comparison-modal-overlay" onClick={closeComparison}>
+            <div className="comparison-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="comparison-modal-header">
+                <h3>Before / After Comparison</h3>
+                <span className="comparison-image-name">{comparisonImage.name}</span>
+                <button className="close-comparison-btn" onClick={closeComparison}>✕</button>
+              </div>
+              <div className="comparison-modal-body">
+                <ImageComparison
+                  beforeImage={comparisonImage.before}
+                  afterImage={comparisonImage.after}
+                  beforeLabel="Original"
+                  afterLabel="Processed"
+                  position={50}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

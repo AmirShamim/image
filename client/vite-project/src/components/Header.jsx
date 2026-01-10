@@ -130,9 +130,16 @@ const Header = () => {
                 {userDropdownOpen && (
                   <div className="user-dropdown">
                     <div className="user-dropdown-header">
-                      <span className="user-dropdown-name">{user.username || 'User'}</span>
+                      <span className="user-dropdown-name">
+                        {user.username || 'User'}
+                        {(user.role === 'admin' || user.email === 'admin@imagestudio.com') && (
+                          <span className="admin-crown">👑</span>
+                        )}
+                      </span>
                       <span className="user-dropdown-email">{user.email}</span>
-                      <span className="user-dropdown-tier">{user.subscription_tier || 'Free'} Plan</span>
+                      <span className={`user-dropdown-tier ${user.role === 'admin' ? 'admin-tier' : ''}`}>
+                        {user.role === 'admin' ? '👑 Admin' : `${user.subscription_tier || 'Free'} Plan`}
+                      </span>
                     </div>
                     <div className="user-dropdown-divider" />
                     <button 
@@ -182,9 +189,6 @@ const Header = () => {
               <div className="auth-buttons">
                 <button onClick={() => openAuth('login')} className="login-btn">
                   {t('header.signIn')}
-                </button>
-                <button onClick={() => openAuth('register')} className="signup-btn">
-                  {t('header.getStarted')}
                 </button>
               </div>
             )}
