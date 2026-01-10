@@ -86,6 +86,55 @@ router.post('/register', async (req, res) => {
         
         if (!emailResult.success) {
             console.error('Failed to send verification email:', emailResult.error);
+
+            // In development mode without SMTP, auto-verify the user
+            const isDevelopment = process.env.NODE_ENV !== 'production';
+            const smtpNotConfigured = emailResult.errorType === 'CONFIG_ERROR';
+
+            if (isDevelopment && smtpNotConfigured) {
+                // Auto-verify user in development when SMTP is not configured
+                db.prepare(`
+                    UPDATE users 
+                    SET email_verified = 1, verification_code = NULL, verification_expires = NULL 
+                    WHERE id = ?
+                `).run(userId);
+
+                // Generate JWT token
+                const token = jwt.sign(
+                    { userId: userId, email: email.toLowerCase(), username: username.toLowerCase() },
+                    JWT_SECRET,
+                    { expiresIn: JWT_EXPIRES_IN }
+                );
+
+                // Store session
+                const sessionId = uuidv4();
+                const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+                db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
+                    sessionId,
+                    userId,
+                    token,
+                    expiresAt.toISOString()
+                );
+
+                const user = db.prepare('SELECT id, email, username, subscription_tier, role FROM users WHERE id = ?').get(userId);
+
+                console.log('Development mode: Auto-verified user due to missing SMTP config');
+                return res.status(201).json({
+                    message: 'Registration successful! (Development mode: Email verification skipped)',
+                    requiresVerification: false,
+                    token,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        username: user.username,
+                        subscription_tier: user.subscription_tier,
+                        role: user.role
+                    },
+                    devMode: true,
+                    devNote: 'SMTP not configured. Configure SMTP_USER and SMTP_PASS for production.'
+                });
+            }
+
             // Return error to user but keep the registration (they can resend)
             return res.status(201).json({
                 message: 'Account created, but we couldn\'t send the verification email.',
@@ -93,7 +142,8 @@ router.post('/register', async (req, res) => {
                 email: email.toLowerCase(),
                 emailError: emailResult.error,
                 emailErrorType: emailResult.errorType,
-                canResend: true
+                canResend: true,
+                verificationCode: isDevelopment ? verificationCode : undefined // Show code in dev for testing
             });
         }
 

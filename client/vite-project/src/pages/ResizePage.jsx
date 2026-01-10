@@ -83,20 +83,21 @@ const ResizePage = () => {
       if (user) {
         if (user.usage) setUsage(user.usage);
         const tierLimits = {
-          guest: { resize: 20 },
-          free: { resize: 50 },
+          guest: { resize: -1 }, // Unlimited resize for all
+          free: { resize: -1 },
           pro: { resize: -1 },
           business: { resize: -1 }
         };
         setLimits(tierLimits[user.subscription_tier] || tierLimits.free);
       } else {
-        const fingerprint = getOrCreateFingerprint();
-        const guestData = await getGuestUsage(fingerprint);
-        setUsage(guestData.usage);
-        setLimits(guestData.limits);
+        // Guests get unlimited resize - no need to check usage
+        setUsage({ resize: 0 });
+        setLimits({ resize: -1 }); // -1 means unlimited
       }
     } catch (err) {
       console.error('Failed to load usage:', err);
+      // Default to unlimited on error
+      setLimits({ resize: -1 });
     }
   };
   

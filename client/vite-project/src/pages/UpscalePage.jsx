@@ -93,17 +93,29 @@ const UpscalePage = () => {
           guest: { upscale_2x: 5, upscale_4x: 3 },
           free: { upscale_2x: 10, upscale_4x: 5 },
           pro: { upscale_2x: -1, upscale_4x: 100 },
-          business: { upscale_2x: -1, upscale_4x: -1 }
+          business: { upscale_2x: -1, upscale_4x: -1 },
+          admin: { upscale_2x: -1, upscale_4x: -1 }
         };
         setLimits(tierLimits[user.subscription_tier] || tierLimits.free);
       } else {
-        const fingerprint = getOrCreateFingerprint();
-        const guestData = await getGuestUsage(fingerprint);
-        setUsage(guestData.usage);
-        setLimits(guestData.limits);
+        // Guest user - try to get usage from server
+        try {
+          const fingerprint = getOrCreateFingerprint();
+          const guestData = await getGuestUsage(fingerprint);
+          setUsage(guestData.usage || { upscale_2x: 0, upscale_4x: 0 });
+          setLimits(guestData.limits || { upscale_2x: 5, upscale_4x: 3 });
+        } catch (guestErr) {
+          console.error('Failed to load guest usage, using defaults:', guestErr);
+          // Default guest limits - allow usage even if API fails
+          setUsage({ upscale_2x: 0, upscale_4x: 0 });
+          setLimits({ upscale_2x: 5, upscale_4x: 3 });
+        }
       }
     } catch (err) {
       console.error('Failed to load usage:', err);
+      // Default to guest limits on error
+      setUsage({ upscale_2x: 0, upscale_4x: 0 });
+      setLimits({ upscale_2x: 5, upscale_4x: 3 });
     }
   };
   
