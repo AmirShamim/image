@@ -4,16 +4,28 @@
   line-height: 1.5;
   font-weight: 400;
 
-  /* Dark Theme Colors (Default) */
-  --accent-color: #00C6A7;
-  --accent-hover: #00b396;
-  --text-primary: #f0f0f0;
-  --text-secondary: #a0a5b8;
+  /* Dark Theme Colors (Default) - Modern Dark UI */
+  --accent-color: #10b981;
+  --accent-hover: #059669;
+  --accent-light: rgba(16, 185, 129, 0.1);
+  --accent-glow: rgba(16, 185, 129, 0.25);
+
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
   --text-tertiary: #6b7280;
-  --bg-primary: #0f1117;
-  --bg-secondary: #161920;
-  --bg-tertiary: #1c1f2a;
-  --border-color: #2a2e3a;
+
+  --bg-primary: #0a0b0f;
+  --bg-secondary: #12141a;
+  --bg-tertiary: #1a1d26;
+  --bg-elevated: #22262f;
+
+  --border-color: #2d3139;
+  --border-light: #3d424d;
+
+  --success-color: #22c55e;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #3b82f6;
 
   color-scheme: dark;
   color: var(--text-primary);
@@ -27,16 +39,28 @@
 
 /* Light Theme */
 [data-theme="light"] {
-  --accent-color: #00a88e;
-  --accent-hover: #00917a;
+  --accent-color: #059669;
+  --accent-hover: #047857;
+  --accent-light: rgba(5, 150, 105, 0.08);
+  --accent-glow: rgba(5, 150, 105, 0.15);
+
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-tertiary: #9ca3af;
+
   --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
-  --border-color: #e5e7eb;
-  
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-elevated: #ffffff;
+
+  --border-color: #e2e8f0;
+  --border-light: #cbd5e1;
+
+  --success-color: #16a34a;
+  --warning-color: #d97706;
+  --error-color: #dc2626;
+  --info-color: #2563eb;
+
   color-scheme: light;
   color: var(--text-primary);
   background: var(--bg-primary);

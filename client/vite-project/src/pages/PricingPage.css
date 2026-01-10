@@ -76,14 +76,26 @@
 .plan-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .plan-card.highlighted {
   border-color: var(--accent-color);
+  background: linear-gradient(180deg, var(--accent-light), var(--bg-secondary));
+  box-shadow: 0 0 40px var(--accent-glow);
+}
+
+.plan-card.highlighted:hover {
+  box-shadow: 0 12px 50px var(--accent-glow);
 }
 
 .plan-name {
@@ -142,28 +154,37 @@
 
 .plan-cta {
   width: 100%;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .plan-cta.primary {
   background: var(--accent-color);
-  color: #0f1117;
+  color: #ffffff;
   border: none;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.plan-cta.primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
 }
 
 .plan-cta.secondary {
-  background: none;
+  background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
-.plan-cta:hover {
-  opacity: 0.9;
+.plan-cta.secondary:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: var(--accent-light);
 }
 
 @media (max-width: 768px) {

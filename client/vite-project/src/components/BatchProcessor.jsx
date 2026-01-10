@@ -4,7 +4,6 @@ import JSZip from 'jszip';
 import ImageComparison from './ImageComparison';
 import { useAuth } from '../context/AuthContext';
 import {
-  getProcessingCount,
   incrementProcessingCount,
   canProcessImages,
   getRemainingCount,
@@ -17,7 +16,6 @@ import {
   isBatchInProgress,
   blobToBase64,
   setUserTier,
-  isAdminUser,
 } from '../utils/storageUtils';
 import './BatchProcessor.css';
 
@@ -85,6 +83,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonImage, setComparisonImage] = useState(null);
+  const [showCachedView, setShowCachedView] = useState(false);
 
   // Sync user tier with storage for rate limiting
   useEffect(() => {
@@ -105,15 +104,17 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
   // Load cached images and check limits on mount
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+
+    // Use a single batched update to avoid cascading renders
+    const initializeState = () => {
       // Admin/Premium users bypass limits
-      if (canBypassLimits) {
-        setRemainingCount(Infinity);
-        setHasReachedLimit(false);
-      } else {
-        setRemainingCount(getRemainingCount());
-        setHasReachedLimit(getRemainingCount() === 0);
-      }
+      const remaining = canBypassLimits ? Infinity : getRemainingCount();
+      const reachedLimit = canBypassLimits ? false : getRemainingCount() === 0;
+
+      // Batch state updates
+      setRemainingCount(remaining);
+      setHasReachedLimit(reachedLimit);
 
       if (hasCachedImages()) {
         const cached = getProcessedImages();
@@ -125,8 +126,58 @@ const BatchProcessor = ({ isOpen, onClose }) => {
       if (isBatchInProgress()) {
         setBatchInProgress(false);
       }
-    }
+    };
+
+    // Use requestAnimationFrame to batch updates outside of effect
+    const frameId = requestAnimationFrame(initializeState);
+    return () => cancelAnimationFrame(frameId);
   }, [isOpen, canBypassLimits]);
+
+  const handleFiles = useCallback((files) => {
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+
+    const newImages = imageFiles.map(file => {
+      const id = Date.now() + Math.random().toString(36).substr(2, 9);
+      const preview = URL.createObjectURL(file);
+
+      return {
+        id,
+        file,
+        preview,
+        name: file.name,
+        size: file.size,
+        dimensions: { width: 0, height: 0 },
+        useCustomSettings: false,
+        customSettings: { ...globalSettings },
+        status: 'pending',
+        result: null,
+        progress: 0
+      };
+    });
+
+    // Load dimensions for each image
+    newImages.forEach((imgData) => {
+      const img = new Image();
+      img.onload = () => {
+        setImages(prev => prev.map(item =>
+          item.id === imgData.id
+            ? {
+                ...item,
+                dimensions: { width: img.width, height: img.height },
+                customSettings: {
+                  ...item.customSettings,
+                  width: img.width,
+                  height: img.height
+                }
+              }
+            : item
+        ));
+      };
+      img.src = imgData.preview;
+    });
+
+    setImages(prev => [...prev, ...newImages]);
+  }, [globalSettings]);
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -142,61 +193,11 @@ const BatchProcessor = ({ isOpen, onClose }) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files) {
       handleFiles(Array.from(e.dataTransfer.files));
     }
-  }, []);
-
-  const handleFiles = (files) => {
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
-    const newImages = imageFiles.map(file => {
-      const id = Date.now() + Math.random().toString(36).substr(2, 9);
-      const preview = URL.createObjectURL(file);
-      
-      // Get dimensions
-      const img = new Image();
-      img.src = preview;
-      
-      return {
-        id,
-        file,
-        preview,
-        name: file.name,
-        size: file.size,
-        dimensions: { width: 0, height: 0 },
-        useCustomSettings: false,
-        customSettings: { ...globalSettings },
-        status: 'pending', // pending, processing, done, error
-        result: null,
-        progress: 0
-      };
-    });
-
-    // Load dimensions for each image
-    newImages.forEach((imgData, index) => {
-      const img = new Image();
-      img.onload = () => {
-        setImages(prev => prev.map(item => 
-          item.id === imgData.id 
-            ? { 
-                ...item, 
-                dimensions: { width: img.width, height: img.height },
-                customSettings: {
-                  ...item.customSettings,
-                  width: img.width,
-                  height: img.height
-                }
-              } 
-            : item
-        ));
-      };
-      img.src = imgData.preview;
-    });
-
-    setImages(prev => [...prev, ...newImages]);
-  };
+  }, [handleFiles]);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -465,9 +466,9 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                 <div className="cached-actions">
                   <button
                     className="view-cached-btn"
-                    onClick={() => {/* Toggle cached view */}}
+                    onClick={() => setShowCachedView(!showCachedView)}
                   >
-                    View
+                    {showCachedView ? 'Hide' : 'View'}
                   </button>
                   <button
                     className="clear-cached-btn"
@@ -476,6 +477,25 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                     Clear
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* Cached Images View */}
+            {showCachedView && cachedImages.length > 0 && (
+              <div className="cached-images-list">
+                {cachedImages.map((cachedImg) => (
+                  <div key={cachedImg.id} className="cached-image-item">
+                    <img src={cachedImg.processedBase64} alt={cachedImg.originalName} />
+                    <span className="cached-image-name">{cachedImg.originalName}</span>
+                    <button
+                      className="download-cached-btn"
+                      onClick={() => downloadCachedImage(cachedImg)}
+                      title="Download"
+                    >
+                      ⬇️
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -513,7 +533,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
             {images.length > 0 && (
               <div className="batch-image-list">
-                {images.map((img, index) => (
+                {images.map((img) => (
                   <div key={img.id} className={`batch-image-item ${img.status}`}>
                     <div className="image-preview-thumb">
                       <img src={img.preview} alt={img.name} />

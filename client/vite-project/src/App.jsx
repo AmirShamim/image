@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import ScrollToTop from './components/ScrollToTop';
+import { usePageTracking } from './hooks/useAnalytics';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -20,12 +21,16 @@ import TermsPage from './pages/TermsPage';
 import UpscalePage from './pages/UpscalePage';
 import ResizePage from './pages/ResizePage';
 import ComingSoonPage from './pages/ComingSoonPage';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
 
 // RTL languages
 const rtlLanguages = ['ar', 'he', 'fa', 'ur'];
 
 function AppContent() {
   const { i18n } = useTranslation();
+
+  // Track page views for analytics
+  usePageTracking();
 
   useEffect(() => {
     const isRtl = rtlLanguages.includes(i18n.language);
@@ -55,6 +60,7 @@ function AppContent() {
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
             </Routes>
     </div>
   );

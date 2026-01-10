@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import ImageComparison from '../components/ImageComparison';
 import { useAuth } from '../context/AuthContext';
 import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
@@ -42,6 +43,9 @@ const UpscalePage = () => {
   // Image dimensions
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
   
+  // Comparison view
+  const [showComparison, setShowComparison] = useState(true);
+
   // Size limits for upscaling (in pixels)
   const SIZE_LIMITS = {
     '2x': { maxWidth: 2048, maxHeight: 2048, label: '2K' },
@@ -478,7 +482,7 @@ const UpscalePage = () => {
               <div className="result-header">
                 <h3>✨ Upscaled Result</h3>
                 <div className="result-actions">
-                  <button className="action-btn" onClick={handleDownload}>
+                  <button className="action-btn primary" onClick={handleDownload}>
                     📥 Download
                   </button>
                   <button className="action-btn secondary" onClick={resetAll}>
@@ -486,20 +490,61 @@ const UpscalePage = () => {
                   </button>
                 </div>
               </div>
-              
-              <div className="result-comparison">
-                <div className="comparison-item">
-                  <h4>Original</h4>
-                  <img src={preview} alt="Original" />
-                  <span>{originalDimensions.width} × {originalDimensions.height}</span>
-                </div>
-                <div className="comparison-arrow">→</div>
-                <div className="comparison-item">
-                  <h4>Upscaled ({scale})</h4>
-                  <img src={resultImage} alt="Upscaled" />
-                  <span>{getResultDimensions().width} × {getResultDimensions().height}</span>
-                </div>
+
+              {/* View Mode Toggle */}
+              <div className="view-mode-toggle">
+                <button
+                  className={`view-mode-btn ${showComparison ? 'active' : ''}`}
+                  onClick={() => setShowComparison(true)}
+                >
+                  <span className="view-icon">↔️</span>
+                  <span>Comparison Slider</span>
+                </button>
+                <button
+                  className={`view-mode-btn ${!showComparison ? 'active' : ''}`}
+                  onClick={() => setShowComparison(false)}
+                >
+                  <span className="view-icon">🔀</span>
+                  <span>Side by Side</span>
+                </button>
               </div>
+
+              {showComparison ? (
+                <div className="comparison-slider-container">
+                  <ImageComparison
+                    beforeImage={preview}
+                    afterImage={resultImage}
+                    beforeLabel={`Original (${originalDimensions.width}×${originalDimensions.height})`}
+                    afterLabel={`Upscaled ${scale} (${getResultDimensions().width}×${getResultDimensions().height})`}
+                    className="upscale-comparison"
+                  />
+                  <p className="comparison-hint">👆 Drag the slider left and right to compare</p>
+                </div>
+              ) : (
+                <div className="result-comparison-grid">
+                  <div className="comparison-card">
+                    <div className="comparison-card-header">
+                      <span className="comparison-badge original">Original</span>
+                      <span className="comparison-dimensions">{originalDimensions.width} × {originalDimensions.height}</span>
+                    </div>
+                    <div className="comparison-card-image">
+                      <img src={preview} alt="Original" />
+                    </div>
+                  </div>
+                  <div className="comparison-arrow-container">
+                    <div className="comparison-arrow-icon">→</div>
+                  </div>
+                  <div className="comparison-card">
+                    <div className="comparison-card-header">
+                      <span className="comparison-badge processed">Upscaled {scale}</span>
+                      <span className="comparison-dimensions">{getResultDimensions().width} × {getResultDimensions().height}</span>
+                    </div>
+                    <div className="comparison-card-image">
+                      <img src={resultImage} alt="Upscaled" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           

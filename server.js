@@ -9,8 +9,15 @@ const fs = require('fs');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-// Import database (initializes tables)
-const db = require('./database');
+// Import database (PostgreSQL in production, SQLite in development)
+const database = require('./database-pg');
+const db = database.db;
+const isPostgres = database.isPostgres;
+
+// Initialize database tables
+database.initializeDatabase().catch(err => {
+    console.error('Failed to initialize database:', err);
+});
 
 // Import Cloudinary config
 const { uploadToCloudinary, isCloudinaryConfigured } = require('./config/cloudinary');
@@ -19,13 +26,88 @@ const { uploadToCloudinary, isCloudinaryConfigured } = require('./config/cloudin
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const stripeRoutes = require('./routes/stripe');
+const { router: analyticsRoutes, initAnalytics, trackPageView, trackToolUsage } = require('./routes/analytics');
+
+// Initialize analytics with database
+initAnalytics(database);
 
 // Import middleware
 const { optionalAuth } = require('./middleware/auth');
 
+// Rate limiting
+const rateLimit = require('express-rate-limit');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
+
+// ============== SERVER-SIDE RATE LIMITING ==============
+// Global rate limit for all API requests
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 200, // 200 requests per 15 minutes
+    message: { error: 'Too many requests. Please try again later.', retryAfter: 15 * 60 },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Strict rate limit for image processing endpoints
+const processLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 10, // 10 image processes per minute per IP
+    message: { error: 'Processing limit reached. Please wait a moment.', retryAfter: 60 },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+        // Skip rate limiting for admin users (check JWT if present)
+        const authHeader = req.headers['authorization'];
+        if (authHeader) {
+            try {
+                const token = authHeader.split(' ')[1];
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+                return decoded.role === 'admin';
+            } catch (e) {
+                return false;
+            }
+        }
+        return false;
+    }
+});
+
+// Auth rate limit (prevent brute force)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // 20 login attempts per 15 minutes
+    message: { error: 'Too many login attempts. Please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// ============== REQUEST QUEUE FOR HEAVY OPERATIONS ==============
+let activeProcesses = 0;
+const MAX_CONCURRENT_PROCESSES = 3; // Limit concurrent image processing
+
+const queueMiddleware = (req, res, next) => {
+    if (activeProcesses >= MAX_CONCURRENT_PROCESSES) {
+        return res.status(503).json({
+            error: 'Server is busy processing other requests. Please try again in a few seconds.',
+            retryAfter: 5,
+            queueStatus: { active: activeProcesses, max: MAX_CONCURRENT_PROCESSES }
+        });
+    }
+    activeProcesses++;
+
+    // Decrement counter when response finishes
+    res.on('finish', () => {
+        activeProcesses = Math.max(0, activeProcesses - 1);
+    });
+    res.on('close', () => {
+        activeProcesses = Math.max(0, activeProcesses - 1);
+    });
+
+    next();
+};
 
 // Configure multer
 const upload = multer({ 
@@ -37,11 +119,57 @@ const upload = multer({
 app.use(cors());
 app.use(express.json());
 
+// Apply global rate limiting to API routes
+app.use('/api/', globalLimiter);
+
+// Apply auth rate limiting
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+
 // Serve profile pictures statically
 app.use('/profile_pictures', express.static(path.join(__dirname, 'profile_pictures')));
 
 // Serve processed images for history thumbnails
 app.use('/processed', express.static(path.join(__dirname, 'processed')));
+
+// ============== HEALTH CHECK & MONITORING ==============
+app.get('/api/health', (req, res) => {
+    const memUsage = process.memoryUsage();
+    const uptime = process.uptime();
+
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: {
+            seconds: Math.floor(uptime),
+            formatted: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`
+        },
+        memory: {
+            heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
+            heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
+            rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
+            external: `${Math.round(memUsage.external / 1024 / 1024)}MB`
+        },
+        processing: {
+            activeJobs: activeProcesses,
+            maxConcurrent: MAX_CONCURRENT_PROCESSES,
+            available: MAX_CONCURRENT_PROCESSES - activeProcesses
+        },
+        environment: isProduction ? 'production' : 'development'
+    });
+});
+
+// Server stats endpoint (for admin dashboard)
+app.get('/api/stats', (req, res) => {
+    const memUsage = process.memoryUsage();
+    res.json({
+        memory: Math.round(memUsage.heapUsed / 1024 / 1024),
+        activeProcesses,
+        maxProcesses: MAX_CONCURRENT_PROCESSES,
+        uptime: Math.floor(process.uptime()),
+        database: isPostgres ? 'postgresql' : 'sqlite'
+    });
+});
 
 // Auth routes
 app.use('/api/auth', authRoutes);
@@ -51,6 +179,13 @@ app.use('/api/users', userRoutes);
 
 // Stripe routes (webhook needs raw body, handled inside the route)
 app.use('/api/stripe', stripeRoutes);
+
+// Analytics routes
+app.use('/api/analytics', analyticsRoutes);
+
+// Track page views for SSR pages (optional middleware)
+// Uncomment if you want automatic server-side tracking
+// app.use(trackPageView);
 
 // Serve static files from React build in production
 if (isProduction) {
@@ -66,7 +201,7 @@ if (!fs.existsSync('processed')) {
 }
 
 // Get image dimensions endpoint
-app.post('/get-dimensions', upload.single('image'), (req, res) => {
+app.post('/get-dimensions', processLimiter, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
@@ -103,7 +238,7 @@ app.post('/get-dimensions', upload.single('image'), (req, res) => {
 });
 
 // Upscale endpoint (AI-powered 2x/3x/4x upscaling with model selection)
-app.post('/upscale', optionalAuth, upload.single('image'), async (req, res) => {
+app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.single('image'), async (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
@@ -320,7 +455,7 @@ app.post('/upscale', optionalAuth, upload.single('image'), async (req, res) => {
 });
 
 // Resize endpoint (shrink/resize by pixels or percentage)
-app.post('/resize', optionalAuth, upload.single('image'), (req, res) => {
+app.post('/resize', processLimiter, queueMiddleware, optionalAuth, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;

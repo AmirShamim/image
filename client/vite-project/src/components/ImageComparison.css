@@ -1,0 +1,115 @@
+.image-comparison-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: #1a1c2e;
+}
+
+[data-theme="light"] .image-comparison-wrapper {
+  background: #f5f5f5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.comparison-slider {
+  width: 100%;
+  height: auto;
+  min-height: 200px;
+}
+
+.comparison-slider img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Labels */
+.comparison-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.comparison-labels.portrait {
+  flex-direction: column;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: auto;
+  padding: 16px 12px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.label-before,
+.label-after {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.label-before {
+  background: rgba(255, 100, 100, 0.3);
+}
+
+.label-after {
+  background: rgba(100, 255, 150, 0.3);
+}
+
+/* Dark/Light theme adjustments */
+[data-theme="light"] .comparison-labels {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .label-before,
+[data-theme="light"] .label-after {
+  color: #333;
+}
+
+[data-theme="light"] .label-before {
+  background: rgba(255, 100, 100, 0.2);
+}
+
+[data-theme="light"] .label-after {
+  background: rgba(100, 200, 150, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-comparison-wrapper {
+    border-radius: 8px;
+  }
+
+  .comparison-labels {
+    padding: 10px 12px;
+  }
+
+  .label-before,
+  .label-after {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .comparison-labels {
+    padding: 8px 10px;
+  }
+
+  .label-before,
+  .label-after {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+}
+

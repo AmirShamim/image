@@ -156,6 +156,72 @@ const HomePage = () => {
         </div>
       </section>
 
+
+      {/* Stats Section */}
+      <section className="stats-section">
+        <div className="stats-grid">
+          <div className="stat-item">
+            <div className="stat-value">5+</div>
+            <div className="stat-label">AI Models</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-value">4x</div>
+            <div className="stat-label">Max Upscale</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-value">100%</div>
+            <div className="stat-label">Free to Start</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-value">∞</div>
+            <div className="stat-label">No Watermarks</div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* Use Cases Section */}
+      <section className="use-cases-section">
+        <div className="section-header">
+          <h2>Built for Everyone</h2>
+          <p>Whether you're a professional, student, or content creator</p>
+        </div>
+        <div className="use-cases-grid">
+          <div className="use-case-card">
+            <div className="use-case-icon">👨‍💼</div>
+            <h3>Professionals</h3>
+            <ul className="use-case-list">
+              <li>High-resolution prints & presentations</li>
+              <li>Marketing materials & ads</li>
+              <li>Product photography enhancement</li>
+              <li>Client deliverables in any size</li>
+            </ul>
+          </div>
+          <div className="use-case-card highlighted">
+            <div className="use-case-badge">Most Popular</div>
+            <div className="use-case-icon">🎨</div>
+            <h3>Content Creators</h3>
+            <ul className="use-case-list">
+              <li>Social media optimized sizes</li>
+              <li>YouTube thumbnails & banners</li>
+              <li>Instagram, TikTok, Twitter presets</li>
+              <li>Upscale low-res screenshots</li>
+            </ul>
+          </div>
+          <div className="use-case-card">
+            <div className="use-case-icon">📚</div>
+            <h3>Students & Educators</h3>
+            <ul className="use-case-list">
+              <li>Enhance images for reports</li>
+              <li>Poster & presentation visuals</li>
+              <li>Academic project graphics</li>
+              <li>Free tier for learning</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+
       {/* Tools Grid Section */}
       <section className="tools-section">
         <div className="section-header">
@@ -197,14 +263,19 @@ const HomePage = () => {
       {/* CTA Section */}
       <section className="cta-section">
         <div className="cta-content">
-          <h2>{t('home.hero.cta')}</h2>
-          <p>{t('home.hero.description')}</p>
-          <Link to="/upscale" className="cta-button">
-            {t('header.getStarted')}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </Link>
+          <h2>Ready to Enhance Your Images?</h2>
+          <p>Start with our free tier. No credit card required.</p>
+          <div className="cta-buttons">
+            <Link to="/upscale" className="cta-button primary">
+              Try AI Upscaling
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </Link>
+            <Link to="/resize" className="cta-button secondary">
+              Resize Images
+            </Link>
+          </div>
         </div>
       </section>
 
