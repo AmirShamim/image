@@ -2,14 +2,13 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
 import JSZip from 'jszip';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import ImageComparison from '../components/ImageComparison';
 import { useAuth } from '../context/AuthContext';
 import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
-import './ResizePage.css';
+import PageShell from '../components/PageShell';
+import PageHero from '../components/PageHero';
 
 const API_URL = '';
 
@@ -442,8 +441,8 @@ const ResizePage = () => {
   };
 
   return (
-    <div className="resize-page">
-      <SEO 
+    <PageShell>
+      <SEO
         title="Free Image Resizer - Resize for Social Media & Web | ImageStudio"
         description="Resize images to exact dimensions for Instagram, YouTube, Facebook, Twitter. Batch processing, custom sizes, social media presets. Free, no signup."
         keywords="image resizer, resize image online, Instagram size, YouTube thumbnail, Facebook cover, social media image dimensions"
@@ -460,133 +459,128 @@ const ResizePage = () => {
           ]
         }}
       />
-      <Header />
-      
-      <main className="resize-main">
-        <div className="resize-container">
-          {/* Hero Section */}
-          <div className="resize-hero">
-            <h1>📐 Image Resizer</h1>
-            <p>Resize your images to any dimension. Perfect for social media, websites, or printing.</p>
-            
-            {/* Mode Toggle */}
-            <div className="processing-mode-toggle">
-              <button 
-                className={`mode-toggle-btn ${processingMode === 'single' ? 'active' : ''}`}
-                onClick={() => setProcessingMode('single')}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
-                Single Image
-              </button>
-              <button 
-                className={`mode-toggle-btn ${processingMode === 'batch' ? 'active' : ''}`}
-                onClick={() => setProcessingMode('batch')}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="7" height="7"/>
-                  <rect x="14" y="3" width="7" height="7"/>
-                  <rect x="14" y="14" width="7" height="7"/>
-                  <rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Batch Process
-              </button>
-            </div>
-          </div>
-          
-          {error && (
-            <div className="error-message">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="15" y1="9" x2="9" y2="15"/>
-                <line x1="9" y1="9" x2="15" y2="15"/>
-              </svg>
-              {error}
-            </div>
-          )}
 
-          {/* ===== SINGLE MODE ===== */}
-          {processingMode === 'single' && (
-            <>
-              {/* Upload Section */}
-              {!preview && (
-                <div 
-                  className={`upload-zone ${dragActive ? 'drag-active' : ''}`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <div className="upload-content">
-                    <div className="upload-icon">📤</div>
-                    <h3>Drop your image here</h3>
-                    <p>or click to browse</p>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleFileInput}
-                      className="file-input"
-                    />
-                    <button className="browse-btn">Select Image</button>
-                  </div>
-                  <p className="upload-info">Supports JPG, PNG, WebP, GIF • Max 25MB</p>
+      <PageHero
+        badge="Free Resize"
+        title="Image Resizer"
+        subtitle="Resize images to any dimensions with presets, quality control, and batch export."
+        right={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setProcessingMode('single')}
+              className={`glass-button text-sm text-white ${processingMode === 'single' ? 'ring-1 ring-[#00d4aa]/50' : ''}`}
+            >
+              Single
+            </button>
+            <button
+              type="button"
+              onClick={() => setProcessingMode('batch')}
+              className={`glass-button text-sm text-white ${processingMode === 'batch' ? 'ring-1 ring-[#00d4aa]/50' : ''}`}
+            >
+              Batch
+            </button>
+          </div>
+        }
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-center gap-2">
+            <span>⚠️</span>
+            {error}
+          </div>
+        )}
+
+        {/* ===== SINGLE MODE ===== */}
+        {processingMode === 'single' && (
+          <>
+            {/* Upload Section */}
+            {!preview && (
+              <div
+                className={`glass-card-hover p-8 sm:p-10 text-center ${dragActive ? 'ring-1 ring-[#00d4aa]/60' : ''}`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <div className="mx-auto w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
                 </div>
-              )}
-          
-              {/* Preview & Settings */}
-              {preview && !resultImage && (
-            <div className="resize-workspace">
+
+                <h3 className="text-xl font-semibold text-white">Drop your image here</h3>
+                <p className="text-zinc-400 mt-1">or click to browse files</p>
+
+                <label className="inline-flex items-center justify-center mt-6 cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileInput}
+                    className="hidden"
+                  />
+                  <span className="accent-button">Select Image</span>
+                </label>
+
+                <p className="text-xs text-zinc-500 mt-4">JPG, PNG, WebP supported</p>
+              </div>
+            )}
+
+            {/* Preview & Settings */}
+            {preview && !resultImage && (
+            <div className="resize-workspace grid lg:grid-cols-2 gap-6">
               {/* Image Preview */}
-              <div className="preview-section">
-                <div className="preview-header">
-                  <h3>📷 Original Image</h3>
-                  <button className="reset-btn" onClick={resetAll}>✕ Remove</button>
+              <div className="preview-section glass-card p-6">
+                <div className="preview-header flex items-center justify-between mb-4">
+                  <h3 className="text-white font-semibold">Original</h3>
+                  <button className="reset-btn glass-button text-sm text-white" onClick={resetAll}>Remove</button>
                 </div>
-                <div className="preview-image-container">
-                  <img src={preview} alt="Preview" className="preview-image" />
+                <div className="preview-image-container rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                  <img src={preview} alt="Preview" className="preview-image w-full h-auto block" />
                 </div>
-                <div className="image-info">
+                <div className="image-info mt-3 flex items-center justify-between text-xs text-zinc-400">
                   <span>{originalDimensions.width} × {originalDimensions.height} px</span>
                   <span>{(file?.size / 1024).toFixed(1)} KB</span>
                 </div>
               </div>
               
               {/* Settings Panel */}
-              <div className="settings-section">
-                <h3>⚙️ Resize Settings</h3>
-                
+              <div className="settings-section glass-card p-6">
+                <h3 className="text-white font-semibold mb-4">Resize Settings</h3>
+
                 {/* Mode Tabs */}
-                <div className="mode-tabs">
-                  <button 
-                    className={`mode-tab ${resizeMode === 'dimensions' ? 'active' : ''}`}
+                <div className="mode-tabs flex items-center gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-4">
+                  <button
+                    className={`mode-tab flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${resizeMode === 'dimensions' ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                     onClick={() => setResizeMode('dimensions')}
                   >
-                    📏 Dimensions
+                    Dimensions
                   </button>
                   <button 
-                    className={`mode-tab ${resizeMode === 'percentage' ? 'active' : ''}`}
+                    className={`mode-tab flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${resizeMode === 'percentage' ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                     onClick={() => setResizeMode('percentage')}
                   >
-                    📊 Percentage
+                    Percent
                   </button>
                   <button 
-                    className={`mode-tab ${resizeMode === 'preset' ? 'active' : ''}`}
+                    className={`mode-tab flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${resizeMode === 'preset' ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                     onClick={() => setResizeMode('preset')}
                   >
-                    📱 Presets
+                    Presets
                   </button>
                 </div>
                 
                 {/* Dimensions Mode */}
                 {resizeMode === 'dimensions' && (
-                  <div className="dimensions-input">
+                  <div className="dimensions-input grid grid-cols-[1fr_auto_1fr] items-end gap-3">
                     <div className="input-group">
-                      <label>Width (px)</label>
-                      <input 
-                        type="number" 
+                      <label className="block text-xs text-zinc-400 mb-1">Width (px)</label>
+                      <input
+                        className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#00d4aa]/40"
+                        type="number"
                         value={width}
                         onChange={(e) => handleWidthChange(e.target.value)}
                         placeholder="Width"
@@ -594,17 +588,19 @@ const ResizePage = () => {
                     </div>
                     
                     <button 
-                      className={`link-btn ${maintainAspectRatio ? 'active' : ''}`}
+                      className={`link-btn h-11 w-11 rounded-xl border border-white/10 bg-white/[0.04] text-white grid place-items-center transition-all ${maintainAspectRatio ? 'ring-2 ring-[#00d4aa]/30' : ''}`}
                       onClick={() => setMaintainAspectRatio(!maintainAspectRatio)}
                       title="Maintain aspect ratio"
+                      type="button"
                     >
                       {maintainAspectRatio ? '🔗' : '⛓️‍💥'}
                     </button>
                     
                     <div className="input-group">
-                      <label>Height (px)</label>
-                      <input 
-                        type="number" 
+                      <label className="block text-xs text-zinc-400 mb-1">Height (px)</label>
+                      <input
+                        className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#00d4aa]/40"
+                        type="number"
                         value={height}
                         onChange={(e) => handleHeightChange(e.target.value)}
                         placeholder="Height"
@@ -616,21 +612,23 @@ const ResizePage = () => {
                 {/* Percentage Mode */}
                 {resizeMode === 'percentage' && (
                   <div className="percentage-input">
-                    <div className="percentage-slider">
-                      <input 
-                        type="range" 
+                    <div className="percentage-slider flex items-center gap-3">
+                      <input
+                        className="w-full accent-[#00d4aa]"
+                        type="range"
                         min="10" 
                         max="200" 
                         value={percentage}
                         onChange={(e) => setPercentage(parseInt(e.target.value))}
                       />
-                      <span className="percentage-value">{percentage}%</span>
+                      <span className="percentage-value text-sm font-semibold text-white w-16 text-right">{percentage}%</span>
                     </div>
-                    <div className="percentage-presets">
+                    <div className="percentage-presets flex flex-wrap gap-2 mt-3">
                       {[25, 50, 75, 100, 150, 200].map(p => (
                         <button 
                           key={p}
-                          className={`preset-btn ${percentage === p ? 'active' : ''}`}
+                          type="button"
+                          className={`preset-btn px-3 py-1.5 rounded-lg text-xs border transition-colors ${percentage === p ? 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30' : 'bg-white/[0.03] text-zinc-300 border-white/10 hover:text-white'}`}
                           onClick={() => setPercentage(p)}
                         >
                           {p}%
@@ -642,44 +640,51 @@ const ResizePage = () => {
                 
                 {/* Presets Mode */}
                 {resizeMode === 'preset' && (
-                  <div className="presets-grid">
+                  <div className="presets-grid grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {PRESETS.map((preset) => (
                       <button
+                        type="button"
                         key={preset.name}
-                        className={`preset-card ${width == preset.width && height == preset.height ? 'active' : ''}`}
+                        className={`preset-card text-left p-3 rounded-2xl border transition-all ${width == preset.width && height == preset.height ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30' : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.05]'}`}
                         onClick={() => applyPreset(preset)}
                       >
-                        <span className="preset-icon">{preset.icon}</span>
-                        <span className="preset-name">{preset.name}</span>
-                        <span className="preset-size">{preset.width}×{preset.height}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="preset-icon text-xl">{preset.icon}</span>
+                          <span className="preset-name text-sm text-white font-medium">{preset.name}</span>
+                        </div>
+                        <div className="preset-size text-xs text-zinc-400 mt-1">{preset.width}×{preset.height}</div>
                       </button>
                     ))}
                   </div>
                 )}
                 
                 {/* Quality & Format */}
-                <div className="extra-settings">
+                <div className="extra-settings mt-5 pt-5 border-t border-white/10 space-y-4">
                   <div className="setting-row">
-                    <label>Quality</label>
-                    <div className="quality-slider">
-                      <input 
-                        type="range" 
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm text-white">Quality</label>
+                      <span className="text-sm text-zinc-300">{quality}%</span>
+                    </div>
+                    <div className="quality-slider mt-2">
+                      <input
+                        className="w-full accent-[#00d4aa]"
+                        type="range"
                         min="10" 
                         max="100" 
                         value={quality}
                         onChange={(e) => setQuality(parseInt(e.target.value))}
                       />
-                      <span>{quality}%</span>
                     </div>
                   </div>
                   
                   <div className="setting-row">
-                    <label>Format</label>
-                    <div className="format-buttons">
+                    <label className="text-sm text-white">Format</label>
+                    <div className="format-buttons flex gap-2 mt-2">
                       {['jpeg', 'png', 'webp'].map(fmt => (
                         <button 
+                          type="button"
                           key={fmt}
-                          className={`format-btn ${outputFormat === fmt ? 'active' : ''}`}
+                          className={`format-btn flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${outputFormat === fmt ? 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30' : 'bg-white/[0.03] text-zinc-300 border-white/10 hover:text-white'}`}
                           onClick={() => setOutputFormat(fmt)}
                         >
                           {fmt.toUpperCase()}
@@ -690,48 +695,44 @@ const ResizePage = () => {
                 </div>
                 
                 {/* Output Preview */}
-                <div className="output-preview">
-                  <div className="preview-comparison">
+                <div className="output-preview mt-5">
+                  <div className="preview-comparison flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/10 p-4">
                     <div className="size-box original">
-                      <span className="size-label">Current</span>
-                      <span className="size-value">{originalDimensions.width} × {originalDimensions.height}</span>
+                      <div className="size-label text-xs text-zinc-400">Current</div>
+                      <div className="size-value text-sm font-semibold text-white">{originalDimensions.width} × {originalDimensions.height}</div>
                     </div>
-                    <span className="arrow">→</span>
-                    <div className="size-box result">
-                      <span className="size-label">Result</span>
-                      <span className="size-value">{getOutputDimensions().width} × {getOutputDimensions().height}</span>
+                    <span className="arrow text-zinc-500">→</span>
+                    <div className="size-box result text-right">
+                      <div className="size-label text-xs text-zinc-400">Result</div>
+                      <div className="size-value text-sm font-semibold text-white">{getOutputDimensions().width} × {getOutputDimensions().height}</div>
                     </div>
                   </div>
                 </div>
                 
                 {/* Error Message */}
                 {error && (
-                  <div className="error-message">
+                  <div className="error-message mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
                     <span>⚠️</span> {error}
                   </div>
                 )}
                 
                 {/* Resize Button */}
                 <button 
-                  className="resize-btn"
+                  className="resize-btn mt-4 w-full accent-button text-center"
                   onClick={handleResize}
                   disabled={loading || !canResize()}
+                  type="button"
                 >
                   {loading ? (
-                    <>
-                      <span className="spinner"></span>
-                      Processing... {progress}%
-                    </>
+                    <span>Processing… {progress}%</span>
                   ) : (
-                    <>
-                      📐 Resize to {getOutputDimensions().width} × {getOutputDimensions().height}
-                    </>
+                    <span>Resize to {getOutputDimensions().width} × {getOutputDimensions().height}</span>
                   )}
                 </button>
                 
                 {loading && (
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                  <div className="progress-bar mt-4 h-2 rounded-full bg-white/10">
+                    <div className="progress-fill h-2 rounded-full bg-[#00d4aa]" style={{ width: `${progress}%` }}></div>
                   </div>
                 )}
               </div>
@@ -740,34 +741,34 @@ const ResizePage = () => {
           
           {/* Result Section */}
           {processingMode === 'single' && resultImage && (
-            <div className="result-section">
-              <div className="result-header">
-                <h3>✅ Resized Image</h3>
-                <div className="result-actions">
-                  <button className="action-btn primary" onClick={handleDownload}>
-                    📥 Download
+            <div className="result-section glass-card p-6">
+              <div className="result-header flex items-center justify-between mb-4">
+                <h3 className="text-white font-semibold">Resized</h3>
+                <div className="result-actions flex items-center gap-2">
+                  <button className="action-btn primary accent-button" onClick={handleDownload} type="button">
+                    Download
                   </button>
-                  <button className="action-btn secondary" onClick={resetAll}>
-                    🔄 Resize Another
+                  <button className="action-btn secondary glass-button text-white" onClick={resetAll} type="button">
+                    Resize Another
                   </button>
                 </div>
               </div>
 
               {/* View Mode Toggle */}
-              <div className="view-mode-toggle">
+              <div className="view-mode-toggle flex gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-4 w-fit">
                 <button
-                  className={`view-mode-btn ${showComparison ? 'active' : ''}`}
+                  type="button"
+                  className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                   onClick={() => setShowComparison(true)}
                 >
-                  <span className="view-icon">↔️</span>
-                  <span>Comparison Slider</span>
+                  ↔ Compare
                 </button>
                 <button
-                  className={`view-mode-btn ${!showComparison ? 'active' : ''}`}
+                  type="button"
+                  className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${!showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                   onClick={() => setShowComparison(false)}
                 >
-                  <span className="view-icon">🔀</span>
-                  <span>Side by Side</span>
+                  🔀 Side-by-side
                 </button>
               </div>
 
@@ -780,29 +781,29 @@ const ResizePage = () => {
                     afterLabel={`Resized (${getOutputDimensions().width}×${getOutputDimensions().height})`}
                     className="resize-comparison"
                   />
-                  <p className="comparison-hint">👆 Drag the slider left and right to compare</p>
+                  <p className="comparison-hint text-center text-xs text-zinc-400 mt-2">Drag the slider to compare</p>
                 </div>
               ) : (
-                <div className="result-comparison-grid">
-                  <div className="comparison-card">
-                    <div className="comparison-card-header">
-                      <span className="comparison-badge original">Original</span>
-                      <span className="comparison-dimensions">{originalDimensions.width} × {originalDimensions.height}</span>
+                <div className="result-comparison-grid grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                  <div className="comparison-card rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                    <div className="comparison-card-header p-4 bg-white/[0.04] border-b border-white/10">
+                      <div className="text-xs text-zinc-400">Original</div>
+                      <div className="text-sm font-semibold text-white">{originalDimensions.width} × {originalDimensions.height}</div>
                     </div>
                     <div className="comparison-card-image">
-                      <img src={preview} alt="Original" />
+                      <img src={preview} alt="Original" className="w-full h-auto block" />
                     </div>
                   </div>
-                  <div className="comparison-arrow-container">
-                    <div className="comparison-arrow-icon">→</div>
+                  <div className="comparison-arrow-container hidden lg:flex items-center justify-center">
+                    <div className="comparison-arrow-icon text-3xl text-zinc-500">→</div>
                   </div>
-                  <div className="comparison-card">
-                    <div className="comparison-card-header">
-                      <span className="comparison-badge processed">Resized</span>
-                      <span className="comparison-dimensions">{getOutputDimensions().width} × {getOutputDimensions().height}</span>
+                  <div className="comparison-card rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                    <div className="comparison-card-header p-4 bg-white/[0.04] border-b border-white/10">
+                      <div className="text-xs text-zinc-400">Resized</div>
+                      <div className="text-sm font-semibold text-white">{getOutputDimensions().width} × {getOutputDimensions().height}</div>
                     </div>
                     <div className="comparison-card-image">
-                      <img src={resultImage} alt="Resized" />
+                      <img src={resultImage} alt="Resized" className="w-full h-auto block" />
                     </div>
                   </div>
                 </div>
@@ -830,71 +831,88 @@ const ResizePage = () => {
 
           {/* ===== BATCH MODE ===== */}
           {processingMode === 'batch' && (
-            <div className="batch-section">
+            <div className="batch-section space-y-6">
               {/* Batch Upload Area */}
               <div 
-                className={`upload-zone batch-upload ${dragActive ? 'drag-active' : ''}`}
+                className={`upload-zone batch-upload glass-card-hover p-8 sm:p-10 text-center ${dragActive ? 'ring-1 ring-[#00d4aa]/60' : ''}`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleBatchDrop}
               >
                 <div className="upload-content">
-                  <div className="upload-icon">📦</div>
-                  <h3>Drop multiple images here</h3>
-                  <p>or click to browse</p>
-                  <input 
+                  <div className="mx-auto w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 text-2xl">
+                    📦
+                  </div>
+                  <h3 className="text-xl font-semibold text-white">Drop multiple images here</h3>
+                  <p className="text-zinc-400 mt-1">or click to browse</p>
+                  <input
                     ref={batchFileInputRef}
                     type="file" 
                     accept="image/*" 
                     multiple
                     onChange={(e) => handleBatchFiles(e.target.files)}
-                    className="file-input"
+                    className="file-input hidden"
                   />
-                  <button className="browse-btn">Select Images</button>
+                  <button
+                    type="button"
+                    className="browse-btn accent-button mt-6"
+                    onClick={() => batchFileInputRef.current?.click()}
+                  >
+                    Select Images
+                  </button>
                 </div>
-                <p className="upload-info">Select multiple files • Supports JPG, PNG, WebP, GIF</p>
+                <p className="upload-info text-xs text-zinc-500 mt-4">Select multiple files • Supports JPG, PNG, WebP, GIF</p>
               </div>
 
               {/* Batch Settings */}
               {batchImages.length > 0 && (
-                <div className="batch-workspace">
-                  <div className="batch-settings-panel">
-                    <h3>⚙️ Batch Settings</h3>
-                    <p className="batch-settings-info">These settings apply to all images</p>
-                    
+                <div className="batch-workspace grid lg:grid-cols-[420px_1fr] gap-6 items-start">
+                  <div className="batch-settings-panel glass-card p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-white font-semibold">Batch Settings</h3>
+                        <p className="batch-settings-info text-sm text-zinc-400 mt-1">These settings apply to all images</p>
+                      </div>
+                      <span className="text-xs text-zinc-400">{batchImages.length} files</span>
+                    </div>
+
                     {/* Mode Tabs */}
-                    <div className="mode-tabs">
-                      <button 
-                        className={`mode-tab ${resizeMode === 'dimensions' ? 'active' : ''}`}
+                    <div className="mode-tabs flex items-center gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10 mt-4">
+                      <button
+                        type="button"
+                        className={`mode-tab flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${resizeMode === 'dimensions' ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                         onClick={() => setResizeMode('dimensions')}
                       >
-                        📏 Dimensions
+                        Dimensions
                       </button>
                       <button 
-                        className={`mode-tab ${resizeMode === 'percentage' ? 'active' : ''}`}
+                        type="button"
+                        className={`mode-tab flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${resizeMode === 'percentage' ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                         onClick={() => setResizeMode('percentage')}
                       >
-                        📊 Percentage
+                        Percent
                       </button>
                     </div>
                     
                     {resizeMode === 'dimensions' && (
-                      <div className="dimensions-input batch-dims">
+                      <div className="dimensions-input batch-dims grid grid-cols-[1fr_auto_1fr] items-end gap-3 mt-4">
                         <div className="input-group">
-                          <label>Width (px)</label>
-                          <input 
-                            type="number" 
+                          <label className="block text-xs text-zinc-400 mb-1">Width (px)</label>
+                          <input
+                            className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#00d4aa]/40"
+                            type="number"
                             value={width}
                             onChange={(e) => setWidth(e.target.value)}
                             placeholder="Width"
                           />
                         </div>
-                        <span className="dims-x">×</span>
+                        <span className="dims-x text-zinc-500 pb-3">×</span>
                         <div className="input-group">
-                          <label>Height (px)</label>
-                          <input 
-                            type="number" 
+                          <label className="block text-xs text-zinc-400 mb-1">Height (px)</label>
+                          <input
+                            className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#00d4aa]/40"
+                            type="number"
                             value={height}
                             onChange={(e) => setHeight(e.target.value)}
                             placeholder="Height"
@@ -904,9 +922,13 @@ const ResizePage = () => {
                     )}
                     
                     {resizeMode === 'percentage' && (
-                      <div className="percentage-slider batch-percent">
-                        <label>Scale: {percentage}%</label>
-                        <input 
+                      <div className="percentage-slider batch-percent mt-4">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm text-white">Scale</label>
+                          <span className="text-sm text-zinc-300">{percentage}%</span>
+                        </div>
+                        <input
+                          className="w-full mt-2 accent-[#00d4aa]"
                           type="range"
                           min="10"
                           max="200"
@@ -917,13 +939,14 @@ const ResizePage = () => {
                     )}
                     
                     {/* Quick Presets */}
-                    <div className="batch-presets">
-                      <label>Quick Presets</label>
-                      <div className="preset-buttons">
+                    <div className="batch-presets mt-5 pt-5 border-t border-white/10">
+                      <label className="block text-sm text-white mb-2">Quick Presets</label>
+                      <div className="preset-buttons grid grid-cols-2 gap-2">
                         {PRESETS.slice(0, 4).map((preset) => (
                           <button 
+                            type="button"
                             key={preset.name}
-                            className="preset-quick-btn"
+                            className="preset-quick-btn glass-button text-sm text-white px-3 py-2"
                             onClick={() => {
                               setWidth(preset.width.toString());
                               setHeight(preset.height.toString());
@@ -937,11 +960,12 @@ const ResizePage = () => {
                     </div>
                     
                     {/* Output Options */}
-                    <div className="batch-output-options">
+                    <div className="batch-output-options mt-5 pt-5 border-t border-white/10 space-y-4">
                       <div className="input-group">
-                        <label>Format</label>
-                        <select 
-                          value={outputFormat} 
+                        <label className="block text-sm text-white mb-2">Format</label>
+                        <select
+                          className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#00d4aa]/40"
+                          value={outputFormat}
                           onChange={(e) => setOutputFormat(e.target.value)}
                         >
                           <option value="jpeg">JPEG</option>
@@ -950,8 +974,12 @@ const ResizePage = () => {
                         </select>
                       </div>
                       <div className="input-group">
-                        <label>Quality: {quality}%</label>
-                        <input 
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm text-white">Quality</label>
+                          <span className="text-sm text-zinc-300">{quality}%</span>
+                        </div>
+                        <input
+                          className="w-full mt-2 accent-[#00d4aa]"
                           type="range"
                           min="10"
                           max="100"
@@ -962,101 +990,101 @@ const ResizePage = () => {
                     </div>
                     
                     {/* Batch Actions */}
-                    <div className="batch-actions">
-                      <button 
-                        className="process-batch-btn"
+                    <div className="batch-actions mt-5 pt-5 border-t border-white/10 space-y-2">
+                      <button
+                        type="button"
+                        className="process-batch-btn w-full accent-button"
                         onClick={processBatch}
                         disabled={batchProcessing || batchImages.length === 0}
                       >
                         {batchProcessing ? (
-                          <>Processing {batchProgress.current}/{batchProgress.total}...</>
+                          <>Processing {batchProgress.current}/{batchProgress.total}…</>
                         ) : (
-                          <>🚀 Process {batchImages.length} Images</>
+                          <>Process {batchImages.length} Images</>
                         )}
                       </button>
                       
                       {batchImages.some(i => i.status === 'done') && (
                         <button 
-                          className="download-all-btn"
+                          type="button"
+                          className="download-all-btn w-full glass-button text-white"
                           onClick={downloadBatchAll}
                         >
-                          📥 Download All (ZIP)
+                          Download All (ZIP)
                         </button>
                       )}
                       
                       <button 
-                        className="clear-batch-btn"
+                        type="button"
+                        className="clear-batch-btn w-full glass-button text-white"
                         onClick={clearBatch}
                         disabled={batchProcessing}
                       >
-                        🗑️ Clear All
+                        Clear All
                       </button>
                     </div>
                   </div>
                   
                   {/* Batch Image List */}
-                  <div className="batch-images-list">
-                    <div className="batch-list-header">
-                      <h4>{batchImages.length} Images</h4>
-                      <span className="batch-stats">
+                  <div className="batch-images-list glass-card p-6">
+                    <div className="batch-list-header flex items-center justify-between mb-4">
+                      <h4 className="text-white font-semibold">{batchImages.length} Images</h4>
+                      <span className="batch-stats text-sm text-zinc-400">
                         {batchImages.filter(i => i.status === 'done').length} completed
                       </span>
                     </div>
                     
-                    <div className="batch-grid">
+                    <div className="batch-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                       {batchImages.map((img) => (
-                        <div key={img.id} className={`batch-image-card ${img.status}`}>
-                          <div className="batch-thumb">
-                            <img src={img.preview} alt={img.name} />
+                        <div key={img.id} className={`batch-image-card ${img.status} rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03]`}>
+                          <div className="batch-thumb relative">
+                            <img src={img.preview} alt={img.name} className="w-full h-44 object-cover" />
                             {img.status === 'processing' && (
-                              <div className="batch-overlay processing">
-                                <div className="mini-spinner"></div>
-                                <span>{img.progress}%</span>
+                              <div className="batch-overlay processing absolute inset-0 bg-black/50 grid place-items-center text-white">
+                                <div className="mini-spinner animate-spin rounded-full border-2 border-white/20 border-t-white h-6 w-6"></div>
+                                <span className="mt-2 text-sm">{img.progress}%</span>
                               </div>
                             )}
                             {img.status === 'done' && (
-                              <div className="batch-overlay done">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                  <polyline points="20 6 9 17 4 12"/>
-                                </svg>
+                              <div className="batch-overlay done absolute top-3 right-3 w-8 h-8 rounded-xl bg-[#00d4aa] text-black grid place-items-center">
+                                ✓
                               </div>
                             )}
                             {img.status === 'error' && (
-                              <div className="batch-overlay error">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <line x1="18" y1="6" x2="6" y2="18"/>
-                                  <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
+                              <div className="batch-overlay error absolute top-3 right-3 w-8 h-8 rounded-xl bg-red-500/80 text-white grid place-items-center">
+                                ✕
                               </div>
                             )}
                           </div>
                           
-                          <div className="batch-card-info">
-                            <span className="batch-card-name" title={img.name}>
-                              {img.name.length > 20 ? img.name.substring(0, 17) + '...' : img.name}
-                            </span>
-                            <span className="batch-card-meta">
+                          <div className="batch-card-info p-4">
+                            <div className="batch-card-name text-sm font-medium text-white truncate" title={img.name}>
+                              {img.name}
+                            </div>
+                            <div className="batch-card-meta text-xs text-zinc-400 mt-1">
                               {img.dimensions.width}×{img.dimensions.height} • {formatFileSize(img.size)}
-                            </span>
+                            </div>
                           </div>
                           
-                          <div className="batch-card-actions">
+                          <div className="batch-card-actions px-4 pb-4 flex items-center justify-end gap-2">
                             {img.status === 'done' && (
                               <button 
-                                className="batch-card-btn download"
+                                type="button"
+                                className="batch-card-btn download glass-button text-white px-3 py-2"
                                 onClick={() => downloadSingleBatch(img)}
                                 title="Download"
                               >
-                                📥
+                                Download
                               </button>
                             )}
                             <button 
-                              className="batch-card-btn remove"
+                              type="button"
+                              className="batch-card-btn remove glass-button text-white px-3 py-2"
                               onClick={() => removeBatchImage(img.id)}
                               disabled={batchProcessing}
                               title="Remove"
                             >
-                              ✕
+                              Remove
                             </button>
                           </div>
                         </div>
@@ -1068,10 +1096,7 @@ const ResizePage = () => {
             </div>
           )}
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+    </PageShell>
   );
 };
 

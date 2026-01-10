@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
-import './ToolsPage.css';
 
 const ToolsPage = () => {
   const { t } = useTranslation();
@@ -102,41 +101,74 @@ const ToolsPage = () => {
       available: false,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          <path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
         </svg>
       )
     }
   ];
 
   return (
-    <div className="tools-page">
-      <SEO 
+    <div className="min-h-screen bg-dark-900">
+      <SEO
         title="Free Image Tools - AI Upscaler, Resizer & More | ImageStudio"
         description="Explore our free image tools: AI-powered upscaler, smart resizer, batch processor. No signup required."
         keywords="free image tools, online image editor, AI image tools, batch image processing"
         path="/tools"
       />
       <Header />
-      
-      <div className="tools-header">
-        <h1>{t('tools.title')}</h1>
-        <p>{t('tools.subtitle')}</p>
-      </div>
 
-      <div className="tools-grid">
-        {tools.map((tool) => (
-          <Link 
-            to={tool.path} 
-            key={tool.id} 
-            className={`tool-card ${!tool.available ? 'coming-soon' : ''}`}
-          >
-            {!tool.available && <span className="tool-badge">{t('tools.comingSoon')}</span>}
-            <div className="tool-icon">{tool.icon}</div>
-            <h3 className="tool-title">{tool.title}</h3>
-            <p className="tool-description">{tool.description}</p>
-          </Link>
-        ))}
-      </div>
+      <main className="pt-24 pb-20">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              All Tools
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('tools.title')}</h1>
+            <p className="text-zinc-400 text-lg max-w-lg mx-auto">{t('tools.subtitle')}</p>
+          </div>
+
+          {/* Tools Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {tools.map((tool) => (
+              <Link
+                key={tool.id}
+                to={tool.available ? tool.path : '#'}
+                className={`group relative glass-card p-6 transition-all duration-300 ${
+                  tool.available 
+                    ? 'hover:bg-white/[0.06] hover:border-primary/50 hover:-translate-y-2 hover:shadow-glow cursor-pointer' 
+                    : 'opacity-40 cursor-not-allowed'
+                }`}
+                onClick={(e) => !tool.available && e.preventDefault()}
+              >
+                {!tool.available && (
+                  <span className="absolute top-4 right-4 px-2 py-1 text-xs font-medium rounded-md bg-zinc-800 text-zinc-500">
+                    {t('tools.comingSoon')}
+                  </span>
+                )}
+
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-cyan-400 p-2.5 mb-4 group-hover:shadow-glow transition-shadow">
+                  <div className="w-full h-full text-black">
+                    {tool.icon}
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-semibold text-white mb-2">{tool.title}</h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">{tool.description}</p>
+
+                {tool.available && (
+                  <div className="mt-4 flex items-center gap-1 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    Try now
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </main>
 
       <Footer />
     </div>
@@ -144,3 +176,4 @@ const ToolsPage = () => {
 };
 
 export default ToolsPage;
+

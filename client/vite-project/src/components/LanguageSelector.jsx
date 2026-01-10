@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import './LanguageSelector.css';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -27,30 +26,48 @@ const LanguageSelector = () => {
   const currentLang = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   return (
-    <div className="language-selector">
-      <button 
-        className="language-btn"
+    <div className="relative">
+      <button
         onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/[0.03] transition-colors"
         aria-label={t('header.language')}
       >
-        <span className="lang-flag">{currentLang.flag}</span>
-        <span className="lang-code">{currentLang.code.toUpperCase()}</span>
-        <span className="lang-arrow">{isOpen ? '▲' : '▼'}</span>
+        <span className="text-lg leading-none">{currentLang.flag}</span>
+        <span className="text-sm font-medium text-white">{currentLang.code.toUpperCase()}</span>
+        <svg
+          className={`w-3 h-3 text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
-      
+
       {isOpen && (
         <>
-          <div className="language-backdrop" onClick={() => setIsOpen(false)} />
-          <div className="language-dropdown">
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute right-0 mt-2 w-48 glass-card p-1.5 z-50 shadow-glass-lg animate-in fade-in slide-in-from-top-2 duration-200">
             {languages.map(lang => (
               <button
                 key={lang.code}
-                className={`language-option ${i18n.language === lang.code ? 'active' : ''}`}
                 onClick={() => changeLanguage(lang.code)}
+                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-colors ${
+                  i18n.language === lang.code 
+                    ? 'bg-primary/20 text-primary' 
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
+                }`}
               >
-                <span className="lang-flag">{lang.flag}</span>
-                <span className="lang-name">{lang.name}</span>
-                {i18n.language === lang.code && <span className="checkmark">✓</span>}
+                <span className="text-lg">{lang.flag}</span>
+                <span className="text-sm font-medium flex-1">{lang.name}</span>
+                {i18n.language === lang.code && (
+                  <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
               </button>
             ))}
           </div>
@@ -61,3 +78,4 @@ const LanguageSelector = () => {
 };
 
 export default LanguageSelector;
+

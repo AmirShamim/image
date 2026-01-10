@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import VerificationModal from './VerificationModal';
-import './Auth.css';
 
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
-  const [mode, setMode] = useState(initialMode); // 'login' or 'register'
+  const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -50,36 +49,26 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
           return;
         }
         const response = await register(email, username, password);
-        
-        // Check if email verification is required
+
         if (response.requiresVerification) {
           setRegisteredEmail(response.email || email);
-          
-          // Check if there was an email sending error
           if (response.emailError) {
             setError(response.emailError);
             setSuccess('Account created! Click "Resend Code" to try sending verification email again.');
           } else {
             setSuccess('Registration successful! Please check your email for verification code.');
           }
-          
-          setTimeout(() => {
-            setShowVerification(true);
-          }, 1500);
+          setTimeout(() => setShowVerification(true), 1500);
         } else {
           setSuccess('Account created successfully!');
           setTimeout(() => onClose(), 1000);
         }
       } else {
         const response = await login(email, password);
-        
-        // Check if verification is required
         if (response.requiresVerification) {
           setRegisteredEmail(response.email || email);
           setError('Please verify your email before logging in');
-          setTimeout(() => {
-            setShowVerification(true);
-          }, 1500);
+          setTimeout(() => setShowVerification(true), 1500);
         } else {
           setSuccess('Login successful!');
           setTimeout(() => onClose(), 500);
@@ -87,14 +76,10 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
       }
     } catch (err) {
       const errorMsg = err.response?.data?.error || err.message;
-      
-      // Check if error indicates verification needed
       if (errorMsg.includes('verify') && err.response?.data?.requiresVerification) {
         setRegisteredEmail(err.response.data.email || email);
         setError(errorMsg);
-        setTimeout(() => {
-          setShowVerification(true);
-        }, 1500);
+        setTimeout(() => setShowVerification(true), 1500);
       } else {
         setError(errorMsg);
       }
@@ -115,133 +100,195 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
 
   return (
     <>
-      <div className="auth-modal-overlay" onClick={onClose}>
-        <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-          <button className="auth-modal-close" onClick={onClose}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div
+          className="relative w-full max-w-md glass-card p-8 shadow-glass-lg"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <div className="auth-modal-header">
-            <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-            <p>{mode === 'login' ? 'Sign in to your account' : 'Join us today'}</p>
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-white mb-1">
+              {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+            </h2>
+            <p className="text-zinc-400 text-sm">
+              {mode === 'login'
+                ? 'Sign in to your account'
+                : 'Create your free account. No credit card required.'}
+            </p>
           </div>
 
-          <div className="auth-tabs">
-            <button 
-              className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
+          {mode === 'register' && (
+            <div className="glass mb-6 rounded-xl p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">You’ll get</p>
+              <ul className="grid grid-cols-1 gap-2 text-sm text-zinc-300">
+                {[
+                  'Free image resizing (unlimited)',
+                  'AI upscaling with daily limits',
+                  'Image history (when logged in)',
+                  'Access to premium plans later'
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 inline-block w-1.5 h-1.5 rounded-full bg-[#00d4aa]" />
+                    <span className="leading-snug">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div className="flex gap-2 p-1 bg-dark-600 rounded-xl mb-6">
+            <button
               onClick={() => switchMode('login')}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                mode === 'login'
+                  ? 'bg-primary text-black'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
             >
               Login
             </button>
-            <button 
-              className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
+            <button
               onClick={() => switchMode('register')}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                mode === 'register'
+                  ? 'bg-primary text-black'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
             >
               Register
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="auth-form">
-            {error && <div className="auth-error">{error}</div>}
-            {success && <div className="auth-success">{success}</div>}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm">
+                {success}
+              </div>
+            )}
 
             {mode === 'login' ? (
-              <div className="auth-field">
-                <label htmlFor="emailOrUsername">Email or Username</label>
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Email or Username</label>
                 <input
                   type="text"
-                  id="emailOrUsername"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email or username"
                   required
-                  autoComplete="username"
+                  className="w-full px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
             ) : (
-              <div className="auth-field">
-                <label htmlFor="email">Email</label>
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Email</label>
                 <input
                   type="email"
-                  id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  autoComplete="email"
+                  className="w-full px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
             )}
 
             {mode === 'register' && (
-              <div className="auth-field">
-                <label htmlFor="username">Username</label>
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Username</label>
                 <input
                   type="text"
-                  id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="username"
                   required
-                  autoComplete="username"
                   pattern="[a-zA-Z0-9_]{3,30}"
-                  title="3-30 characters, letters, numbers, and underscores only"
+                  className="w-full px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
             )}
 
-            <div className="auth-field">
-              <label htmlFor="password">Password</label>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Password</label>
               <input
                 type="password"
-                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 minLength={6}
+                className="w-full px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
               />
             </div>
 
             {mode === 'register' && (
-              <div className="auth-field">
-                <label htmlFor="confirmPassword">Confirm Password</label>
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Confirm Password</label>
                 <input
                   type="password"
-                  id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  autoComplete="new-password"
+                  className="w-full px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
             )}
 
-            <button type="submit" className="auth-submit" disabled={loading}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 bg-gradient-to-r from-primary to-cyan-400 text-black font-semibold rounded-xl hover:shadow-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
               {loading ? (
-                <span className="auth-spinner"></span>
+                <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
               ) : (
                 mode === 'login' ? 'Sign In' : 'Create Account'
               )}
             </button>
           </form>
 
-          <div className="auth-footer">
+          {/* Footer */}
+          <div className="mt-6 text-center text-sm text-zinc-400">
             {mode === 'login' ? (
-              <p>Don't have an account? <button onClick={() => switchMode('register')}>Sign up</button></p>
+              <p>
+                Don't have an account?{' '}
+                <button onClick={() => switchMode('register')} className="text-primary hover:underline font-medium">
+                  Sign up
+                </button>
+              </p>
             ) : (
-              <p>Already have an account? <button onClick={() => switchMode('login')}>Sign in</button></p>
+              <p>
+                Already have an account?{' '}
+                <button onClick={() => switchMode('login')} className="text-primary hover:underline font-medium">
+                  Sign in
+                </button>
+              </p>
             )}
           </div>
         </div>
       </div>
 
-      <VerificationModal 
+      <VerificationModal
         isOpen={showVerification}
         onClose={() => setShowVerification(false)}
         email={registeredEmail}
@@ -252,3 +299,4 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
 };
 
 export default AuthModal;
+

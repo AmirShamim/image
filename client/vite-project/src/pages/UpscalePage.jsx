@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import ImageComparison from '../components/ImageComparison';
 import { useAuth } from '../context/AuthContext';
 import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
-import './UpscalePage.css';
+import PageShell from '../components/PageShell';
+import PageHero from '../components/PageHero';
 
 const API_URL = '';
 
@@ -292,8 +291,8 @@ const UpscalePage = () => {
   };
 
   return (
-    <div className="upscale-page">
-      <SEO 
+    <PageShell>
+      <SEO
         title="Free AI Image Upscaler - Enhance Resolution up to 4x | ImageStudio"
         description="Upscale and enhance images with AI. Increase resolution 2x, 3x or 4x using Real-ESRGAN technology. Free, fast, no watermarks."
         keywords="AI image upscaler, upscale image, increase resolution, Real-ESRGAN, enhance photo quality, 4x upscale free"
@@ -311,281 +310,310 @@ const UpscalePage = () => {
           ]
         }}
       />
-      <Header />
-      
-      <main className="upscale-main">
-        <div className="upscale-container">
-          {/* Hero Section */}
-          <div className="upscale-hero">
-            <div className="hero-badge">AI-Powered</div>
-            <h1>Image Upscaler</h1>
-            <p>Enhance image resolution up to 4x using state-of-the-art neural networks. Perfect for prints, presentations, and professional work.</p>
-          </div>
-          
-          {/* Upload Section */}
-          {!preview && (
-            <div 
-              className={`upload-zone ${dragActive ? 'drag-active' : ''}`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
+
+      <PageHero
+        badge="AI Upscaling"
+        title="Image Upscaler"
+        subtitle="Enhance image resolution up to 4x using neural upscaling. Great for prints, presentations, and professional work."
+        right={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowComparison((v) => !v)}
+              className="glass-button text-sm text-white"
             >
-              <div className="upload-content">
-                <div className="upload-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                  </svg>
-                </div>
-                <h3>Drop your image here</h3>
-                <p>or click to browse files</p>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleFileInput}
-                  className="file-input"
-                />
-                <button className="browse-btn">Select Image</button>
-              </div>
-              <p className="upload-info">JPG, PNG, WebP supported • Max 10MB</p>
+              {showComparison ? 'Hide comparison' : 'Show comparison'}
+            </button>
+          </div>
+        }
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Upload Section */}
+        {!preview && (
+          <div
+            className={`glass-card-hover p-8 sm:p-10 text-center ${dragActive ? 'ring-1 ring-[#00d4aa]/60' : ''}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
             </div>
-          )}
-          
-          {/* Preview & Settings */}
-          {preview && !resultImage && (
-            <div className="upscale-workspace">
-              {/* Image Preview */}
-              <div className="preview-section">
-                <div className="preview-header">
-                  <h3>📷 Original Image</h3>
-                  <button className="reset-btn" onClick={resetAll}>✕ Remove</button>
-                </div>
-                <div className="preview-image-container">
-                  <img src={preview} alt="Preview" className="preview-image" />
-                </div>
-                <div className="image-info">
-                  <span>{originalDimensions.width} × {originalDimensions.height} px</span>
-                  <span>{(file?.size / 1024).toFixed(1)} KB</span>
-                </div>
+
+            <h3 className="text-xl font-semibold text-white">Drop your image here</h3>
+            <p className="text-zinc-400 mt-1">or click to browse files</p>
+
+            <label className="inline-flex items-center justify-center mt-6 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+              <span className="accent-button">Select Image</span>
+            </label>
+
+            <p className="text-xs text-zinc-500 mt-4">JPG, PNG, WebP supported • Max 10MB</p>
+          </div>
+        )}
+
+        {/* Preview & Settings */}
+        {preview && !resultImage && (
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Preview */}
+            <div className="glass-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-semibold">Original</h3>
+                <button className="glass-button text-sm text-white" onClick={resetAll}>Remove</button>
               </div>
-              
-              {/* Settings Panel */}
-              <div className="settings-section">
-                <h3>⚙️ Upscale Settings</h3>
-                
-                {/* AI Model Selection */}
-                <div className="setting-group">
-                  <label>AI Model</label>
-                  <div className="model-grid">
-                    {Object.entries(AI_MODELS).map(([key, model]) => {
-                      const isAvailable = canUseModel(key);
-                      return (
-                        <button
-                          key={key}
-                          className={`model-card ${modelType === key ? 'active' : ''} ${!isAvailable ? 'locked' : ''}`}
-                          onClick={() => {
-                            if (isAvailable) {
-                              setModelType(key);
-                              if (!model.scales.includes(scale)) {
-                                setScale(model.scales[0]);
-                              }
+              <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                <img src={preview} alt="Preview" className="w-full h-auto block" />
+              </div>
+              <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
+                <span>{originalDimensions.width} × {originalDimensions.height} px</span>
+                <span>{(file?.size / 1024).toFixed(1)} KB</span>
+              </div>
+            </div>
+
+            {/* Settings */}
+            <div className="glass-card p-6">
+              <h3 className="text-white font-semibold mb-4">Upscale Settings</h3>
+
+              {/* AI Model Selection */}
+              <div className="setting-group mb-4">
+                <label className="text-sm text-white mb-2">AI Model</label>
+                <div className="model-grid grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {Object.entries(AI_MODELS).map(([key, model]) => {
+                    const isAvailable = canUseModel(key);
+                    const isSelected = modelType === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        className={`model-card relative p-4 rounded-2xl border transition-all duration-200 ease-in-out text-left ${
+                          isSelected
+                            ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
+                            : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
+                        } ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => {
+                          if (isAvailable) {
+                            setModelType(key);
+                            if (!model.scales.includes(scale)) {
+                              setScale(model.scales[0]);
                             }
-                          }}
-                          disabled={!isAvailable}
-                        >
-                          <span className="model-icon">{model.icon}</span>
-                          <span className="model-name">{model.name}</span>
-                          <span className="model-desc">{model.description}</span>
-                          <span className="model-speed">{model.speed}</span>
-                          {!isAvailable && <span className="lock-badge">🔒 Pro</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                {/* Scale Selection */}
-                <div className="setting-group">
-                  <label>Upscale Factor</label>
-                  <div className="scale-buttons">
-                    {AI_MODELS[modelType]?.scales.map((s) => {
-                      const tooLarge = isImageTooLarge(s);
-                      const noUsage = !canUseScale(s);
-                      const isDisabled = tooLarge || noUsage;
-                      return (
-                        <button
-                          key={s}
-                          className={`scale-btn ${scale === s ? 'active' : ''} ${isDisabled ? 'disabled' : ''} ${tooLarge ? 'size-exceeded' : ''}`}
-                          onClick={() => !isDisabled && setScale(s)}
-                          disabled={isDisabled}
-                          title={tooLarge ? `Image exceeds ${getSizeLimitMessage(s)}` : ''}
-                        >
-                          <span className="scale-value">{s}</span>
-                          <span className="scale-limit">{getSizeLimitMessage(s)}</span>
-                          {tooLarge ? (
-                            <span className="scale-warning">⚠️ Too large</span>
-                          ) : (
-                            <span className="scale-uses">{getRemainingUses(s)} left</span>
+                          }
+                        }}
+                        disabled={!isAvailable}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="model-icon text-2xl">{model.icon}</span>
+                          {!isAvailable && (
+                            <span className="lock-badge text-[10px] px-2 py-0.5 rounded-full bg-white/10 border border-white/10 text-zinc-200">
+                              Pro
+                            </span>
                           )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                {/* Output Preview */}
-                <div className="output-preview">
-                  <div className="preview-comparison">
-                    <div className="size-box original">
-                      <span className="size-label">Current</span>
-                      <span className="size-value">{originalDimensions.width} × {originalDimensions.height}</span>
-                    </div>
-                    <span className="arrow">→</span>
-                    <div className="size-box result">
-                      <span className="size-label">Result</span>
-                      <span className="size-value">{getResultDimensions().width} × {getResultDimensions().height}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Error Message */}
-                {error && (
-                  <div className="error-message">
-                    <span>⚠️</span> {error}
-                  </div>
-                )}
-                
-                {/* Upscale Button */}
-                <button 
-                  className="upscale-btn"
-                  onClick={handleUpscale}
-                  disabled={loading || !canUseScale(scale) || !canUseModel(modelType) || isImageTooLarge(scale)}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner"></span>
-                      Processing... {progress}%
-                    </>
-                  ) : isImageTooLarge(scale) ? (
-                    <>
-                      ⚠️ Image exceeds {getSizeLimitMessage(scale)} limit
-                    </>
-                  ) : (
-                    <>
-                      🚀 Upscale with {AI_MODELS[modelType]?.name} ({scale})
-                    </>
-                  )}
-                </button>
-                
-                {loading && (
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Result Section */}
-          {resultImage && (
-            <div className="result-section">
-              <div className="result-header">
-                <h3>✨ Upscaled Result</h3>
-                <div className="result-actions">
-                  <button className="action-btn primary" onClick={handleDownload}>
-                    📥 Download
-                  </button>
-                  <button className="action-btn secondary" onClick={resetAll}>
-                    🔄 Upscale Another
-                  </button>
+                        </div>
+                        <span className="model-name block font-semibold text-white mt-2">{model.name}</span>
+                        <span className="model-desc block text-xs text-zinc-400 mt-1">{model.description}</span>
+                        <span className="model-speed block text-xs text-zinc-500 mt-2">{model.speed}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* View Mode Toggle */}
-              <div className="view-mode-toggle">
-                <button
-                  className={`view-mode-btn ${showComparison ? 'active' : ''}`}
-                  onClick={() => setShowComparison(true)}
-                >
-                  <span className="view-icon">↔️</span>
-                  <span>Comparison Slider</span>
-                </button>
-                <button
-                  className={`view-mode-btn ${!showComparison ? 'active' : ''}`}
-                  onClick={() => setShowComparison(false)}
-                >
-                  <span className="view-icon">🔀</span>
-                  <span>Side by Side</span>
-                </button>
+              {/* Scale Selection */}
+              <div className="setting-group mb-4">
+                <label className="text-sm text-white mb-2">Upscale Factor</label>
+                <div className="scale-buttons flex flex-col sm:flex-row gap-2">
+                  {AI_MODELS[modelType]?.scales.map((s) => {
+                    const tooLarge = isImageTooLarge(s);
+                    const noUsage = !canUseScale(s);
+                    const isDisabled = tooLarge || noUsage;
+                    const isSelected = scale === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        className={`scale-btn flex-1 rounded-2xl p-4 text-left border transition-all ${
+                          isSelected
+                            ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
+                            : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
+                        } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''} ${tooLarge ? 'ring-1 ring-red-500/40' : ''}`}
+                        onClick={() => !isDisabled && setScale(s)}
+                        disabled={isDisabled}
+                        title={tooLarge ? `Image exceeds ${getSizeLimitMessage(s)}` : ''}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="scale-value text-lg font-semibold text-white">{s}</span>
+                          <span className="scale-limit text-[11px] text-zinc-400">{getSizeLimitMessage(s)}</span>
+                        </div>
+                        <div className="mt-2">
+                          {tooLarge ? (
+                            <span className="scale-warning text-red-300 text-xs flex items-center gap-1">
+                              ⚠️ Too large
+                            </span>
+                          ) : (
+                            <span className="scale-uses text-xs text-zinc-400">{getRemainingUses(s)} left</span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {showComparison ? (
-                <div className="comparison-slider-container">
-                  <ImageComparison
-                    beforeImage={preview}
-                    afterImage={resultImage}
-                    beforeLabel={`Original (${originalDimensions.width}×${originalDimensions.height})`}
-                    afterLabel={`Upscaled ${scale} (${getResultDimensions().width}×${getResultDimensions().height})`}
-                    className="upscale-comparison"
-                  />
-                  <p className="comparison-hint">👆 Drag the slider left and right to compare</p>
+              {/* Output Preview */}
+              <div className="output-preview mb-4">
+                <div className="preview-comparison flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/10 p-4">
+                  <div className="size-box original text-sm">
+                    <span className="size-label text-zinc-400">Current</span>
+                    <span className="size-value font-semibold text-white block">{originalDimensions.width} × {originalDimensions.height}</span>
+                  </div>
+                  <span className="arrow text-zinc-500">→</span>
+                  <div className="size-box result text-sm text-right">
+                    <span className="size-label text-zinc-400">Result</span>
+                    <span className="size-value font-semibold text-white block">{getResultDimensions().width} × {getResultDimensions().height}</span>
+                  </div>
                 </div>
-              ) : (
-                <div className="result-comparison-grid">
-                  <div className="comparison-card">
-                    <div className="comparison-card-header">
-                      <span className="comparison-badge original">Original</span>
-                      <span className="comparison-dimensions">{originalDimensions.width} × {originalDimensions.height}</span>
-                    </div>
-                    <div className="comparison-card-image">
-                      <img src={preview} alt="Original" />
-                    </div>
-                  </div>
-                  <div className="comparison-arrow-container">
-                    <div className="comparison-arrow-icon">→</div>
-                  </div>
-                  <div className="comparison-card">
-                    <div className="comparison-card-header">
-                      <span className="comparison-badge processed">Upscaled {scale}</span>
-                      <span className="comparison-dimensions">{getResultDimensions().width} × {getResultDimensions().height}</span>
-                    </div>
-                    <div className="comparison-card-image">
-                      <img src={resultImage} alt="Upscaled" />
-                    </div>
-                  </div>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="error-message mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
+                  <span>⚠️</span> {error}
+                </div>
+              )}
+
+              {/* Upscale Button */}
+              <button
+                type="button"
+                className={`upscale-btn w-full accent-button text-center flex items-center justify-center gap-2 ${loading ? 'opacity-90' : ''}`}
+                onClick={handleUpscale}
+                disabled={loading || !canUseScale(scale) || !canUseModel(modelType) || isImageTooLarge(scale)}
+              >
+                {loading ? (
+                  <>
+                    <span className="animate-spin rounded-full border-2 border-black/20 border-t-black h-4 w-4"></span>
+                    Processing… {progress}%
+                  </>
+                ) : isImageTooLarge(scale) ? (
+                  <>⚠️ Image exceeds {getSizeLimitMessage(scale)} limit</>
+                ) : (
+                  <>Upscale with {AI_MODELS[modelType]?.name} ({scale})</>
+                )}
+              </button>
+
+              {loading && (
+                <div className="progress-bar mt-4 h-2 rounded-full bg-white/10">
+                  <div className="progress-fill h-2 rounded-full bg-[#00d4aa]" style={{ width: `${progress}%` }}></div>
                 </div>
               )}
             </div>
-          )}
-          
-          {/* Info Section */}
-          <div className="info-section">
-            <h3>How AI Upscaling Works</h3>
-            <div className="info-grid">
-              <div className="info-card">
-                <span className="info-icon">🧠</span>
-                <h4>Deep Learning</h4>
-                <p>Uses neural networks trained on millions of images to predict and generate realistic details.</p>
+          </div>
+        )}
+
+        {/* Result Section */}
+        {resultImage && (
+          <div className="result-section glass-card p-6">
+            <div className="result-header flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Upscaled Result</h3>
+              <div className="result-actions flex items-center gap-2">
+                <button className="action-btn primary accent-button" onClick={handleDownload} type="button">
+                  Download
+                </button>
+                <button className="action-btn secondary glass-button text-white" onClick={resetAll} type="button">
+                  Upscale Another
+                </button>
               </div>
-              <div className="info-card">
-                <span className="info-icon">✨</span>
-                <h4>Detail Enhancement</h4>
-                <p>Adds sharp edges, textures, and details that simple resizing cannot achieve.</p>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="view-mode-toggle flex gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-4 w-fit">
+              <button
+                type="button"
+                className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
+                onClick={() => setShowComparison(true)}
+              >
+                ↔ Compare
+              </button>
+              <button
+                type="button"
+                className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${!showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
+                onClick={() => setShowComparison(false)}
+              >
+                🔀 Side-by-side
+              </button>
+            </div>
+
+            {showComparison ? (
+              <div className="comparison-slider-container mb-4">
+                <ImageComparison
+                  beforeImage={preview}
+                  afterImage={resultImage}
+                  beforeLabel={`Original (${originalDimensions.width}×${originalDimensions.height})`}
+                  afterLabel={`Upscaled ${scale} (${getResultDimensions().width}×${getResultDimensions().height})`}
+                  className="upscale-comparison"
+                />
+                <p className="comparison-hint text-center text-xs text-zinc-400 mt-2">Drag the slider to compare</p>
               </div>
-              <div className="info-card">
-                <span className="info-icon">🎨</span>
-                <h4>Color Preservation</h4>
-                <p>Maintains accurate colors while enhancing image quality and sharpness.</p>
+            ) : (
+              <div className="result-comparison-grid grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                <div className="comparison-card rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                  <div className="comparison-card-header p-4 bg-white/[0.04] border-b border-white/10">
+                    <div className="text-xs text-zinc-400">Original</div>
+                    <div className="text-sm font-semibold text-white">{originalDimensions.width} × {originalDimensions.height}</div>
+                  </div>
+                  <div className="comparison-card-image">
+                    <img src={preview} alt="Original" className="w-full h-auto block" />
+                  </div>
+                </div>
+                <div className="comparison-arrow-container hidden lg:flex items-center justify-center">
+                  <div className="comparison-arrow-icon text-3xl text-zinc-500">→</div>
+                </div>
+                <div className="comparison-card rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                  <div className="comparison-card-header p-4 bg-white/[0.04] border-b border-white/10">
+                    <div className="text-xs text-zinc-400">Upscaled {scale}</div>
+                    <div className="text-sm font-semibold text-white">{getResultDimensions().width} × {getResultDimensions().height}</div>
+                  </div>
+                  <div className="comparison-card-image">
+                    <img src={resultImage} alt="Upscaled" className="w-full h-auto block" />
+                  </div>
+                </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Info Section */}
+        <div className="info-section mt-10">
+          <h3 className="text-white font-semibold mb-4">How AI Upscaling Works</h3>
+          <div className="info-grid grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="info-card glass-card p-5">
+              <span className="info-icon text-3xl">🧠</span>
+              <h4 className="text-white font-semibold mt-2">Deep Learning</h4>
+              <p className="text-zinc-400 text-sm mt-2">Uses neural networks trained on millions of images to predict and generate realistic details.</p>
+            </div>
+            <div className="info-card glass-card p-5">
+              <span className="info-icon text-3xl">✨</span>
+              <h4 className="text-white font-semibold mt-2">Detail Enhancement</h4>
+              <p className="text-zinc-400 text-sm mt-2">Adds sharp edges, textures, and details that simple resizing cannot achieve.</p>
+            </div>
+            <div className="info-card glass-card p-5">
+              <span className="info-icon text-3xl">🎨</span>
+              <h4 className="text-white font-semibold mt-2">Color Preservation</h4>
+              <p className="text-zinc-400 text-sm mt-2">Maintains accurate colors while enhancing image quality and sharpness.</p>
             </div>
           </div>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+      </div>
+    </PageShell>
   );
 };
 

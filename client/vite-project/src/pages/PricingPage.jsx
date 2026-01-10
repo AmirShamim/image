@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
-import './PricingPage.css';
 
 const PricingPage = () => {
   const { t } = useTranslation();
@@ -40,71 +39,111 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="pricing-page">
-      <SEO 
+    <div className="min-h-screen bg-dark-900">
+      <SEO
         title="Pricing - Free & Pro Plans | ImageStudio"
         description="Choose the perfect plan for your needs. Free tier with 5 upscales/day or Pro with unlimited access starting at $9/month."
         keywords="image upscaler pricing, pro image tools, premium upscaling, AI image pricing"
         path="/pricing"
       />
       <Header />
-      
-      <div className="page-container">
-        <div className="page-header">
-          <h1>{t('pricing.title')}</h1>
-          <p>{t('pricing.subtitle')}</p>
-        </div>
 
-        <div className="billing-toggle">
-          <span className={billingCycle === 'monthly' ? 'active' : ''}>{t('pricing.monthly')}</span>
-          <button 
-            className="toggle-switch"
-            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-          >
-            <span className={`toggle-thumb ${billingCycle === 'yearly' ? 'yearly' : ''}`}></span>
-          </button>
-          <span className={billingCycle === 'yearly' ? 'active' : ''}>{t('pricing.yearly')}</span>
-        </div>
+      <main className="pt-24 pb-20">
+        <div className="max-w-5xl mx-auto px-4">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              Pricing Plans
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('pricing.title')}</h1>
+            <p className="text-zinc-400 text-lg max-w-md mx-auto">{t('pricing.subtitle')}</p>
+          </div>
 
-        <div className="plans-grid">
-          {plans.map((plan, index) => (
-            <div 
-              key={index} 
-              className={`plan-card ${plan.highlighted ? 'highlighted' : ''}`}
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <span className={`text-sm font-medium ${billingCycle === 'monthly' ? 'text-white' : 'text-zinc-500'}`}>
+              {t('pricing.monthly')}
+            </span>
+            <button
+              onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+              className="relative w-14 h-7 bg-dark-600 rounded-full border border-white/10 transition-colors hover:border-primary/50"
             >
-              <h2 className="plan-name">{plan.name}</h2>
-              <div className="plan-price">
-                <span className="price-amount">
-                  {plan.price[billingCycle] === 0 ? 'Free' : `$${plan.price[billingCycle]}`}
-                </span>
-                {plan.price[billingCycle] > 0 && (
-                  <span className="price-period">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
-                )}
-              </div>
-              <p className="plan-description">{plan.description}</p>
-              
-              <ul className="plan-features">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+              <span
+                className={`absolute top-1 w-5 h-5 bg-gradient-to-r from-primary to-cyan-400 rounded-full transition-all duration-300 ${
+                  billingCycle === 'yearly' ? 'left-8' : 'left-1'
+                }`}
+              />
+            </button>
+            <span className={`text-sm font-medium ${billingCycle === 'yearly' ? 'text-white' : 'text-zinc-500'}`}>
+              {t('pricing.yearly')}
+            </span>
+            {billingCycle === 'yearly' && (
+              <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-cyan-400 text-black text-xs font-bold rounded-full">
+                Save 17%
+              </span>
+            )}
+          </div>
 
-              <button className={`plan-cta ${plan.highlighted ? 'primary' : 'secondary'}`}>
-                {plan.cta}
-              </button>
-            </div>
-          ))}
+          {/* Plans Grid */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {plans.map((plan, index) => (
+              <div
+                key={index}
+                className={`relative glass-card p-8 flex flex-col transition-all duration-300 hover:-translate-y-2 ${
+                  plan.highlighted 
+                    ? 'border-primary/50 shadow-glow scale-105' 
+                    : 'hover:border-white/20'
+                }`}
+              >
+                {plan.highlighted && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-primary to-cyan-400 text-black text-xs font-bold rounded-full whitespace-nowrap">
+                    Most Popular
+                  </span>
+                )}
+
+                <h2 className="text-xl font-bold text-white mb-2">{plan.name}</h2>
+
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className={`text-4xl font-bold ${plan.highlighted ? 'accent-gradient' : 'text-white'}`}>
+                    {plan.price[billingCycle] === 0 ? 'Free' : `$${plan.price[billingCycle]}`}
+                  </span>
+                  {plan.price[billingCycle] > 0 && (
+                    <span className="text-zinc-500 text-sm">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                  )}
+                </div>
+
+                <p className="text-sm text-zinc-400 mb-6">{plan.description}</p>
+
+                <ul className="space-y-3 mb-8 flex-1">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm text-zinc-400">
+                      <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  className={`w-full py-3 rounded-xl font-semibold transition-all duration-200 ${
+                    plan.highlighted
+                      ? 'bg-gradient-to-r from-primary to-cyan-400 text-black hover:shadow-glow hover:-translate-y-0.5'
+                      : 'glass-button text-white hover:border-primary/50'
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      
+      </main>
+
       <Footer />
     </div>
   );
 };
 
 export default PricingPage;
+
