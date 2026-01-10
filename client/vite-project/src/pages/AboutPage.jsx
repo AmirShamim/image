@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import './AboutPage.css';
 
 const AboutPage = () => {
@@ -10,6 +11,12 @@ const AboutPage = () => {
 
   return (
     <div className="about-page">
+      <SEO 
+        title="About Us - Our Mission & Technology | ImageStudio"
+        description="Learn about ImageStudio's mission to provide free, professional-grade AI image tools. Powered by Real-ESRGAN technology."
+        keywords="about ImageStudio, Real-ESRGAN, AI image technology, image upscaling company"
+        path="/about"
+      />
       <Header />
       
       <div className="page-container">

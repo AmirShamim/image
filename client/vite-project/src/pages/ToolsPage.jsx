@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import './ToolsPage.css';
 
 const ToolsPage = () => {
@@ -109,6 +110,12 @@ const ToolsPage = () => {
 
   return (
     <div className="tools-page">
+      <SEO 
+        title="Free Image Tools - AI Upscaler, Resizer & More | ImageStudio"
+        description="Explore our free image tools: AI-powered upscaler, smart resizer, batch processor. No signup required."
+        keywords="free image tools, online image editor, AI image tools, batch image processing"
+        path="/tools"
+      />
       <Header />
       
       <div className="tools-header">

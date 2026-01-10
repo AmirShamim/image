@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import './ContactPage.css';
 
 const ContactPage = () => {
@@ -30,6 +31,12 @@ const ContactPage = () => {
 
   return (
     <div className="contact-page">
+      <SEO 
+        title="Contact Us - Get Help & Support | ImageStudio"
+        description="Have questions about ImageStudio? Contact our support team for help with AI upscaling, pricing, or technical issues."
+        keywords="contact ImageStudio, image upscaler support, customer service, help"
+        path="/contact"
+      />
       <Header />
       
       <div className="page-container">

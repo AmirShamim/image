@@ -4,6 +4,7 @@ import JSZip from 'jszip';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
 import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
@@ -437,6 +438,23 @@ const ResizePage = () => {
 
   return (
     <div className="resize-page">
+      <SEO 
+        title="Free Image Resizer - Resize for Social Media & Web | ImageStudio"
+        description="Resize images to exact dimensions for Instagram, YouTube, Facebook, Twitter. Batch processing, custom sizes, social media presets. Free, no signup."
+        keywords="image resizer, resize image online, Instagram size, YouTube thumbnail, Facebook cover, social media image dimensions"
+        path="/resize"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "How to Resize Images Online",
+          "description": "Resize images to any dimension using ImageStudio's free online tool",
+          "step": [
+            {"@type": "HowToStep", "name": "Upload Image", "text": "Drag and drop or click to upload your image"},
+            {"@type": "HowToStep", "name": "Select Dimensions", "text": "Choose from presets or enter custom width and height"},
+            {"@type": "HowToStep", "name": "Download", "text": "Click resize and download your perfectly sized image"}
+          ]
+        }}
+      />
       <Header />
       
       <main className="resize-main">

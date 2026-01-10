@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import './PricingPage.css';
 
 const PricingPage = () => {
@@ -40,6 +41,12 @@ const PricingPage = () => {
 
   return (
     <div className="pricing-page">
+      <SEO 
+        title="Pricing - Free & Pro Plans | ImageStudio"
+        description="Choose the perfect plan for your needs. Free tier with 5 upscales/day or Pro with unlimited access starting at $9/month."
+        keywords="image upscaler pricing, pro image tools, premium upscaling, AI image pricing"
+        path="/pricing"
+      />
       <Header />
       
       <div className="page-container">

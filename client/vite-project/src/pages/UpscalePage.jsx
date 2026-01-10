@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
 import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
@@ -276,6 +277,24 @@ const UpscalePage = () => {
 
   return (
     <div className="upscale-page">
+      <SEO 
+        title="Free AI Image Upscaler - Enhance Resolution up to 4x | ImageStudio"
+        description="Upscale and enhance images with AI. Increase resolution 2x, 3x or 4x using Real-ESRGAN technology. Free, fast, no watermarks."
+        keywords="AI image upscaler, upscale image, increase resolution, Real-ESRGAN, enhance photo quality, 4x upscale free"
+        path="/upscale"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "How to Upscale Images with AI",
+          "description": "Enlarge images up to 4x using AI-powered Real-ESRGAN technology",
+          "step": [
+            {"@type": "HowToStep", "name": "Upload Image", "text": "Drag and drop or click to upload your image"},
+            {"@type": "HowToStep", "name": "Select Scale", "text": "Choose 2x, 3x, or 4x upscaling factor"},
+            {"@type": "HowToStep", "name": "Process", "text": "Click upscale and wait for AI processing"},
+            {"@type": "HowToStep", "name": "Download", "text": "Download your enhanced high-resolution image"}
+          ]
+        }}
+      />
       <Header />
       
       <main className="upscale-main">

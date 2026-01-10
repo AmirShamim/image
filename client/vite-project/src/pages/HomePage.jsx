@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -123,6 +124,12 @@ const HomePage = () => {
   ];
   return (
     <div className="home-page">
+      <SEO 
+        title={t('seo.home.title')}
+        description={t('seo.home.description')}
+        keywords="image upscaler, AI upscale, image resizer, photo enlarger, increase resolution, free image tools"
+        path="/"
+      />
       <Header />
       
       {/* Hero Section */}

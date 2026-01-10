@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import './FAQPage.css';
 
 const FAQPage = () => {
@@ -17,6 +18,12 @@ const FAQPage = () => {
 
   return (
     <div className="faq-page">
+      <SEO 
+        title="FAQ - Frequently Asked Questions | ImageStudio"
+        description="Find answers to common questions about AI image upscaling, supported formats, pricing, and how to use ImageStudio."
+        keywords="image upscaler FAQ, AI upscaling questions, ImageStudio help, image resizer support"
+        path="/faq"
+      />
       <Header />
       
       <div className="page-container">
