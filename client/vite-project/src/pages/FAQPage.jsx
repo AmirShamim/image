@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEO from '../components/SEO';
@@ -9,14 +9,51 @@ const FAQPage = () => {
   const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState(null);
 
-  const faqs = t('faq.questions', { returnObjects: true }) || [
-    { question: 'What is AI upscaling?', answer: 'AI upscaling uses machine learning to enhance image resolution while maintaining or improving quality.' },
-    { question: 'Is ImageStudio free?', answer: 'Yes! We offer a free tier with limited usage. Pro plans offer unlimited access.' },
-    { question: 'What formats are supported?', answer: 'We support JPG, PNG, WebP, and GIF formats for most operations.' },
-    { question: 'How is my data protected?', answer: 'Images are processed securely and automatically deleted within 1 hour.' },
-    { question: 'What is the maximum file size?', answer: 'Free users can upload up to 10MB. Pro users can upload up to 50MB.' },
-    { question: 'Can I use this for commercial projects?', answer: 'Yes, all processed images can be used for personal and commercial purposes.' }
-  ];
+  const fallbackFaqs = useMemo(
+    () => [
+      {
+        question: 'What is AI upscaling?',
+        answer:
+          'AI upscaling uses machine learning to enhance image resolution while maintaining or improving quality.'
+      },
+      {
+        question: 'Is ImageStudio free?',
+        answer: 'Yes! We offer a free tier with limited usage. Pro plans offer unlimited access.'
+      },
+      { question: 'What formats are supported?', answer: 'We support JPG, PNG, WebP, and GIF formats for most operations.' },
+      { question: 'How is my data protected?', answer: 'Images are processed securely and automatically deleted within 1 hour.' },
+      { question: 'What is the maximum file size?', answer: 'Free users can upload up to 10MB. Pro users can upload up to 50MB.' },
+      {
+        question: 'Can I use this for commercial projects?',
+        answer: 'Yes, all processed images can be used for personal and commercial purposes.'
+      }
+    ],
+    []
+  );
+
+  const faqs = useMemo(() => {
+    const raw = t('faq.questions', { returnObjects: true });
+
+    // If translations already provide an array, use it.
+    if (Array.isArray(raw)) return raw;
+
+    // Current locale structure uses an object map: { key: { q, a } }
+    if (raw && typeof raw === 'object') {
+      const list = Object.values(raw)
+        .map((item) => {
+          if (!item || typeof item !== 'object') return null;
+          const question = item.question || item.q;
+          const answer = item.answer || item.a;
+          if (!question || !answer) return null;
+          return { question, answer };
+        })
+        .filter(Boolean);
+
+      if (list.length > 0) return list;
+    }
+
+    return fallbackFaqs;
+  }, [t, fallbackFaqs]);
 
   return (
     <PageShell>

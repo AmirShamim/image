@@ -2,7 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const db = require('../database');
+// Use DB wrapper that supports both SQLite (dev) and Postgres (prod)
+const db = require('../database-pg');
 const { generateVerificationCode, sendVerificationEmail, isSmtpConfigured } = require('../services/email');
 
 const router = express.Router();
@@ -160,62 +161,73 @@ router.post('/register', async (req, res) => {
 
 // Verify email with code
 router.post('/verify-email', async (req, res) => {
-    try {
-        const { email, code } = req.body;
+  try {
+    const { email, code } = req.body;
 
-        if (!email || !code) {
-            return res.status(400).json({ error: 'Email and verification code are required' });
-        }
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Email and verification code are required' });
+    }
 
-        // Find user
-        const user = db.prepare(`
-            SELECT * FROM users 
-            WHERE email = ? AND verification_code = ? AND verification_expires > datetime('now')
-        `).get(email.toLowerCase(), code);
+    // Find user by code.
+    // We check expiration in JS to remain compatible with both SQLite and Postgres.
+    const user = await db
+      .prepare('SELECT * FROM users WHERE email = ? AND verification_code = ?')
+      .getAsync(email.toLowerCase(), code);
 
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid or expired verification code' });
-        }
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired verification code' });
+    }
 
-        // Mark as verified
-        db.prepare(`
+    if (!user.verification_expires) {
+      return res.status(400).json({ error: 'Invalid or expired verification code' });
+    }
+
+    const expiresAt = new Date(user.verification_expires);
+    if (!Number.isFinite(expiresAt.getTime()) || expiresAt <= new Date()) {
+      return res.status(400).json({ error: 'Invalid or expired verification code' });
+    }
+
+    // Mark as verified
+    db.prepare(
+      `
             UPDATE users 
             SET email_verified = 1, verification_code = NULL, verification_expires = NULL, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
-        `).run(user.id);
+        `
+    ).run(user.id);
 
-        // Generate JWT token
-        const token = jwt.sign(
-            { userId: user.id, email: user.email, username: user.username },
-            JWT_SECRET,
-            { expiresIn: JWT_EXPIRES_IN }
-        );
+    // Generate JWT token
+    const token = jwt.sign(
+        { userId: user.id, email: user.email, username: user.username },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
+    );
 
-        // Store session
-        const sessionId = uuidv4();
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
-            sessionId,
-            user.id,
-            token,
-            expiresAt.toISOString()
-        );
+    // Store session
+    const sessionId = uuidv4();
+    const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
+        sessionId,
+        user.id,
+        token,
+        expiresAt.toISOString()
+    );
 
-        res.json({
-            message: 'Email verified successfully',
-            user: {
-                id: user.id,
-                email: user.email,
-                username: user.username,
-                email_verified: true,
-                subscription_tier: user.subscription_tier || 'free'
-            },
-            token
-        });
-    } catch (error) {
-        console.error('Verification error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    res.json({
+        message: 'Email verified successfully',
+        user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            email_verified: true,
+            subscription_tier: user.subscription_tier || 'free'
+        },
+        token
+    });
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Resend verification code
@@ -349,70 +361,91 @@ router.post('/logout', (req, res) => {
 });
 
 // Verify token and get current user
-router.get('/me', (req, res) => {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'No token provided' });
-        }
-
-        const token = authHeader.substring(7);
-
-        // Verify JWT
-        const decoded = jwt.verify(token, JWT_SECRET);
-
-        // Check if session exists and is valid
-        const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
-        if (!session) {
-            return res.status(401).json({ error: 'Session expired or invalid' });
-        }
-
-        // Get user
-        const user = db.prepare('SELECT id, email, username, profile_picture, email_verified, subscription_tier, subscription_expires, created_at FROM users WHERE id = ?').get(decoded.userId);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        // Get usage stats for current month
-        const usage = getUsageStats(user.id);
-
-        res.json({ 
-            user: {
-                ...user,
-                email_verified: !!user.email_verified
-            },
-            usage 
-        });
-    } catch (error) {
-        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-            return res.status(401).json({ error: 'Invalid or expired token' });
-        }
-        console.error('Auth verification error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+router.get('/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token provided' });
     }
+
+    const token = authHeader.substring(7);
+
+    // Verify JWT
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Check if session exists
+    const session = await db.prepare('SELECT * FROM user_sessions WHERE token = ?').getAsync(token);
+    if (!session) {
+      return res.status(401).json({ error: 'Session expired or invalid' });
+    }
+
+    // Expiry check in JS (works across DBs)
+    if (session.expires_at) {
+      const expiresAt = new Date(session.expires_at);
+      if (Number.isFinite(expiresAt.getTime()) && expiresAt <= new Date()) {
+        return res.status(401).json({ error: 'Session expired or invalid' });
+      }
+    }
+
+    // Get user
+    const user = await db
+      .prepare(
+        'SELECT id, email, username, profile_picture, email_verified, subscription_tier, subscription_expires, role, created_at FROM users WHERE id = ?'
+      )
+      .getAsync(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Get usage stats for current month
+    const usage = await getUsageStats(user.id);
+
+    res.json({
+      user: {
+        ...user,
+        email_verified: !!user.email_verified
+      },
+      usage
+    });
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    console.error('Auth verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Get usage stats for a user (helper function)
-function getUsageStats(userId) {
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    
-    const usage2x = db.prepare(`
+async function getUsageStats(userId) {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const usage2x = await db
+    .prepare(
+      `
         SELECT COUNT(*) as count FROM usage_tracking 
         WHERE user_id = ? AND model = '2x' AND created_at >= ?
-    `).get(userId, startOfMonth.toISOString());
-    
-    const usage4x = db.prepare(`
+      `
+    )
+    .getAsync(userId, startOfMonth.toISOString());
+
+  const usage4x = await db
+    .prepare(
+      `
         SELECT COUNT(*) as count FROM usage_tracking 
         WHERE user_id = ? AND model = '4x' AND created_at >= ?
-    `).get(userId, startOfMonth.toISOString());
-    
-    return {
-        upscale_2x: usage2x?.count || 0,
-        upscale_4x: usage4x?.count || 0,
-        period_start: startOfMonth.toISOString()
-    };
+      `
+    )
+    .getAsync(userId, startOfMonth.toISOString());
+
+  return {
+    upscale_2x: usage2x?.count || 0,
+    upscale_4x: usage4x?.count || 0,
+    period_start: startOfMonth.toISOString()
+  };
 }
 
 // Get usage for guest/unregistered users (by fingerprint)

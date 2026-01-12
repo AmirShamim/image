@@ -315,17 +315,6 @@ const UpscalePage = () => {
         badge="AI Upscaling"
         title="Image Upscaler"
         subtitle="Enhance image resolution up to 4x using neural upscaling. Great for prints, presentations, and professional work."
-        right={
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowComparison((v) => !v)}
-              className="glass-button text-sm text-white"
-            >
-              {showComparison ? 'Hide comparison' : 'Show comparison'}
-            </button>
-          </div>
-        }
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
