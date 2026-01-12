@@ -117,6 +117,11 @@ const upload = multer({
 
 // CORS - allow all in production since we serve from same origin
 app.use(cors());
+
+app.use(cors({
+    origin: ["https://image-navy-kappa-80.vercel.app", "http://localhost:5000"]
+}));
+
 app.use(express.json());
 
 // Apply global rate limiting to API routes
