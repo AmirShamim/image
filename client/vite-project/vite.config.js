@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   // In dev, proxy requests to the backend.
   // Prefer VITE_API_URL locally; fallback keeps current behavior.
   const apiTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
+  // this is a frontend comment
 
   console.log(`Using Proxy Target: ${apiTarget}`);
 

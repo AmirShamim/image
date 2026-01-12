@@ -115,11 +115,33 @@ const upload = multer({
     limits: {fileSize: 50 * 1024 * 1024} // 50MB limit
 });
 
-// CORS - allow all in production since we serve from same origin
-app.use(cors());
+// CORS - allow Vercel frontend domains + localhost for dev
+const allowedOrigins = [
+    'https://image-navy-kappa-80.vercel.app',
+    'https://image-git-main-amir-shamims-projects.vercel.app',
+    'https://image-amir-shamims-projects.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5000',
+    'http://localhost:3000'
+];
 
 app.use(cors({
-    origin: ["https://image-navy-kappa-80.vercel.app", "http://localhost:5000"]
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        // Allow any Vercel preview URLs from your project
+        if (origin.includes('vercel.app') || origin.includes('localhost')) {
+            return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true
 }));
 
 app.use(express.json());
