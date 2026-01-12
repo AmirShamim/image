@@ -1,0 +1,29 @@
+ {
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "${VITE_API_PROXY_TARGET}/api/$1"
+    },
+    {
+      "source": "/upscale",
+      "destination": "${VITE_API_PROXY_TARGET}/upscale"
+    },
+    {
+      "source": "/resize",
+      "destination": "${VITE_API_PROXY_TARGET}/resize"
+    },
+    {
+      "source": "/get-dimensions",
+      "destination": "${VITE_API_PROXY_TARGET}/get-dimensions"
+    },
+    {
+      "source": "/profile_pictures/(.*)",
+      "destination": "${VITE_API_PROXY_TARGET}/profile_pictures/$1"
+    },
+    {
+      "source": "/processed/(.*)",
+      "destination": "${VITE_API_PROXY_TARGET}/processed/$1"
+    }
+  ]
+}
+

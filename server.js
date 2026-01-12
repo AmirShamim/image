@@ -3,11 +3,11 @@ require('dotenv').config();
 
 const express = require('express');
 const multer = require('multer');
-const { spawn } = require('child_process');
+const {spawn} = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
+const {v4: uuidv4} = require('uuid');
 
 // Import database (PostgreSQL in production, SQLite in development)
 const database = require('./database-pg');
@@ -20,19 +20,19 @@ database.initializeDatabase().catch(err => {
 });
 
 // Import Cloudinary config
-const { uploadToCloudinary, isCloudinaryConfigured } = require('./config/cloudinary');
+const {uploadToCloudinary, isCloudinaryConfigured} = require('./config/cloudinary');
 
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const stripeRoutes = require('./routes/stripe');
-const { router: analyticsRoutes, initAnalytics, trackPageView, trackToolUsage } = require('./routes/analytics');
+const {router: analyticsRoutes, initAnalytics, trackPageView, trackToolUsage} = require('./routes/analytics');
 
 // Initialize analytics with database
 initAnalytics(database);
 
 // Import middleware
-const { optionalAuth } = require('./middleware/auth');
+const {optionalAuth} = require('./middleware/auth');
 
 // Rate limiting
 const rateLimit = require('express-rate-limit');
@@ -46,7 +46,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 200, // 200 requests per 15 minutes
-    message: { error: 'Too many requests. Please try again later.', retryAfter: 15 * 60 },
+    message: {error: 'Too many requests. Please try again later.', retryAfter: 15 * 60},
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -55,7 +55,7 @@ const globalLimiter = rateLimit({
 const processLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 10, // 10 image processes per minute per IP
-    message: { error: 'Processing limit reached. Please wait a moment.', retryAfter: 60 },
+    message: {error: 'Processing limit reached. Please wait a moment.', retryAfter: 60},
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => {
@@ -79,7 +79,7 @@ const processLimiter = rateLimit({
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 20, // 20 login attempts per 15 minutes
-    message: { error: 'Too many login attempts. Please try again later.' },
+    message: {error: 'Too many login attempts. Please try again later.'},
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -93,7 +93,7 @@ const queueMiddleware = (req, res, next) => {
         return res.status(503).json({
             error: 'Server is busy processing other requests. Please try again in a few seconds.',
             retryAfter: 5,
-            queueStatus: { active: activeProcesses, max: MAX_CONCURRENT_PROCESSES }
+            queueStatus: {active: activeProcesses, max: MAX_CONCURRENT_PROCESSES}
         });
     }
     activeProcesses++;
@@ -110,9 +110,9 @@ const queueMiddleware = (req, res, next) => {
 };
 
 // Configure multer
-const upload = multer({ 
+const upload = multer({
     dest: 'uploads/',
-    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+    limits: {fileSize: 50 * 1024 * 1024} // 50MB limit
 });
 
 // CORS - allow all in production since we serve from same origin
@@ -193,16 +193,16 @@ app.use('/api/analytics', analyticsRoutes);
 // app.use(trackPageView);
 
 // Serve static files from React build in production
-if (isProduction) {
-    app.use(express.static(path.join(__dirname, 'client/vite-project/dist')));
-}
+// if (isProduction) {
+//     app.use(express.static(path.join(__dirname, 'client/vite-project/dist')));
+// }
 
 // Ensure directories exist
 if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads', { recursive: true });
+    fs.mkdirSync('uploads', {recursive: true});
 }
 if (!fs.existsSync('processed')) {
-    fs.mkdirSync('processed', { recursive: true });
+    fs.mkdirSync('processed', {recursive: true});
 }
 
 // Get image dimensions endpoint
@@ -210,7 +210,7 @@ app.post('/get-dimensions', processLimiter, upload.single('image'), (req, res) =
     if (!req.file) return res.status(400).send('No file uploaded.');
 
     const inputPath = req.file.path;
-    
+
     const pythonProcess = spawn('python', [
         '-c',
         `import cv2; import json; img = cv2.imread("${inputPath.replace(/\\/g, '\\\\')}"); h, w = img.shape[:2]; print(json.dumps({"width": w, "height": h}))`
@@ -228,11 +228,11 @@ app.post('/get-dimensions', processLimiter, upload.single('image'), (req, res) =
     pythonProcess.on('close', (code) => {
         // Clean up the uploaded file
         fs.unlinkSync(inputPath);
-        
+
         if (code !== 0) {
             return res.status(500).send('Failed to get dimensions.');
         }
-        
+
         try {
             const dimensions = JSON.parse(output.trim());
             res.json(dimensions);
@@ -248,25 +248,25 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
 
     const inputPath = req.file.path;
     const originalFilename = req.file.originalname;
-    
+
     // Parse scale (2x, 3x, 4x)
     const scaleInput = req.body.scale || req.body.model || '2x';
     const scale = scaleInput.replace('x', '');
     const validScales = ['2', '3', '4'];
     const finalScale = validScales.includes(scale) ? scale : '2';
-    
+
     // Parse model type (realesrgan, realesrgan-fast, realesrgan-anime, edsr, fsrcnn, espcn)
     const modelType = req.body.modelType || 'realesrgan-fast';
     const validModels = ['realesrgan', 'realesrgan-fast', 'realesrgan-anime', 'edsr', 'fsrcnn', 'espcn'];
     const finalModelType = validModels.includes(modelType) ? modelType : 'realesrgan-fast';
-    
+
     const outputPath = `processed/${req.file.filename}_upscaled_${finalModelType}_${finalScale}x.jpg`;
 
     // Get user info and limits
     let userId = req.user ? req.user.userId : null;
     let fingerprint = req.body.fingerprint || null;
     let subscriptionTier = 'guest';
-    
+
     // Get subscription tier for authenticated users
     if (userId) {
         try {
@@ -281,10 +281,10 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
 
     // Get plan limits
     const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get(subscriptionTier);
-    const dailyLimit = finalScale === '2' 
-        ? (plan?.upscale_2x_limit ?? 3) 
+    const dailyLimit = finalScale === '2'
+        ? (plan?.upscale_2x_limit ?? 3)
         : (plan?.upscale_4x_limit ?? 1);
-    
+
     // Check if Real-ESRGAN Pro is allowed for this tier
     if (finalModelType === 'realesrgan' && !['pro', 'business'].includes(subscriptionTier)) {
         fs.unlinkSync(inputPath);
@@ -294,7 +294,7 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
             upgradeUrl: '/pricing'
         });
     }
-    
+
     // -1 means unlimited
     if (dailyLimit !== -1) {
         // Count today's usage
@@ -302,14 +302,16 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
         try {
             if (userId) {
                 const result = db.prepare(`
-                    SELECT COUNT(*) as count FROM usage_tracking 
-                    WHERE user_id = ? AND model = ? AND date(created_at) = date('now')
+                    SELECT COUNT(*) as count
+                    FROM usage_tracking
+                    WHERE user_id = ? AND model = ? AND date (created_at) = date ('now')
                 `).get(userId, `${finalScale}x`);
                 usageCount = result?.count || 0;
             } else if (fingerprint) {
                 const result = db.prepare(`
-                    SELECT COUNT(*) as count FROM usage_tracking 
-                    WHERE fingerprint = ? AND model = ? AND date(created_at) = date('now')
+                    SELECT COUNT(*) as count
+                    FROM usage_tracking
+                    WHERE fingerprint = ? AND model = ? AND date (created_at) = date ('now')
                 `).get(fingerprint, `${finalScale}x`);
                 usageCount = result?.count || 0;
             }
@@ -332,10 +334,10 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
     }
 
     // Check file size limits based on tier
-    const maxFileSizeMB = subscriptionTier === 'business' ? 100 : 
-                          subscriptionTier === 'pro' ? 25 : 
-                          subscriptionTier === 'free' ? 10 : 5;
-    
+    const maxFileSizeMB = subscriptionTier === 'business' ? 100 :
+        subscriptionTier === 'pro' ? 25 :
+            subscriptionTier === 'free' ? 10 : 5;
+
     if (req.file.size > maxFileSizeMB * 1024 * 1024) {
         fs.unlinkSync(inputPath);
         return res.status(413).json({
@@ -351,9 +353,9 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
     const sharp = require('sharp');
     try {
         const metadata = await sharp(inputPath).metadata();
-        const sizeLimits = { '4': 1024, '3': 1536, '2': 2048 };
+        const sizeLimits = {'4': 1024, '3': 1536, '2': 2048};
         const maxDimension = sizeLimits[finalScale] || 2048;
-        
+
         if (metadata.width > maxDimension || metadata.height > maxDimension) {
             fs.unlinkSync(inputPath);
             return res.status(400).json({
@@ -375,10 +377,10 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
         inputPath,
         outputPath,
         'upscale',
-        JSON.stringify({ 
-            model: `${finalScale}x`, 
+        JSON.stringify({
+            model: `${finalScale}x`,
             modelType: finalModelType,
-            tier: subscriptionTier 
+            tier: subscriptionTier
         })
     ]);
 
@@ -420,7 +422,8 @@ app.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.singl
             try {
                 const imageId = uuidv4();
                 db.prepare(`
-                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url, cloud_public_id) 
+                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url,
+                                             cloud_public_id)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 `).run(
                     imageId,
@@ -480,9 +483,9 @@ app.post('/resize', processLimiter, queueMiddleware, optionalAuth, upload.single
     console.log('Resize options:', options);
 
     const pythonProcess = spawn('python', [
-        'upscale_script.py', 
-        inputPath, 
-        outputPath, 
+        'upscale_script.py',
+        inputPath,
+        outputPath,
         'resize',
         JSON.stringify(options)
     ]);
@@ -527,7 +530,8 @@ app.post('/resize', processLimiter, queueMiddleware, optionalAuth, upload.single
             try {
                 const imageId = uuidv4();
                 db.prepare(`
-                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url, cloud_public_id) 
+                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url,
+                                             cloud_public_id)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 `).run(
                     imageId,
@@ -556,10 +560,11 @@ app.post('/resize', processLimiter, queueMiddleware, optionalAuth, upload.single
 });
 
 // Serve React app for all other routes in production (Express 5 syntax)
-if (isProduction) {
-    app.get('/{*path}', (req, res) => {
-        res.sendFile(path.join(__dirname, 'client/vite-project/dist', 'index.html'));
-    });
-}
+// if (isProduction) {
+//     app.get('/{*path}', (req, res) => {
+//         res.sendFile(path.join(__dirname, 'client/vite-project/dist', 'index.html'));
+//     });
+// }
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
