@@ -11,7 +11,13 @@ services:
         value: "20"
       - key: DATABASE_SSL
         value: "true"
-      # Add DATABASE_URL manually in Render dashboard for security
+      - key: GPU_PROVIDER
+        value: modal
+      # Add these manually in Render dashboard for security:
+      # MODAL_ENDPOINT_URL=https://your-username--realesrgan-api--upscale.modal.run
+      # MODAL_API_TOKEN=your_custom_token  (optional)
       # DATABASE_URL=postgres://user:password@host:5432/database
-      # Add JWT_SECRET manually in Render dashboard
       # JWT_SECRET=your-secure-random-string
+      # CLOUDINARY_CLOUD_NAME=xxx
+      # CLOUDINARY_API_KEY=xxx
+      # CLOUDINARY_API_SECRET=xxx

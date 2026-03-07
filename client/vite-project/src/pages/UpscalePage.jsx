@@ -21,7 +21,7 @@ api.interceptors.request.use((config) => {
 const UpscalePage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  
+
   // File state
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -30,60 +30,51 @@ const UpscalePage = () => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
-  
+
   // Model settings
   const [scale, setScale] = useState('4x');
-  const [modelType, setModelType] = useState('realesrgan-fast');
-  
+  const [modelType, setModelType] = useState('realesrgan-anime');
+
   // Usage tracking
   const [usage, setUsage] = useState({ upscale_2x: 0, upscale_4x: 0 });
   const [limits, setLimits] = useState({ upscale_2x: 10, upscale_4x: 5 });
-  
+
   // Image dimensions
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
-  
+
   // Comparison view
   const [showComparison, setShowComparison] = useState(true);
 
   // Size limits for upscaling (in pixels)
   const SIZE_LIMITS = {
     '2x': { maxWidth: 2048, maxHeight: 2048, label: '2K' },
-    '3x': { maxWidth: 1536, maxHeight: 1536, label: '1.5K' },
     '4x': { maxWidth: 1024, maxHeight: 1024, label: '1K' }
   };
-  
-  // AI Model configurations
+
+  // AI Model configurations (GPU only — 2 models)
   const AI_MODELS = {
-    'realesrgan-fast': { 
-      name: 'Real-ESRGAN Fast', 
-      description: 'Good quality, very fast', 
-      icon: '⚡', 
-      scales: ['2x', '3x', '4x'], 
+    'realesrgan-anime': {
+      name: 'Real-ESRGAN Anime',
+      description: 'Great for anime, art & illustrations',
+      icon: '🎨',
+      scales: ['2x', '4x'],
       tier: 'free',
-      speed: '~1s'
+      speed: '~3-7s'
     },
-    'realesrgan': { 
-      name: 'Real-ESRGAN Pro', 
-      description: 'Best quality for photos', 
-      icon: '✨', 
-      scales: ['4x'], 
+    'realesrgan': {
+      name: 'Real-ESRGAN Pro',
+      description: 'Best quality for photos',
+      icon: '✨',
+      scales: ['2x', '4x'],
       tier: 'pro',
-      speed: '~3s'
-    },
-    'realesrgan-anime': { 
-      name: 'Real-ESRGAN Anime', 
-      description: 'Optimized for anime/art', 
-      icon: '🎨', 
-      scales: ['2x', '4x'], 
-      tier: 'free',
-      speed: '~2s'
+      speed: '~3-7s'
     }
   };
-  
+
   useEffect(() => {
     loadUsageData();
   }, [user]);
-  
+
   const loadUsageData = async () => {
     try {
       if (user) {
@@ -117,7 +108,7 @@ const UpscalePage = () => {
       setLimits({ upscale_2x: 5, upscale_4x: 3 });
     }
   };
-  
+
   const canUseScale = (scaleValue) => {
     const scaleNum = scaleValue.replace('x', '');
     const key = `upscale_${scaleNum}x`;
@@ -126,30 +117,32 @@ const UpscalePage = () => {
     if (limit === -1) return true;
     return used < limit;
   };
-  
+
   const isImageTooLarge = (scaleValue) => {
     if (!originalDimensions.width || !originalDimensions.height) return false;
     const sizeLimit = SIZE_LIMITS[scaleValue];
     if (!sizeLimit) return false;
     return originalDimensions.width > sizeLimit.maxWidth || originalDimensions.height > sizeLimit.maxHeight;
   };
-  
+
   const getSizeLimitMessage = (scaleValue) => {
     const sizeLimit = SIZE_LIMITS[scaleValue];
     if (!sizeLimit) return '';
     return `Max ${sizeLimit.label} (${sizeLimit.maxWidth}×${sizeLimit.maxHeight})`;
   };
-  
+
   const canUseModel = (type) => {
     const model = AI_MODELS[type];
     if (!model) return false;
+    // In development, allow all models
+    if (window.location.hostname === 'localhost') return true;
     if (model.tier === 'pro') {
       const tier = user?.subscription_tier || 'guest';
-      return tier === 'pro' || tier === 'business';
+      return tier === 'pro' || tier === 'business' || tier === 'admin';
     }
     return true;
   };
-  
+
   const getRemainingUses = (scaleValue) => {
     const scaleNum = scaleValue.replace('x', '');
     const key = `upscale_${scaleNum}x`;
@@ -158,7 +151,7 @@ const UpscalePage = () => {
     if (limit === -1) return '∞';
     return Math.max(0, limit - used);
   };
-  
+
   const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -168,7 +161,7 @@ const UpscalePage = () => {
       setDragActive(false);
     }
   }, []);
-  
+
   const handleDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -177,23 +170,23 @@ const UpscalePage = () => {
       handleFile(e.dataTransfer.files[0]);
     }
   }, []);
-  
+
   const handleFileInput = (e) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
   };
-  
+
   const handleFile = (selectedFile) => {
     if (!selectedFile.type.startsWith('image/')) {
       setError('Please select an image file');
       return;
     }
-    
+
     setFile(selectedFile);
     setError('');
     setResultImage(null);
-    
+
     // Create preview and get dimensions
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -206,30 +199,30 @@ const UpscalePage = () => {
     };
     reader.readAsDataURL(selectedFile);
   };
-  
+
   const handleUpscale = async () => {
     if (!file) return;
-    
+
     if (!canUseScale(scale)) {
       setError(`Daily limit reached for ${scale} upscaling. Upgrade for more!`);
       return;
     }
-    
+
     if (isImageTooLarge(scale)) {
       const limit = SIZE_LIMITS[scale];
       setError(`Image too large for ${scale} upscaling. Max size: ${limit.maxWidth}×${limit.maxHeight}px. Try a smaller scale or resize your image first.`);
       return;
     }
-    
+
     if (!canUseModel(modelType)) {
       setError(`${AI_MODELS[modelType].name} requires Pro subscription.`);
       return;
     }
-    
+
     setLoading(true);
     setProgress(0);
     setError('');
-    
+
     const formData = new FormData();
     formData.append('image', file);
     formData.append('scale', scale);
@@ -237,7 +230,7 @@ const UpscalePage = () => {
     if (!user) {
       formData.append('fingerprint', getOrCreateFingerprint());
     }
-    
+
     try {
       const response = await api.post('/upscale', formData, {
         responseType: 'blob',
@@ -248,7 +241,7 @@ const UpscalePage = () => {
           setProgress(50 + Math.round((e.loaded * 50) / e.total));
         }
       });
-      
+
       setProgress(100);
       const imageUrl = URL.createObjectURL(response.data);
       setResultImage(imageUrl);
@@ -265,7 +258,7 @@ const UpscalePage = () => {
       setProgress(0);
     }
   };
-  
+
   const handleDownload = () => {
     if (!resultImage) return;
     const link = document.createElement('a');
@@ -273,7 +266,7 @@ const UpscalePage = () => {
     link.download = `upscaled_${modelType}_${scale}_${file?.name || 'image.jpg'}`;
     link.click();
   };
-  
+
   const resetAll = () => {
     setFile(null);
     setPreview(null);
@@ -281,7 +274,7 @@ const UpscalePage = () => {
     setError('');
     setOriginalDimensions({ width: 0, height: 0 });
   };
-  
+
   const getResultDimensions = () => {
     const scaleNum = parseInt(scale);
     return {
@@ -294,7 +287,7 @@ const UpscalePage = () => {
     <PageShell>
       <SEO
         title="Free AI Image Upscaler - Enhance Resolution up to 4x | ImageStudio"
-        description="Upscale and enhance images with AI. Increase resolution 2x, 3x or 4x using Real-ESRGAN technology. Free, fast, no watermarks."
+        description="Upscale and enhance images with AI. Increase resolution 2x or 4x using GPU-accelerated Real-ESRGAN technology. Free, fast, no watermarks."
         keywords="AI image upscaler, upscale image, increase resolution, Real-ESRGAN, enhance photo quality, 4x upscale free"
         path="/upscale"
         structuredData={{
@@ -303,10 +296,10 @@ const UpscalePage = () => {
           "name": "How to Upscale Images with AI",
           "description": "Enlarge images up to 4x using AI-powered Real-ESRGAN technology",
           "step": [
-            {"@type": "HowToStep", "name": "Upload Image", "text": "Drag and drop or click to upload your image"},
-            {"@type": "HowToStep", "name": "Select Scale", "text": "Choose 2x, 3x, or 4x upscaling factor"},
-            {"@type": "HowToStep", "name": "Process", "text": "Click upscale and wait for AI processing"},
-            {"@type": "HowToStep", "name": "Download", "text": "Download your enhanced high-resolution image"}
+            { "@type": "HowToStep", "name": "Upload Image", "text": "Drag and drop or click to upload your image" },
+            { "@type": "HowToStep", "name": "Select Scale", "text": "Choose 2x or 4x upscaling factor" },
+            { "@type": "HowToStep", "name": "Process", "text": "Click upscale and wait for GPU-accelerated AI processing" },
+            { "@type": "HowToStep", "name": "Download", "text": "Download your enhanced high-resolution image" }
           ]
         }}
       />
@@ -377,7 +370,7 @@ const UpscalePage = () => {
               {/* AI Model Selection */}
               <div className="setting-group mb-4">
                 <label className="text-sm text-white mb-2">AI Model</label>
-                <div className="model-grid grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="model-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {Object.entries(AI_MODELS).map(([key, model]) => {
                     const isAvailable = canUseModel(key);
                     const isSelected = modelType === key;
@@ -385,11 +378,10 @@ const UpscalePage = () => {
                       <button
                         key={key}
                         type="button"
-                        className={`model-card relative p-4 rounded-2xl border transition-all duration-200 ease-in-out text-left ${
-                          isSelected
+                        className={`model-card relative p-4 rounded-2xl border transition-all duration-200 ease-in-out text-left ${isSelected
                             ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
                             : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
-                        } ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          } ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => {
                           if (isAvailable) {
                             setModelType(key);
@@ -430,11 +422,10 @@ const UpscalePage = () => {
                       <button
                         key={s}
                         type="button"
-                        className={`scale-btn flex-1 rounded-2xl p-4 text-left border transition-all ${
-                          isSelected
+                        className={`scale-btn flex-1 rounded-2xl p-4 text-left border transition-all ${isSelected
                             ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
                             : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
-                        } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''} ${tooLarge ? 'ring-1 ring-red-500/40' : ''}`}
+                          } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''} ${tooLarge ? 'ring-1 ring-red-500/40' : ''}`}
                         onClick={() => !isDisabled && setScale(s)}
                         disabled={isDisabled}
                         title={tooLarge ? `Image exceeds ${getSizeLimitMessage(s)}` : ''}

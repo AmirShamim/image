@@ -64,60 +64,46 @@ const ImageProcessor = () => {
   const [showPresets, setShowPresets] = useState(false);
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
-  
+
   // Progress tracking
   const [progress, setProgress] = useState(0);
   const [progressStage, setProgressStage] = useState(''); // 'uploading', 'processing', 'downloading'
-  
+
   // Image dimensions
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
-  
+
   // Upscale model selection and usage tracking
-  const [upscaleModel, setUpscaleModel] = useState('4x'); // Scale: 2x, 3x, 4x
-  const [aiModelType, setAiModelType] = useState('realesrgan-fast'); // AI Model
+  const [upscaleModel, setUpscaleModel] = useState('4x'); // Scale: 2x, 4x
+  const [aiModelType, setAiModelType] = useState('realesrgan-anime'); // AI Model
   const [usage, setUsage] = useState({ upscale_2x: 0, upscale_4x: 0 });
   const [limits, setLimits] = useState({ upscale_2x: 5, upscale_4x: 3 });
-  
-  // AI Model configurations - Updated with Real-ESRGAN
+
+  // AI Model configurations — GPU only (2 models)
   const AI_MODELS = {
-    'realesrgan-fast': { 
-      name: 'Real-ESRGAN Fast', 
-      description: 'Good quality, fast', 
-      icon: '⚡', 
-      scales: ['2x', '3x', '4x'], 
-      tier: 'free' 
+    'realesrgan-anime': {
+      name: 'Real-ESRGAN Anime',
+      description: 'Great for anime, art & illustrations',
+      icon: '🎨',
+      scales: ['2x', '4x'],
+      tier: 'free'
     },
-    'realesrgan': { 
-      name: 'Real-ESRGAN', 
-      description: 'Best quality', 
-      icon: '✨', 
-      scales: ['4x'], 
-      tier: 'pro' 
-    },
-    'realesrgan-anime': { 
-      name: 'Real-ESRGAN Anime', 
-      description: 'Best for anime/art', 
-      icon: '🎨', 
-      scales: ['2x', '4x'], 
-      tier: 'free' 
-    },
-    'edsr': { 
-      name: 'EDSR (Legacy)', 
-      description: 'Good quality, slow', 
-      icon: '🐢', 
-      scales: ['2x', '4x'], 
-      tier: 'pro' 
+    'realesrgan': {
+      name: 'Real-ESRGAN Pro',
+      description: 'Best quality for photos',
+      icon: '✨',
+      scales: ['2x', '4x'],
+      tier: 'pro'
     }
   };
-  
+
   // Upscale validation
   const [upscaleError, setUpscaleError] = useState('');
-  
+
   // Load usage data on mount and when user changes
   useEffect(() => {
     loadUsageData();
   }, [user]);
-  
+
   const loadUsageData = async () => {
     try {
       if (user) {
@@ -141,13 +127,13 @@ const ImageProcessor = () => {
       console.error('Failed to load usage:', err);
     }
   };
-  
+
   const getResolutionLimits = () => {
     return upscaleModel === '2x'
       ? { width: 5120, height: 2880, name: '5K' }
       : { width: 3840, height: 2160, name: '4K' };
   };
-  
+
   const canUseUpscaleModel = () => {
     const modelKey = `upscale_${upscaleModel}`;
     const limit = limits[modelKey];
@@ -155,7 +141,7 @@ const ImageProcessor = () => {
     if (limit === -1) return true;
     return used < limit;
   };
-  
+
   const getRemainingUses = () => {
     const modelKey = `upscale_${upscaleModel}`;
     const limit = limits[modelKey];
@@ -163,28 +149,30 @@ const ImageProcessor = () => {
     if (limit === -1) return '∞';
     return Math.max(0, limit - used);
   };
-  
+
   // Check if AI model type is available for user's tier
   const canUseAiModelType = (modelType) => {
     const modelInfo = AI_MODELS[modelType];
     if (!modelInfo) return false;
+    // In development, allow all models
+    if (window.location.hostname === 'localhost') return true;
     if (modelInfo.tier === 'pro') {
       const tier = user?.subscription_tier || 'guest';
-      return tier === 'pro' || tier === 'business';
+      return tier === 'pro' || tier === 'business' || tier === 'admin';
     }
     return true;
   };
-  
+
   // Get available scales for current AI model
   const getAvailableScales = () => {
     return AI_MODELS[aiModelType]?.scales || ['2x', '4x'];
   };
-  
+
   // Live preview
   const [livePreview, setLivePreview] = useState(null);
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
-  
+
   // Resize options
   const [resizeType, setResizeType] = useState('percentage'); // 'percentage' or 'pixels'
   const [percentage, setPercentage] = useState(50);
@@ -208,7 +196,7 @@ const ImageProcessor = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -216,16 +204,16 @@ const ImageProcessor = () => {
 
   const handleFileSelect = async (selectedFile) => {
     if (!selectedFile) return;
-    
+
     setFile(selectedFile);
     setResultImage(null);
     setUpscaleError(''); // Reset upscale error
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target.result);
     reader.readAsDataURL(selectedFile);
-    
+
     // Get original dimensions
     const img = new Image();
     img.onload = () => {
@@ -233,7 +221,7 @@ const ImageProcessor = () => {
       setWidth(img.width);
       setHeight(img.height);
       imageRef.current = img;
-      
+
       // Check if image exceeds limits for selected upscale model
       const limits = getResolutionLimits();
       if (img.width > limits.width || img.height > limits.height) {
@@ -286,25 +274,25 @@ const ImageProcessor = () => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const dims = calculateNewDimensions();
-      
+
       // Limit preview size for performance
       const maxPreviewSize = 400;
       let previewW = dims.width;
       let previewH = dims.height;
-      
+
       if (previewW > maxPreviewSize || previewH > maxPreviewSize) {
         const scale = maxPreviewSize / Math.max(previewW, previewH);
         previewW = Math.round(previewW * scale);
         previewH = Math.round(previewH * scale);
       }
-      
+
       canvas.width = previewW;
       canvas.height = previewH;
-      
+
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(imageRef.current, 0, 0, previewW, previewH);
-      
+
       setLivePreview(canvas.toDataURL('image/jpeg', quality / 100));
     };
 
@@ -437,19 +425,19 @@ const ImageProcessor = () => {
 
   const handleUpscale = async () => {
     if (!file) return;
-    
+
     // Check usage limits
     if (!canUseUpscaleModel()) {
       alert(`You've reached your limit for ${upscaleModel} upscaling. ${user ? 'Upgrade your plan for more uses!' : 'Please register for more uses!'}`);
       return;
     }
-    
+
     // Check AI model availability
     if (!canUseAiModelType(aiModelType)) {
       alert(`${AI_MODELS[aiModelType].name} model requires a Pro or Business subscription.`);
       return;
     }
-    
+
     setLoading(true);
     setProgress(0);
     setProgressStage('uploading');
@@ -458,7 +446,7 @@ const ImageProcessor = () => {
     formData.append('image', file);
     formData.append('scale', upscaleModel);
     formData.append('modelType', aiModelType);
-    
+
     // Add fingerprint for guest users
     if (!user) {
       formData.append('fingerprint', getOrCreateFingerprint());
@@ -490,7 +478,7 @@ const ImageProcessor = () => {
       setProgress(100);
       const imageUrl = URL.createObjectURL(response.data);
       setResultImage(imageUrl);
-      
+
       // Reload usage after successful upscale
       await loadUsageData();
     } catch (error) {
@@ -561,7 +549,7 @@ const ImageProcessor = () => {
             <p className="subtitle">{t('app.description')}</p>
           </div>
           <div className="header-right">
-            <button 
+            <button
               className="menu-toggle"
               onClick={() => setShowHeaderMenu(!showHeaderMenu)}
               aria-label="Toggle menu"
@@ -570,14 +558,14 @@ const ImageProcessor = () => {
             </button>
             <div className={`header-menu ${showHeaderMenu ? 'show' : ''}`}>
               <LanguageSelector />
-              <button 
+              <button
                 className="icon-button batch-btn"
                 onClick={() => setShowBatchProcessor(true)}
                 title={t('header.batch')}
               >
                 📦
               </button>
-              <button 
+              <button
                 className="icon-button theme-toggle"
                 onClick={toggleTheme}
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -596,21 +584,21 @@ const ImageProcessor = () => {
       </header>
 
       {/* Batch Processor Modal */}
-      <BatchProcessor 
-        isOpen={showBatchProcessor} 
-        onClose={() => setShowBatchProcessor(false)} 
+      <BatchProcessor
+        isOpen={showBatchProcessor}
+        onClose={() => setShowBatchProcessor(false)}
       />
 
       {/* Tab Switcher */}
       <div className="tab-container">
-        <button 
+        <button
           className={`tab ${activeTab === 'resize' ? 'active' : ''}`}
           onClick={() => setActiveTab('resize')}
         >
           <span className="tab-icon">📐</span>
           {t('tabs.resize')}
         </button>
-        <button 
+        <button
           className={`tab ${activeTab === 'upscale' ? 'active' : ''}`}
           onClick={() => setActiveTab('upscale')}
         >
@@ -621,7 +609,7 @@ const ImageProcessor = () => {
 
       <div className="main-content">
         {/* Upload Area */}
-        <div 
+        <div
           className={`upload-area glass ${dragActive ? 'drag-active' : ''} ${preview ? 'has-image' : ''}`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -636,11 +624,11 @@ const ImageProcessor = () => {
               <div className="upload-actions">
                 <label className="upload-button">
                   {t('upload.browse')}
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    hidden 
+                    hidden
                   />
                 </label>
                 <button className="paste-button" onClick={handlePaste}>
@@ -666,12 +654,12 @@ const ImageProcessor = () => {
             {activeTab === 'resize' ? (
               <>
                 <h3 className="options-title">{t('resize.settings')}</h3>
-                
+
                 {/* Quick Preset Sizes */}
                 <div className="option-group">
                   <div className="preset-header">
                     <label className="option-label">{t('resize.preset')}</label>
-                    <button 
+                    <button
                       className="preset-expand-btn"
                       onClick={() => setShowPresets(!showPresets)}
                     >
@@ -680,7 +668,7 @@ const ImageProcessor = () => {
                   </div>
                   <div className="quick-presets">
                     {PRESET_SIZES.web.map(preset => (
-                      <button 
+                      <button
                         key={preset.name}
                         className={`quick-preset-btn ${width === preset.width && height === preset.height ? 'active' : ''}`}
                         onClick={() => applyPreset(preset)}
@@ -696,7 +684,7 @@ const ImageProcessor = () => {
                         <span className="category-label">📱 Social Media</span>
                         <div className="category-presets">
                           {PRESET_SIZES.social.map(preset => (
-                            <button 
+                            <button
                               key={preset.name}
                               className={`quick-preset-btn ${width === preset.width && height === preset.height ? 'active' : ''}`}
                               onClick={() => applyPreset(preset)}
@@ -711,7 +699,7 @@ const ImageProcessor = () => {
                         <span className="category-label">🖥️ Devices</span>
                         <div className="category-presets">
                           {PRESET_SIZES.devices.map(preset => (
-                            <button 
+                            <button
                               key={preset.name}
                               className={`quick-preset-btn ${width === preset.width && height === preset.height ? 'active' : ''}`}
                               onClick={() => applyPreset(preset)}
@@ -725,18 +713,18 @@ const ImageProcessor = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Resize Type Toggle */}
                 <div className="option-group">
                   <label className="option-label">{t('resize.type')}</label>
                   <div className="toggle-group">
-                    <button 
+                    <button
                       className={`toggle-btn ${resizeType === 'percentage' ? 'active' : ''}`}
                       onClick={() => setResizeType('percentage')}
                     >
                       {t('resize.percentage')}
                     </button>
-                    <button 
+                    <button
                       className={`toggle-btn ${resizeType === 'pixels' ? 'active' : ''}`}
                       onClick={() => setResizeType('pixels')}
                     >
@@ -750,17 +738,17 @@ const ImageProcessor = () => {
                     <label className="option-label">
                       {t('resize.percentage')}: {percentage}%
                     </label>
-                    <input 
-                      type="range" 
-                      min="1" 
-                      max="200" 
+                    <input
+                      type="range"
+                      min="1"
+                      max="200"
                       value={percentage}
                       onChange={(e) => setPercentage(parseInt(e.target.value))}
                       className="range-slider"
                     />
                     <div className="preset-buttons">
                       {[25, 50, 75, 100, 150, 200].map(p => (
-                        <button 
+                        <button
                           key={p}
                           className={`preset-btn ${percentage === p ? 'active' : ''}`}
                           onClick={() => setPercentage(p)}
@@ -775,8 +763,8 @@ const ImageProcessor = () => {
                     <div className="dimension-inputs">
                       <div className="dimension-input">
                         <label>{t('resize.width')}</label>
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
                           value={width}
                           onChange={(e) => handleWidthChange(parseInt(e.target.value) || 0)}
                           min="1"
@@ -784,7 +772,7 @@ const ImageProcessor = () => {
                         <span className="unit">px</span>
                       </div>
                       <div className="dimension-link">
-                        <button 
+                        <button
                           className={`link-btn ${maintainAspect ? 'active' : ''}`}
                           onClick={() => setMaintainAspect(!maintainAspect)}
                           title={t('resize.maintainAspect')}
@@ -794,8 +782,8 @@ const ImageProcessor = () => {
                       </div>
                       <div className="dimension-input">
                         <label>{t('resize.height')}</label>
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
                           value={height}
                           onChange={(e) => handleHeightChange(parseInt(e.target.value) || 0)}
                           min="1"
@@ -811,10 +799,10 @@ const ImageProcessor = () => {
                   <label className="option-label">
                     {t('resize.quality')}: {quality}%
                   </label>
-                  <input 
-                    type="range" 
-                    min="1" 
-                    max="100" 
+                  <input
+                    type="range"
+                    min="1"
+                    max="100"
                     value={quality}
                     onChange={(e) => setQuality(parseInt(e.target.value))}
                     className="range-slider"
@@ -826,7 +814,7 @@ const ImageProcessor = () => {
                   <label className="option-label">{t('resize.format')}</label>
                   <div className="format-buttons">
                     {['jpg', 'png', 'webp'].map(f => (
-                      <button 
+                      <button
                         key={f}
                         className={`format-btn ${format === f ? 'active' : ''}`}
                         onClick={() => setFormat(f)}
@@ -854,7 +842,7 @@ const ImageProcessor = () => {
                       <span className="progress-percent">{Math.round(progress)}%</span>
                     </div>
                     <div className="progress-bar">
-                      <div 
+                      <div
                         className="progress-fill"
                         style={{ width: `${progress}%` }}
                       ></div>
@@ -862,7 +850,7 @@ const ImageProcessor = () => {
                   </div>
                 )}
 
-                <button 
+                <button
                   className="process-button"
                   onClick={handleResize}
                   disabled={loading}
@@ -883,17 +871,17 @@ const ImageProcessor = () => {
             ) : (
               <>
                 <h3 className="options-title">{t('tabs.upscale')}</h3>
-                
+
                 {upscaleError && (
                   <div className="upscale-error">
                     <span className="error-icon">⚠️</span>
                     <p>{upscaleError}</p>
                   </div>
                 )}
-                
+
                 <div className={`upscale-info ${upscaleError ? 'disabled' : ''}`}>
                   <div className="info-icon">🤖</div>
-                  
+
                   {/* AI Model Type Selection */}
                   <div className="model-selection">
                     <label>AI Model:</label>
@@ -926,7 +914,7 @@ const ImageProcessor = () => {
                       })}
                     </div>
                   </div>
-                  
+
                   {/* Scale Selection */}
                   <div className="model-selection">
                     <label>{t('upscale.selectModel')}:</label>
@@ -937,7 +925,7 @@ const ImageProcessor = () => {
                         const limit = limits[modelKey] || limits[`upscale_${scaleNum === '3' ? '2' : scaleNum}x`] || 5;
                         const used = usage[modelKey] || usage[`upscale_${scaleNum === '3' ? '2' : scaleNum}x`] || 0;
                         const remaining = limit === -1 ? '∞' : Math.max(0, limit - used);
-                        
+
                         return (
                           <button
                             key={scale}
@@ -954,7 +942,7 @@ const ImageProcessor = () => {
                       })}
                     </div>
                   </div>
-                  
+
                   <p>Using <strong>{AI_MODELS[aiModelType].name}</strong> model to upscale your image by <strong>{upscaleModel}</strong></p>
                   <div className="upscale-preview">
                     <div className="preview-box">
@@ -981,7 +969,7 @@ const ImageProcessor = () => {
                       <span className="progress-percent">{Math.round(progress)}%</span>
                     </div>
                     <div className="progress-bar">
-                      <div 
+                      <div
                         className="progress-fill upscale"
                         style={{ width: `${progress}%` }}
                       ></div>
@@ -989,7 +977,7 @@ const ImageProcessor = () => {
                   </div>
                 )}
 
-                <button 
+                <button
                   className={`process-button upscale ${upscaleError ? 'disabled-error' : ''} ${!canUseUpscaleModel() || !canUseAiModelType(aiModelType) ? 'disabled-limit' : ''}`}
                   onClick={handleUpscale}
                   disabled={loading || !!upscaleError || !canUseUpscaleModel() || !canUseAiModelType(aiModelType)}
@@ -1040,16 +1028,16 @@ const ImageProcessor = () => {
           <div className="result-panel glass">
             <div className="result-header">
               <h3 className="result-title">✅ {t('result.title')}</h3>
-              <button 
+              <button
                 className={`compare-toggle ${showComparison ? 'active' : ''}`}
                 onClick={() => setShowComparison(!showComparison)}
               >
                 {showComparison ? `🖼️ ${t('result.showResult')}` : `⚖️ ${t('result.compare')}`}
               </button>
             </div>
-            
+
             {showComparison ? (
-              <div 
+              <div
                 className="comparison-container"
                 onMouseMove={handleComparisonMove}
                 onTouchMove={(e) => {
@@ -1062,13 +1050,13 @@ const ImageProcessor = () => {
               >
                 <div className="comparison-wrapper">
                   <img src={resultImage} alt="Processed" className="comparison-image" />
-                  <div 
+                  <div
                     className="comparison-overlay"
                     style={{ clipPath: `inset(0 ${100 - comparisonPosition}% 0 0)` }}
                   >
                     <img src={preview} alt="Original" className="comparison-image" />
                   </div>
-                  <div 
+                  <div
                     className="comparison-slider"
                     style={{ left: `${comparisonPosition}%` }}
                   >
@@ -1088,14 +1076,14 @@ const ImageProcessor = () => {
                 <img src={resultImage} alt="Processed" className="result-image" />
               </div>
             )}
-            
+
             <div className="result-actions">
               <button className="download-button" onClick={handleDownload}>
                 <span>⬇️</span>
                 {t('result.download')}
               </button>
-              <button 
-                className={`copy-button ${copySuccess ? 'success' : ''}`} 
+              <button
+                className={`copy-button ${copySuccess ? 'success' : ''}`}
                 onClick={copyToClipboard}
               >
                 <span>{copySuccess ? '✓' : '📋'}</span>
