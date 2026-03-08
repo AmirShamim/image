@@ -10,6 +10,7 @@ import { useTheme } from './context/ThemeContext';
 import { useAuth } from './context/AuthContext';
 import { getGuestUsage } from './services/auth';
 import { getOrCreateFingerprint } from './utils/fingerprint';
+import { resizeImageClientSide } from './utils/imageUtils';
 
 // In development, Vite proxy handles forwarding to backend
 // In production, requests go to same origin
@@ -378,44 +379,34 @@ const ImageProcessor = () => {
     setProgress(0);
     setProgressStage('uploading');
 
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('resizeType', resizeType);
-    formData.append('percentage', percentage);
-    formData.append('width', width);
-    formData.append('height', height);
-    formData.append('maintainAspect', maintainAspect);
-    formData.append('quality', quality);
-    formData.append('format', format);
-
     try {
-      const response = await api.post('/resize', formData, {
-        responseType: 'blob',
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setProgress(percentCompleted * 0.4); // Upload is 0-40%
-          if (percentCompleted === 100) {
-            setProgressStage('processing');
-            setProgress(50);
-          }
-        },
-        onDownloadProgress: (progressEvent) => {
-          setProgressStage('downloading');
-          if (progressEvent.total) {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setProgress(60 + percentCompleted * 0.4); // Download is 60-100%
-          } else {
-            setProgress(80);
-          }
-        }
+      // Calculate output dimensions
+      let outWidth, outHeight;
+      if (resizeType === 'percentage') {
+        const percentageNum = parseInt(percentage);
+        outWidth = Math.round(originalDimensions.width * percentageNum / 100);
+        outHeight = Math.round(originalDimensions.height * percentageNum / 100);
+      } else {
+        outWidth = parseInt(width);
+        outHeight = parseInt(height);
+      }
+
+      setProgress(30);
+
+      const resizedFile = await resizeImageClientSide(file, {
+        width: outWidth,
+        height: outHeight,
+        maintainAspectRatio: maintainAspect
       });
 
-      setProgress(100);
-      const imageUrl = URL.createObjectURL(response.data);
+      setProgress(80);
+
+      const imageUrl = URL.createObjectURL(resizedFile);
       setResultImage(imageUrl);
+      setProgress(100);
     } catch (error) {
       console.error("Error processing file", error);
-      alert('Error processing image. Please try again.');
+      alert(error.message || 'Error processing image. Please try again.');
     } finally {
       setLoading(false);
       setProgress(0);

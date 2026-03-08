@@ -17,6 +17,7 @@ import {
   blobToBase64,
   setUserTier,
 } from '../utils/storageUtils';
+import { resizeImageClientSide } from '../utils/imageUtils';
 import './BatchProcessor.css';
 
 const API_URL = '';
@@ -162,14 +163,14 @@ const BatchProcessor = ({ isOpen, onClose }) => {
         setImages(prev => prev.map(item =>
           item.id === imgData.id
             ? {
-                ...item,
-                dimensions: { width: img.width, height: img.height },
-                customSettings: {
-                  ...item.customSettings,
-                  width: img.width,
-                  height: img.height
-                }
+              ...item,
+              dimensions: { width: img.width, height: img.height },
+              customSettings: {
+                ...item.customSettings,
+                width: img.width,
+                height: img.height
               }
+            }
             : item
         ));
       };
@@ -210,16 +211,16 @@ const BatchProcessor = ({ isOpen, onClose }) => {
   };
 
   const toggleCustomSettings = (id) => {
-    setImages(prev => prev.map(img => 
-      img.id === id 
+    setImages(prev => prev.map(img =>
+      img.id === id
         ? { ...img, useCustomSettings: !img.useCustomSettings }
         : img
     ));
   };
 
   const updateImageSettings = (id, settings) => {
-    setImages(prev => prev.map(img => 
-      img.id === id 
+    setImages(prev => prev.map(img =>
+      img.id === id
         ? { ...img, customSettings: { ...img.customSettings, ...settings } }
         : img
     ));
@@ -268,49 +269,47 @@ const BatchProcessor = ({ isOpen, onClose }) => {
     for (let i = 0; i < images.length; i++) {
       const img = images[i];
       const settings = img.useCustomSettings ? img.customSettings : globalSettings;
-      
-      setImages(prev => prev.map(item => 
+
+      setImages(prev => prev.map(item =>
         item.id === img.id ? { ...item, status: 'processing' } : item
       ));
 
       try {
-        const formData = new FormData();
-        formData.append('image', img.file);
-        formData.append('resizeType', settings.resizeType);
-        formData.append('percentage', settings.percentage);
-        formData.append('width', settings.width);
-        formData.append('height', settings.height);
-        formData.append('maintainAspect', settings.maintainAspect);
-        formData.append('quality', settings.quality);
-        formData.append('format', settings.format);
+        // Calculate dimensions if using percentage
+        let outWidth, outHeight;
+        if (settings.resizeType === 'percentage') {
+          outWidth = Math.round(img.dimensions.width * settings.percentage / 100);
+          outHeight = Math.round(img.dimensions.height * settings.percentage / 100);
+        } else {
+          outWidth = parseInt(settings.width);
+          outHeight = parseInt(settings.height);
+        }
 
-        const response = await api.post('/resize', formData, {
-          responseType: 'blob',
-          onUploadProgress: (progressEvent) => {
-            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setImages(prev => prev.map(item => 
-              item.id === img.id ? { ...item, progress: percent * 0.5 } : item
-            ));
-          },
-          onDownloadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              setImages(prev => prev.map(item => 
-                item.id === img.id ? { ...item, progress: 50 + percent * 0.5 } : item
-              ));
-            }
-          }
+        // Simulate progress start
+        setImages(prev => prev.map(item =>
+          item.id === img.id ? { ...item, progress: 30 } : item
+        ));
+
+        const resizedFile = await resizeImageClientSide(img.file, {
+          width: outWidth,
+          height: outHeight,
+          maintainAspectRatio: settings.maintainAspect
         });
 
-        const resultUrl = URL.createObjectURL(response.data);
+        // Simulate progress near end
+        setImages(prev => prev.map(item =>
+          item.id === img.id ? { ...item, progress: 80 } : item
+        ));
+
+        const resultUrl = URL.createObjectURL(resizedFile);
         const fileName = img.name.replace(/\.[^/.]+$/, '') + `_resized.${settings.format}`;
-        
+
         // Add to zip
-        const arrayBuffer = await response.data.arrayBuffer();
+        const arrayBuffer = await resizedFile.arrayBuffer();
         zip.file(fileName, arrayBuffer);
 
         // Convert to base64 for caching
-        const base64Data = await blobToBase64(response.data);
+        const base64Data = await blobToBase64(resizedFile);
 
         processedResults.push({
           id: img.id,
@@ -323,15 +322,15 @@ const BatchProcessor = ({ isOpen, onClose }) => {
         });
 
         setImages(prev => prev.map(item =>
-          item.id === img.id 
-            ? { ...item, status: 'done', result: resultUrl, progress: 100 } 
+          item.id === img.id
+            ? { ...item, status: 'done', result: resultUrl, progress: 100 }
             : item
         ));
         setProcessedCount(prev => prev + 1);
 
       } catch (error) {
         console.error('Error processing image:', error);
-        setImages(prev => prev.map(item => 
+        setImages(prev => prev.map(item =>
           item.id === img.id ? { ...item, status: 'error', progress: 0 } : item
         ));
       }
@@ -359,7 +358,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
   const downloadAll = async () => {
     const zip = new JSZip();
-    
+
     for (const img of images.filter(i => i.status === 'done')) {
       const response = await fetch(img.result);
       const blob = await response.blob();
@@ -521,13 +520,13 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               <span className="upload-icon">📁</span>
               <p>Drop images here or click to browse</p>
               <span className="upload-hint">Select multiple files</span>
-              <input 
+              <input
                 ref={fileInputRef}
-                type="file" 
-                accept="image/*" 
-                multiple 
+                type="file"
+                accept="image/*"
+                multiple
                 onChange={handleFileChange}
-                hidden 
+                hidden
               />
             </div>
 
@@ -549,7 +548,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         <div className="error-overlay">✕</div>
                       )}
                     </div>
-                    
+
                     <div className="image-info">
                       <span className="image-name" title={img.name}>
                         {img.name.length > 20 ? img.name.substring(0, 20) + '...' : img.name}
@@ -557,7 +556,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                       <span className="image-meta">
                         {img.dimensions.width}×{img.dimensions.height} • {formatFileSize(img.size)}
                       </span>
-                      
+
                       {img.status === 'processing' && (
                         <div className="mini-progress">
                           <div className="mini-progress-fill" style={{ width: `${img.progress}%` }}></div>
@@ -566,7 +565,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="image-actions">
-                      <button 
+                      <button
                         className={`custom-toggle ${img.useCustomSettings ? 'active' : ''}`}
                         onClick={() => toggleCustomSettings(img.id)}
                         title={img.useCustomSettings ? 'Using custom settings' : 'Using global settings'}
@@ -591,7 +590,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                           </button>
                         </>
                       )}
-                      <button 
+                      <button
                         className="remove-btn"
                         onClick={() => removeImage(img.id)}
                         title="Remove"
@@ -605,20 +604,20 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                       <div className="custom-settings-panel">
                         <div className="custom-settings-row">
                           <label>Size:</label>
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             value={img.customSettings.width}
-                            onChange={(e) => updateImageSettings(img.id, { 
+                            onChange={(e) => updateImageSettings(img.id, {
                               width: parseInt(e.target.value) || 0,
                               resizeType: 'pixels'
                             })}
                             className="small-input"
                           />
                           <span>×</span>
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             value={img.customSettings.height}
-                            onChange={(e) => updateImageSettings(img.id, { 
+                            onChange={(e) => updateImageSettings(img.id, {
                               height: parseInt(e.target.value) || 0,
                               resizeType: 'pixels'
                             })}
@@ -627,10 +626,10 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         </div>
                         <div className="custom-settings-row">
                           <label>Quality:</label>
-                          <input 
-                            type="range" 
-                            min="1" 
-                            max="100" 
+                          <input
+                            type="range"
+                            min="1"
+                            max="100"
                             value={img.customSettings.quality}
                             onChange={(e) => updateImageSettings(img.id, { quality: parseInt(e.target.value) })}
                             className="small-range"
@@ -639,7 +638,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         </div>
                         <div className="custom-settings-row">
                           <label>Format:</label>
-                          <select 
+                          <select
                             value={img.customSettings.format}
                             onChange={(e) => updateImageSettings(img.id, { format: e.target.value })}
                             className="small-select"
@@ -651,7 +650,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         </div>
                         <div className="preset-quick-btns">
                           {PRESET_SIZES.web.slice(0, 3).map(preset => (
-                            <button 
+                            <button
                               key={preset.name}
                               className="mini-preset-btn"
                               onClick={() => applyPreset(preset, img.id)}
@@ -675,18 +674,18 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
             {/* Preset Sizes */}
             <div className="preset-section">
-              <button 
+              <button
                 className="preset-toggle-btn"
                 onClick={() => setShowPresets(!showPresets)}
               >
                 📐 Quick Presets {showPresets ? '▲' : '▼'}
               </button>
-              
+
               {showPresets && (
                 <div className="preset-dropdown">
                   <div className="preset-tabs">
                     {Object.keys(PRESET_SIZES).map(cat => (
-                      <button 
+                      <button
                         key={cat}
                         className={`preset-tab ${presetCategory === cat ? 'active' : ''}`}
                         onClick={() => setPresetCategory(cat)}
@@ -697,7 +696,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                   </div>
                   <div className="preset-grid">
                     {PRESET_SIZES[presetCategory].map(preset => (
-                      <button 
+                      <button
                         key={preset.name}
                         className="preset-item"
                         onClick={() => applyPreset(preset)}
@@ -716,13 +715,13 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             <div className="setting-group">
               <label>Resize By</label>
               <div className="toggle-buttons">
-                <button 
+                <button
                   className={globalSettings.resizeType === 'percentage' ? 'active' : ''}
                   onClick={() => setGlobalSettings(prev => ({ ...prev, resizeType: 'percentage' }))}
                 >
                   Percentage
                 </button>
-                <button 
+                <button
                   className={globalSettings.resizeType === 'pixels' ? 'active' : ''}
                   onClick={() => setGlobalSettings(prev => ({ ...prev, resizeType: 'pixels' }))}
                 >
@@ -734,16 +733,16 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             {globalSettings.resizeType === 'percentage' ? (
               <div className="setting-group">
                 <label>Scale: {globalSettings.percentage}%</label>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="200" 
+                <input
+                  type="range"
+                  min="1"
+                  max="200"
                   value={globalSettings.percentage}
                   onChange={(e) => setGlobalSettings(prev => ({ ...prev, percentage: parseInt(e.target.value) }))}
                 />
                 <div className="percentage-presets">
                   {[25, 50, 75, 100, 150].map(p => (
-                    <button 
+                    <button
                       key={p}
                       className={globalSettings.percentage === p ? 'active' : ''}
                       onClick={() => setGlobalSettings(prev => ({ ...prev, percentage: p }))}
@@ -757,23 +756,23 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               <div className="setting-group">
                 <label>Dimensions</label>
                 <div className="dimension-inputs">
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={globalSettings.width}
                     onChange={(e) => setGlobalSettings(prev => ({ ...prev, width: parseInt(e.target.value) || 0 }))}
                     placeholder="Width"
                   />
                   <span>×</span>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={globalSettings.height}
                     onChange={(e) => setGlobalSettings(prev => ({ ...prev, height: parseInt(e.target.value) || 0 }))}
                     placeholder="Height"
                   />
                 </div>
                 <label className="checkbox-label">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={globalSettings.maintainAspect}
                     onChange={(e) => setGlobalSettings(prev => ({ ...prev, maintainAspect: e.target.checked }))}
                   />
@@ -785,10 +784,10 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             {/* Quality */}
             <div className="setting-group">
               <label>Quality: {globalSettings.quality}%</label>
-              <input 
-                type="range" 
-                min="1" 
-                max="100" 
+              <input
+                type="range"
+                min="1"
+                max="100"
                 value={globalSettings.quality}
                 onChange={(e) => setGlobalSettings(prev => ({ ...prev, quality: parseInt(e.target.value) }))}
               />
@@ -799,7 +798,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               <label>Output Format</label>
               <div className="format-buttons">
                 {['jpg', 'png', 'webp'].map(f => (
-                  <button 
+                  <button
                     key={f}
                     className={globalSettings.format === f ? 'active' : ''}
                     onClick={() => setGlobalSettings(prev => ({ ...prev, format: f }))}
@@ -818,8 +817,8 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                   <span className="done-count">• {processedCount} done</span>
                 )}
               </div>
-              
-              <button 
+
+              <button
                 className="process-all-btn"
                 onClick={processImages}
                 disabled={images.length === 0 || processing || (!canBypassLimits && (hasReachedLimit || !canProcessImages(images.length)))}
