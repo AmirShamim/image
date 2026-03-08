@@ -55,7 +55,7 @@ if (isProduction) {
     const clientDist = path.join(__dirname, 'client', 'vite-project', 'dist');
     app.use(express.static(clientDist));
     // For all unmatched routes, serve the React SPA
-    app.get('*', (req, res) => {
+    app.get(/.*/, (req, res) => {
         res.sendFile(path.join(clientDist, 'index.html'));
     });
 }
