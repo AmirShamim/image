@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = require('../database-pg');
 const { authenticateToken } = require('../middleware/auth');
 
 // Initialize Stripe (only if configured)

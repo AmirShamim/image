@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const db = require('../database');
+const db = require('../database-pg');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 const authenticateToken = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        
+
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({ error: 'Access denied. No token provided.' });
         }
@@ -19,7 +19,7 @@ const authenticateToken = (req, res, next) => {
 
         // Check if session exists and is valid
         const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
-        
+
         if (!session) {
             return res.status(401).json({ error: 'Session expired or invalid. Please login again.' });
         }
@@ -44,7 +44,7 @@ const authenticateToken = (req, res, next) => {
 const optionalAuth = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        
+
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             req.user = null;
             return next();
@@ -57,7 +57,7 @@ const optionalAuth = (req, res, next) => {
 
         // Check if session exists and is valid
         const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
-        
+
         if (session) {
             req.user = decoded;
             req.token = token;

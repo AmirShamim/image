@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const db = require('../database');
+const db = require('../database-pg');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -44,7 +44,7 @@ const profilePicUpload = multer({
 router.get('/profile', authenticateToken, (req, res) => {
     try {
         const user = db.prepare('SELECT id, email, username, profile_picture, created_at, updated_at FROM users WHERE id = ?').get(req.user.userId);
-        
+
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -140,7 +140,7 @@ router.post('/profile/picture', authenticateToken, profilePicUpload.single('prof
 
         // Get old profile picture to delete
         const oldUser = db.prepare('SELECT profile_picture FROM users WHERE id = ?').get(userId);
-        
+
         // Update user with new profile picture
         db.prepare('UPDATE users SET profile_picture = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(picturePath, userId);
 
@@ -171,7 +171,7 @@ router.delete('/profile/picture', authenticateToken, async (req, res) => {
 
         // Get current profile picture
         const user = db.prepare('SELECT profile_picture FROM users WHERE id = ?').get(userId);
-        
+
         if (user && user.profile_picture) {
             const picPath = path.join(__dirname, '..', user.profile_picture);
             if (fs.existsSync(picPath)) {
@@ -313,7 +313,7 @@ router.delete('/images/:imageId', authenticateToken, async (req, res) => {
 
         // Get the image to check ownership and get cloud public ID
         const image = db.prepare('SELECT * FROM user_images WHERE id = ? AND user_id = ?').get(imageId, userId);
-        
+
         if (!image) {
             return res.status(404).json({ error: 'Image not found' });
         }
@@ -338,37 +338,37 @@ router.delete('/images/:imageId', authenticateToken, async (req, res) => {
 router.get('/usage', authenticateToken, (req, res) => {
     try {
         const userId = req.user.userId;
-        
+
         // Get user subscription tier
         const user = db.prepare('SELECT subscription_tier, subscription_expires FROM users WHERE id = ?').get(userId);
         const tier = user?.subscription_tier || 'free';
-        
+
         // Check if subscription is expired
         let activeTier = tier;
         if (user?.subscription_expires && new Date(user.subscription_expires) < new Date()) {
             activeTier = 'free';
         }
-        
+
         // Get plan limits
         const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get(activeTier);
-        
+
         // Get today's usage
         const usage2x = db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE user_id = ? AND model = '2x' AND date(created_at) = date('now')
         `).get(userId);
-        
+
         const usage4x = db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE user_id = ? AND model = '4x' AND date(created_at) = date('now')
         `).get(userId);
-        
+
         // Get this month's total usage
         const monthlyUsage = db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE user_id = ? AND date(created_at) >= date('now', 'start of month')
         `).get(userId);
-        
+
         res.json({
             tier: activeTier,
             plan: plan ? {
@@ -404,25 +404,25 @@ router.get('/usage', authenticateToken, (req, res) => {
 router.post('/guest-usage', (req, res) => {
     try {
         const { fingerprint } = req.body;
-        
+
         if (!fingerprint) {
             return res.status(400).json({ error: 'Fingerprint required' });
         }
-        
+
         // Get guest plan limits
         const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get('guest');
-        
+
         // Get today's usage
         const usage2x = db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE fingerprint = ? AND model = '2x' AND date(created_at) = date('now')
         `).get(fingerprint);
-        
+
         const usage4x = db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE fingerprint = ? AND model = '4x' AND date(created_at) = date('now')
         `).get(fingerprint);
-        
+
         res.json({
             tier: 'guest',
             usage: {
