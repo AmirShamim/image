@@ -53,112 +53,100 @@
   }
 }
 
-/* Glassmorphism utilities */
+/* Glass classes rewritten to solid SaaS components */
 @layer components {
   .glass {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background-color: #18181b;
+    border: 1px solid #27272a;
   }
 
   .glass-card {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-radius: 1rem; /* ~rounded-2xl */
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   }
 
   .glass-card-hover {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-radius: 1rem;
-    transition: background-color 300ms, border-color 300ms, transform 300ms, box-shadow 300ms;
-  }
-
-  .glass-card-hover:hover {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-0.25rem);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-  }
-
-  .glass-button {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 0.75rem; /* ~rounded-xl */
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
     transition: background-color 200ms, border-color 200ms, transform 200ms, box-shadow 200ms;
   }
 
+  .glass-card-hover:hover {
+    background-color: #1f1f23;
+    border-color: #3f3f46;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-button {
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #a1a1aa;
+    transition: background-color 200ms, border-color 200ms, color 200ms;
+  }
+
   .glass-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background-color: #27272a;
+    border-color: #3f3f46;
+    color: #f4f4f5;
   }
 
   .accent-button {
-    background-color: #00d4aa;
-    color: #000;
-    font-weight: 600;
-    border-radius: 0.75rem;
-    padding: 0.75rem 1.5rem;
-    transition: background-color 200ms, transform 200ms, box-shadow 200ms;
-    box-shadow: 0 0 40px rgba(0, 212, 170, 0.15);
+    background-color: #f4f4f5;
+    color: #09090b;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid transparent;
+    transition: opacity 200ms, transform 200ms;
   }
 
   .accent-button:hover {
-    background-color: #00b894;
-    transform: translateY(-0.125rem);
+    opacity: 0.9;
+    transform: translateY(-1px);
   }
 
-  .accent-glow {
-    box-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
-  }
+
 
   .text-gradient {
-    background-image: linear-gradient(to right, #ffffff, #a1a1aa);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #f4f4f5;
   }
 
   .accent-gradient {
-    background-image: linear-gradient(to right, #00d4aa, #22d3ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #00d4aa;
   }
 
-  /* 3D card effect */
+  /* 3D card effect neutralized */
   .card-3d {
-    transform-style: preserve-3d;
-    perspective: 1000px;
+    transition: transform 300ms;
   }
 
   .card-3d:hover {
-    transform: translateY(-8px) rotateX(5deg);
+    transform: translateY(-4px);
   }
 
-  /* Animated gradient background */
+  /* Animated gradient background neutralized */
   .gradient-bg {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 212, 170, 0.15), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 60%, rgba(99, 102, 241, 0.08), transparent);
+    background: #09090b;
   }
 
-  /* Grid pattern */
+  /* Grid pattern subtle */
   .grid-pattern {
     background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
-  /* ============== User Profile Modal (glassmorphism) ============== */
+  /* ============== User Profile Modal (solid SaaS) ============== */
   .auth-modal-overlay {
     position: fixed;
     inset: 0;
@@ -167,47 +155,36 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-
-    background:
-      radial-gradient(800px 500px at 20% 20%, rgba(0, 212, 170, 0.18), transparent 60%),
-      radial-gradient(700px 500px at 80% 30%, rgba(34, 211, 238, 0.14), transparent 60%),
-      rgba(0, 0, 0, 0.58);
-
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(0, 0, 0, 0.85);
   }
 
   .profile-modal {
-    /* Switch to a single column layout so everything flows top-to-bottom */
     padding-top: 1.5rem;
     width: min(400px, 100%);
-    border-radius: 20px;
-    box-shadow: 0 0 1px 1px #003742;
+    border-radius: 12px;
+    border: 1px solid #27272a;
+    background: #18181b;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
     height: min(86dvh, 920px);
     overflow: hidden;
-    backdrop-filter: blur(16px);
   }
 
-  /* Remove the sidebar divider look, since we're no longer 2-column */
   .profile-header {
     border-right: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding-right: 56px; /* room for close button */
+    border-bottom: 1px solid #27272a;
+    padding-right: 56px; 
   }
 
-  /* Tabs sit below the header (they already do), just make them tighter and sticky-ish */
   .profile-nav {
     position: sticky;
     top: 0;
     z-index: 1;
-    background: rgba(10, 10, 13, 0.55);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: #18181b;
+    border-bottom: 1px solid #27272a;
   }
 
-  /* Main content becomes the scroll container for profile/security forms */
   .profile-content {
     flex: 1;
     min-height: 0;
@@ -215,7 +192,6 @@
     padding: 18px 18px 14px;
   }
 
-  /* Make ONLY the history list scroll in its own container */
   .history-section {
     max-height: 380px;
     overflow: hidden;
@@ -227,33 +203,28 @@
     padding-right: 6px;
   }
 
-  /* Nicer internal scrollbars for the history list */
   .history-list::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   .history-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 999px;
+    background: transparent;
   }
 
   .history-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.14);
+    background: #3f3f46;
     border-radius: 999px;
   }
 
   .history-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.22);
+    background: #52525b;
   }
 
-  /* Keep pagination visible under the scrolling list */
   .history-pagination {
     position: sticky;
     bottom: 0;
     padding: 10px 0 0;
-    background: linear-gradient(to bottom, transparent, rgba(10, 10, 13, 0.70) 40%, rgba(10, 10, 13, 0.88));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #18181b;
   }
 
   /* Footer stays at the bottom */
@@ -269,22 +240,22 @@
 
     width: 38px;
     height: 38px;
-    border-radius: 12px;
+    border-radius: 0.5rem;
 
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #27272a;
+    background: #1f1f23;
 
     display: grid;
     place-items: center;
 
-    color: rgba(244, 244, 245, 0.85);
-    transition: background-color 200ms, border-color 200ms, transform 200ms;
+    color: #a1a1aa;
+    transition: background-color 200ms, border-color 200ms, color 200ms;
   }
 
   .auth-modal-close:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.16);
-    transform: translateY(-1px);
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #f4f4f5;
   }
 
   /* NOTE:

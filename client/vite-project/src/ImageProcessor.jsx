@@ -444,7 +444,7 @@ const ImageProcessor = () => {
     }
 
     try {
-      const response = await api.post('/upscale', formData, {
+      const response = await api.post('/api/upscale', formData, {
         responseType: 'blob',
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);

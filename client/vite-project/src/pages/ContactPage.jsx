@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import { Mail, MessageCircle, MapPin } from 'lucide-react';
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -21,9 +22,9 @@ const ContactPage = () => {
   };
 
   const contactInfo = [
-    { icon: '📧', title: 'Email', value: 'support@imagestudio.com', link: 'mailto:support@imagestudio.com' },
-    { icon: '💬', title: 'Live Chat', value: 'Available 9am-5pm EST', link: null },
-    { icon: '📍', title: 'Location', value: 'Remote-first company', link: null }
+    { icon: <Mail className="w-6 h-6 text-primary" />, title: 'Email', value: 'support@imagestudio.com', link: 'mailto:support@imagestudio.com' },
+    { icon: <MessageCircle className="w-6 h-6 text-primary" />, title: 'Live Chat', value: 'Available 9am-5pm EST', link: null },
+    { icon: <MapPin className="w-6 h-6 text-primary" />, title: 'Location', value: 'Remote-first company', link: null }
   ];
 
   return (
@@ -51,7 +52,7 @@ const ContactPage = () => {
             <div className="space-y-4">
               {contactInfo.map((item, index) => (
                 <div key={index} className="glass-card-hover p-5">
-                  <div className="text-2xl mb-3">{item.icon}</div>
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">{item.icon}</div>
                   <h3 className="text-white font-medium mb-1">{item.title}</h3>
                   {item.link ? (
                     <a href={item.link} className="text-primary hover:underline text-sm">
@@ -117,11 +118,10 @@ const ContactPage = () => {
                 </div>
 
                 {status.message && (
-                  <div className={`p-4 rounded-xl text-sm font-medium ${
-                    status.type === 'success' 
-                      ? 'bg-green-500/10 border border-green-500/30 text-green-400' 
+                  <div className={`p-4 rounded-xl text-sm font-medium ${status.type === 'success'
+                      ? 'bg-green-500/10 border border-green-500/30 text-green-400'
                       : 'bg-red-500/10 border border-red-500/30 text-red-400'
-                  }`}>
+                    }`}>
                     {status.message}
                   </div>
                 )}

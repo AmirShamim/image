@@ -47,7 +47,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/', imageRoutes);
+app.use('/api', imageRoutes);
 
 // API Root
 app.get('/', (req, res) => {

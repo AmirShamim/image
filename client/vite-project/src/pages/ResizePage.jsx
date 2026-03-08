@@ -10,6 +10,7 @@ import { getOrCreateFingerprint } from '../utils/fingerprint';
 import PageShell from '../components/PageShell';
 import PageHero from '../components/PageHero';
 import { resizeImageClientSide } from '../utils/imageUtils';
+import { Camera, Smartphone, Monitor, Tv, Image as ImageIcon, AlertTriangle, Link, Unlink, Columns, Package } from 'lucide-react';
 
 const API_URL = '';
 
@@ -64,14 +65,14 @@ const ResizePage = () => {
 
   // Presets
   const PRESETS = [
-    { name: 'Instagram Post', width: 1080, height: 1080, icon: '📸' },
-    { name: 'Instagram Story', width: 1080, height: 1920, icon: '📱' },
-    { name: 'Facebook Cover', width: 820, height: 312, icon: '📘' },
-    { name: 'Twitter Header', width: 1500, height: 500, icon: '🐦' },
-    { name: 'YouTube Thumbnail', width: 1280, height: 720, icon: '📺' },
-    { name: 'HD 1080p', width: 1920, height: 1080, icon: '🖥️' },
-    { name: '4K UHD', width: 3840, height: 2160, icon: '📽️' },
-    { name: 'Passport Photo', width: 600, height: 600, icon: '🪪' },
+    { name: 'Instagram Post', width: 1080, height: 1080, icon: <Camera className="w-4 h-4" /> },
+    { name: 'Instagram Story', width: 1080, height: 1920, icon: <Smartphone className="w-4 h-4" /> },
+    { name: 'Facebook Cover', width: 820, height: 312, icon: <Monitor className="w-4 h-4" /> },
+    { name: 'Twitter Header', width: 1500, height: 500, icon: <Monitor className="w-4 h-4" /> },
+    { name: 'YouTube Thumbnail', width: 1280, height: 720, icon: <Tv className="w-4 h-4" /> },
+    { name: 'HD 1080p', width: 1920, height: 1080, icon: <Monitor className="w-4 h-4" /> },
+    { name: '4K UHD', width: 3840, height: 2160, icon: <Tv className="w-4 h-4" /> },
+    { name: 'Passport Photo', width: 600, height: 600, icon: <ImageIcon className="w-4 h-4" /> },
   ];
 
   useEffect(() => {
@@ -472,7 +473,7 @@ const ResizePage = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-center gap-2">
-            <span>⚠️</span>
+            <AlertTriangle className="w-4 h-4" />
             {error}
           </div>
         )}
@@ -573,12 +574,12 @@ const ResizePage = () => {
                       </div>
 
                       <button
-                        className={`link-btn h-11 w-11 rounded-xl border border-white/10 bg-white/[0.04] text-white grid place-items-center transition-all ${maintainAspectRatio ? 'ring-2 ring-[#00d4aa]/30' : ''}`}
+                        className={`link-btn h-11 w-11 rounded-lg border border-zinc-800 bg-zinc-800/50 text-white flex items-center justify-center transition-all ${maintainAspectRatio ? 'ring-1 ring-primary/50 text-primary' : 'text-zinc-500'}`}
                         onClick={() => setMaintainAspectRatio(!maintainAspectRatio)}
                         title="Maintain aspect ratio"
                         type="button"
                       >
-                        {maintainAspectRatio ? '🔗' : '⛓️‍💥'}
+                        {maintainAspectRatio ? <Link className="w-4 h-4" /> : <Unlink className="w-4 h-4" />}
                       </button>
 
                       <div className="input-group">
@@ -697,7 +698,7 @@ const ResizePage = () => {
                   {/* Error Message */}
                   {error && (
                     <div className="error-message mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
-                      <span>⚠️</span> {error}
+                      <AlertTriangle className="w-5 h-5 inline mr-1 text-red-500" /> {error}
                     </div>
                   )}
 
@@ -750,10 +751,10 @@ const ResizePage = () => {
                   </button>
                   <button
                     type="button"
-                    className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${!showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
+                    className={`view-mode-btn flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${!showComparison ? 'bg-primary/20 text-primary' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
                     onClick={() => setShowComparison(false)}
                   >
-                    🔀 Side-by-side
+                    <Columns className="w-4 h-4" /> Side-by-side
                   </button>
                 </div>
 
@@ -826,8 +827,8 @@ const ResizePage = () => {
               onDrop={handleBatchDrop}
             >
               <div className="upload-content">
-                <div className="mx-auto w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 text-2xl">
-                  📦
+                <div className="mx-auto w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-5 text-zinc-300">
+                  <Package className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">Drop multiple images here</h3>
                 <p className="text-zinc-400 mt-1">or click to browse</p>
@@ -1032,12 +1033,12 @@ const ResizePage = () => {
                           )}
                           {img.status === 'done' && (
                             <div className="batch-overlay done absolute top-3 right-3 w-8 h-8 rounded-xl bg-[#00d4aa] text-black grid place-items-center">
-                              ✓
+                              <Check className="w-4 h-4" />
                             </div>
                           )}
                           {img.status === 'error' && (
                             <div className="batch-overlay error absolute top-3 right-3 w-8 h-8 rounded-xl bg-red-500/80 text-white grid place-items-center">
-                              ✕
+                              <XCircle className="w-4 h-4" />
                             </div>
                           )}
                         </div>

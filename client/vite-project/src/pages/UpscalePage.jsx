@@ -8,6 +8,7 @@ import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
 import PageShell from '../components/PageShell';
 import PageHero from '../components/PageHero';
+import { AlertTriangle, Paintbrush, Wand2, ArrowLeftRight, SplitSquareHorizontal, Brain } from 'lucide-react';
 
 const API_URL = '';
 
@@ -56,7 +57,7 @@ const UpscalePage = () => {
     'realesrgan-anime': {
       name: 'Real-ESRGAN Anime',
       description: 'Great for anime, art & illustrations',
-      icon: '🎨',
+      icon: <Paintbrush className="w-6 h-6" />,
       scales: ['2x', '4x'],
       tier: 'free',
       speed: '~3-7s'
@@ -64,7 +65,7 @@ const UpscalePage = () => {
     'realesrgan': {
       name: 'Real-ESRGAN Pro',
       description: 'Best quality for photos',
-      icon: '✨',
+      icon: <Wand2 className="w-6 h-6" />,
       scales: ['2x', '4x'],
       tier: 'pro',
       speed: '~3-7s'
@@ -232,7 +233,7 @@ const UpscalePage = () => {
     }
 
     try {
-      const response = await api.post('/upscale', formData, {
+      const response = await api.post('/api/upscale', formData, {
         responseType: 'blob',
         onUploadProgress: (e) => {
           setProgress(Math.round((e.loaded * 50) / e.total));
@@ -379,8 +380,8 @@ const UpscalePage = () => {
                         key={key}
                         type="button"
                         className={`model-card relative p-4 rounded-2xl border transition-all duration-200 ease-in-out text-left ${isSelected
-                            ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
-                            : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
+                          ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
+                          : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
                           } ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => {
                           if (isAvailable) {
@@ -423,8 +424,8 @@ const UpscalePage = () => {
                         key={s}
                         type="button"
                         className={`scale-btn flex-1 rounded-2xl p-4 text-left border transition-all ${isSelected
-                            ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
-                            : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
+                          ? 'bg-[#00d4aa]/15 border-[#00d4aa]/30'
+                          : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
                           } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''} ${tooLarge ? 'ring-1 ring-red-500/40' : ''}`}
                         onClick={() => !isDisabled && setScale(s)}
                         disabled={isDisabled}
@@ -437,7 +438,7 @@ const UpscalePage = () => {
                         <div className="mt-2">
                           {tooLarge ? (
                             <span className="scale-warning text-red-300 text-xs flex items-center gap-1">
-                              ⚠️ Too large
+                              <AlertTriangle className="w-3 h-3" /> Too large
                             </span>
                           ) : (
                             <span className="scale-uses text-xs text-zinc-400">{getRemainingUses(s)} left</span>
@@ -467,7 +468,7 @@ const UpscalePage = () => {
               {/* Error Message */}
               {error && (
                 <div className="error-message mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
-                  <span>⚠️</span> {error}
+                  <AlertTriangle className="w-5 h-5 inline mr-1 text-red-500" /> {error}
                 </div>
               )}
 
@@ -484,7 +485,7 @@ const UpscalePage = () => {
                     Processing… {progress}%
                   </>
                 ) : isImageTooLarge(scale) ? (
-                  <>⚠️ Image exceeds {getSizeLimitMessage(scale)} limit</>
+                  <><AlertTriangle className="w-4 h-4 inline mr-1" /> Image exceeds {getSizeLimitMessage(scale)} limit</>
                 ) : (
                   <>Upscale with {AI_MODELS[modelType]?.name} ({scale})</>
                 )}
@@ -518,17 +519,17 @@ const UpscalePage = () => {
             <div className="view-mode-toggle flex gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-4 w-fit">
               <button
                 type="button"
-                className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
+                className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-1 ${showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                 onClick={() => setShowComparison(true)}
               >
-                ↔ Compare
+                <ArrowLeftRight className="w-4 h-4" /> Compare
               </button>
               <button
                 type="button"
-                className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors ${!showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
+                className={`view-mode-btn px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-1 ${!showComparison ? 'bg-[#00d4aa]/20 text-[#00d4aa]' : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'}`}
                 onClick={() => setShowComparison(false)}
               >
-                🔀 Side-by-side
+                <SplitSquareHorizontal className="w-4 h-4" /> Side-by-side
               </button>
             </div>
 
@@ -576,17 +577,17 @@ const UpscalePage = () => {
           <h3 className="text-white font-semibold mb-4">How AI Upscaling Works</h3>
           <div className="info-grid grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="info-card glass-card p-5">
-              <span className="info-icon text-3xl">🧠</span>
+              <span className="info-icon flex items-center justify-center mb-2"><Brain className="w-8 h-8 text-primary" /></span>
               <h4 className="text-white font-semibold mt-2">Deep Learning</h4>
               <p className="text-zinc-400 text-sm mt-2">Uses neural networks trained on millions of images to predict and generate realistic details.</p>
             </div>
             <div className="info-card glass-card p-5">
-              <span className="info-icon text-3xl">✨</span>
+              <span className="info-icon flex items-center justify-center mb-2"><Wand2 className="w-8 h-8 text-primary" /></span>
               <h4 className="text-white font-semibold mt-2">Detail Enhancement</h4>
               <p className="text-zinc-400 text-sm mt-2">Adds sharp edges, textures, and details that simple resizing cannot achieve.</p>
             </div>
             <div className="info-card glass-card p-5">
-              <span className="info-icon text-3xl">🎨</span>
+              <span className="info-icon flex items-center justify-center mb-2"><Paintbrush className="w-8 h-8 text-primary" /></span>
               <h4 className="text-white font-semibold mt-2">Color Preservation</h4>
               <p className="text-zinc-400 text-sm mt-2">Maintains accurate colors while enhancing image quality and sharpness.</p>
             </div>

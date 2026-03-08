@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import { Zap, Key, BarChart3 } from 'lucide-react';
 
 const APIPage = () => {
   const { t } = useTranslation();
@@ -44,9 +45,9 @@ result = response.json()`
   ];
 
   const features = [
-    { icon: '⚡', title: 'Fast & Reliable', description: 'Low latency API with 99.9% uptime guarantee' },
-    { icon: '🔑', title: 'Simple Auth', description: 'Bearer token authentication for easy integration' },
-    { icon: '📊', title: 'Webhooks', description: 'Get notified when processing completes' }
+    { icon: <Zap className="w-8 h-8 text-indigo-400" />, title: 'Fast & Reliable', description: 'Low latency API with 99.9% uptime guarantee' },
+    { icon: <Key className="w-8 h-8 text-indigo-400" />, title: 'Simple Auth', description: 'Bearer token authentication for easy integration' },
+    { icon: <BarChart3 className="w-8 h-8 text-indigo-400" />, title: 'Webhooks', description: 'Get notified when processing completes' }
   ];
 
   return (
@@ -73,7 +74,7 @@ result = response.json()`
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             {features.map((feature, index) => (
               <div key={index} className="glass-card-hover p-6 text-center">
-                <div className="text-3xl mb-4">{feature.icon}</div>
+                <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 mb-5">{feature.icon}</div>
                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
                 <p className="text-sm text-zinc-400">{feature.description}</p>
               </div>
@@ -89,11 +90,10 @@ result = response.json()`
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    activeTab === tab
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab
                       ? 'bg-indigo-500 text-white'
                       : 'bg-dark-600 text-zinc-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
@@ -119,11 +119,10 @@ result = response.json()`
             <div className="space-y-3">
               {endpoints.map((endpoint, index) => (
                 <div key={index} className="glass-card p-5 flex flex-wrap items-center gap-4">
-                  <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase ${
-                    endpoint.method === 'POST' 
-                      ? 'bg-blue-500/20 text-blue-400' 
+                  <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase ${endpoint.method === 'POST'
+                      ? 'bg-blue-500/20 text-blue-400'
                       : 'bg-green-500/20 text-green-400'
-                  }`}>
+                    }`}>
                     {endpoint.method}
                   </span>
                   <code className="text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-lg text-sm font-mono">

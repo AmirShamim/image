@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import { Zap, Target, Package, Lock, Briefcase, Paintbrush, BookOpen } from 'lucide-react';
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ const HomePage = () => {
       available: true,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6"/>
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6" />
         </svg>
       )
     },
@@ -29,7 +30,7 @@ const HomePage = () => {
       available: true,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          <path d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
         </svg>
       )
     },
@@ -41,7 +42,7 @@ const HomePage = () => {
       available: false,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       )
     },
@@ -53,7 +54,7 @@ const HomePage = () => {
       available: false,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L4.939 4.939M5 19l2.879-2.879m0 0a3 3 0 104.243-4.243 3 3 0 00-4.243 4.243z"/>
+          <path d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L4.939 4.939M5 19l2.879-2.879m0 0a3 3 0 104.243-4.243 3 3 0 00-4.243 4.243z" />
         </svg>
       )
     },
@@ -65,7 +66,7 @@ const HomePage = () => {
       available: false,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
       )
     },
@@ -77,7 +78,7 @@ const HomePage = () => {
       available: false,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M7 21V3m14 4H3m4 14h14V7"/>
+          <path d="M7 21V3m14 4H3m4 14h14V7" />
         </svg>
       )
     }
@@ -87,22 +88,22 @@ const HomePage = () => {
     {
       title: t('home.features.aiUpscale.title'),
       description: t('home.features.aiUpscale.description'),
-      icon: '⚡'
+      icon: <Zap className="w-8 h-8 text-primary" />
     },
     {
       title: t('home.features.presets.title'),
       description: t('home.features.presets.description'),
-      icon: '🎯'
+      icon: <Target className="w-8 h-8 text-primary" />
     },
     {
       title: t('home.features.batch.title'),
       description: t('home.features.batch.description'),
-      icon: '📦'
+      icon: <Package className="w-8 h-8 text-primary" />
     },
     {
       title: t('home.features.privacy.title'),
       description: t('home.features.privacy.description'),
-      icon: '🔒'
+      icon: <Lock className="w-8 h-8 text-primary" />
     }
   ];
 
@@ -128,9 +129,9 @@ const HomePage = () => {
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-float">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800/80 border border-zinc-700/50 mb-8 animate-float">
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <span className="text-sm text-zinc-400">AI-Powered Image Processing</span>
+            <span className="text-sm text-zinc-300 font-medium tracking-wide">AI-Powered Image Processing</span>
           </div>
 
           {/* Title */}
@@ -189,11 +190,10 @@ const HomePage = () => {
               <Link
                 key={tool.id}
                 to={tool.path}
-                className={`group relative glass-card p-6 transition-all duration-300 ${
-                  tool.available 
-                    ? 'hover:bg-white/[0.06] hover:border-primary/50 hover:-translate-y-2 hover:shadow-glow cursor-pointer' 
+                className={`group relative glass-card p-6 transition-all duration-300 ${tool.available
+                    ? 'hover:bg-white/[0.06] hover:border-primary/50 hover:-translate-y-2 hover:shadow-glow cursor-pointer'
                     : 'opacity-50 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 {!tool.available && (
                   <span className="absolute top-4 right-4 px-2 py-1 text-xs font-medium rounded-md bg-zinc-800 text-zinc-500">
@@ -262,15 +262,14 @@ const HomePage = () => {
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: '👨‍💼', title: 'Professionals', items: ['High-resolution prints', 'Marketing materials', 'Product photography', 'Client deliverables'] },
-              { icon: '🎨', title: 'Content Creators', items: ['Social media optimized', 'YouTube thumbnails', 'Instagram & TikTok', 'Upscale screenshots'], featured: true },
-              { icon: '📚', title: 'Students & Educators', items: ['Enhance images for reports', 'Presentation visuals', 'Academic projects', 'Free tier available'] }
+              { icon: <Briefcase className="w-10 h-10 mx-auto text-zinc-300" />, title: 'Professionals', items: ['High-resolution prints', 'Marketing materials', 'Product photography', 'Client deliverables'] },
+              { icon: <Paintbrush className="w-10 h-10 mx-auto text-zinc-300" />, title: 'Content Creators', items: ['Social media optimized', 'YouTube thumbnails', 'Instagram & TikTok', 'Upscale screenshots'], featured: true },
+              { icon: <BookOpen className="w-10 h-10 mx-auto text-zinc-300" />, title: 'Students & Educators', items: ['Enhance images for reports', 'Presentation visuals', 'Academic projects', 'Free tier available'] }
             ].map((useCase, index) => (
               <div
                 key={index}
-                className={`relative glass-card p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-glass-lg ${
-                  useCase.featured ? 'border-primary/50 shadow-glow' : ''
-                }`}
+                className={`relative glass-card p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-glass-lg ${useCase.featured ? 'border-primary/50 shadow-glow' : ''
+                  }`}
               >
                 {useCase.featured && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-primary to-cyan-400 text-black text-xs font-bold rounded-full">

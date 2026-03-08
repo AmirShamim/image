@@ -21,21 +21,6 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
-        '/upscale': {
-          target: apiTarget,
-          changeOrigin: true,
-          secure: false,
-        },
-        '/resize': {
-          target: apiTarget,
-          changeOrigin: true,
-          secure: false,
-        },
-        '/get-dimensions': {
-          target: apiTarget,
-          changeOrigin: true,
-          secure: false,
-        },
         '/profile_pictures': {
           target: apiTarget,
           changeOrigin: true,

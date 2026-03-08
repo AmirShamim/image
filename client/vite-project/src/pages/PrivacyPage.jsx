@@ -2,13 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { Lock } from 'lucide-react';
 import './LegalPage.css';
 
 const PrivacyPage = () => {
   return (
     <div className="legal-page">
       <Header />
-      
+
       <div className="legal-header">
         <Link to="/" className="back-link">← Back to Home</Link>
         <h1>Privacy Policy</h1>
@@ -19,16 +20,16 @@ const PrivacyPage = () => {
         <section>
           <h2>1. Introduction</h2>
           <p>
-            Welcome to Image Studio ("we," "our," or "us"). We are committed to protecting 
-            your privacy and ensuring the security of your personal information. This Privacy 
-            Policy explains how we collect, use, disclose, and safeguard your information when 
+            Welcome to Image Studio ("we," "our," or "us"). We are committed to protecting
+            your privacy and ensuring the security of your personal information. This Privacy
+            Policy explains how we collect, use, disclose, and safeguard your information when
             you use our image processing services.
           </p>
         </section>
 
         <section>
           <h2>2. Information We Collect</h2>
-          
+
           <h3>2.1 Information You Provide</h3>
           <ul>
             <li><strong>Account Information:</strong> Email address, name, and password when you create an account</li>
@@ -61,7 +62,7 @@ const PrivacyPage = () => {
         <section>
           <h2>4. Image Processing & Storage</h2>
           <div className="highlight-box">
-            <h4>🔒 Your Images Are Safe</h4>
+            <h4 className="flex items-center gap-2"><Lock className="w-5 h-5 text-primary" /> Your Images Are Safe</h4>
             <ul>
               <li>Images are processed on secure servers</li>
               <li>Uploaded images are automatically deleted after 1 hour</li>
@@ -122,8 +123,8 @@ const PrivacyPage = () => {
         <section>
           <h2>9. Children's Privacy</h2>
           <p>
-            Our services are not directed to children under 13. We do not knowingly collect 
-            personal information from children. If you believe we have collected information 
+            Our services are not directed to children under 13. We do not knowingly collect
+            personal information from children. If you believe we have collected information
             from a child, please contact us immediately.
           </p>
         </section>
@@ -131,7 +132,7 @@ const PrivacyPage = () => {
         <section>
           <h2>10. International Transfers</h2>
           <p>
-            Your data may be processed in countries other than your own. We ensure appropriate 
+            Your data may be processed in countries other than your own. We ensure appropriate
             safeguards are in place for international data transfers.
           </p>
         </section>
@@ -139,7 +140,7 @@ const PrivacyPage = () => {
         <section>
           <h2>11. Changes to This Policy</h2>
           <p>
-            We may update this Privacy Policy periodically. We will notify you of significant 
+            We may update this Privacy Policy periodically. We will notify you of significant
             changes via email or through our platform.
           </p>
         </section>
@@ -157,7 +158,7 @@ const PrivacyPage = () => {
       <div className="legal-footer">
         <p>See also: <Link to="/terms">Terms of Service</Link></p>
       </div>
-      
+
       <Footer />
     </div>
   );

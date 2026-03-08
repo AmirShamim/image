@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import UserProfile from './UserProfile';
 import LanguageSelector from './LanguageSelector';
+import { Crown } from 'lucide-react';
 
 const Header = () => {
   const { t } = useTranslation();
@@ -53,13 +54,13 @@ const Header = () => {
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="w-9 h-9 relative">
                 <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                  <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#logo-gradient)"/>
-                  <path d="M8 20L12 14L16 18L22 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <circle cx="22" cy="10" r="2" fill="white"/>
+                  <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#logo-gradient)" />
+                  <path d="M8 20L12 14L16 18L22 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="22" cy="10" r="2" fill="white" />
                   <defs>
                     <linearGradient id="logo-gradient" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#00d4aa"/>
-                      <stop offset="1" stopColor="#00a8cc"/>
+                      <stop stopColor="#00d4aa" />
+                      <stop offset="1" stopColor="#00a8cc" />
                     </linearGradient>
                   </defs>
                 </svg>
@@ -71,16 +72,15 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center">
-              <div className="flex items-center gap-1 bg-white/[0.03] backdrop-blur-md rounded-xl p-1 border border-white/[0.06]">
+              <div className="flex items-center gap-1 bg-zinc-800/80 rounded-xl p-1 border border-zinc-700/50">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      isActive(link.path)
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive(link.path)
                         ? 'bg-primary/20 text-primary'
                         : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
-                    }`}
+                      }`}
                   >
                     {link.label}
                   </Link>
@@ -130,7 +130,7 @@ const Header = () => {
                       <div className="px-3 py-2 border-b border-white/[0.06]">
                         <p className="text-sm font-medium text-white flex items-center gap-1">
                           {user.username || 'User'}
-                          {user.role === 'admin' && <span title="Admin">👑</span>}
+                          {user.role === 'admin' && <Crown className="w-4 h-4 text-yellow-500 ml-1" title="Admin" />}
                         </p>
                         <p className="text-xs text-zinc-500 truncate">{user.email}</p>
                         <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-primary/15 text-primary border border-primary/20">
@@ -211,11 +211,10 @@ const Header = () => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setMenuOpen(false)}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(link.path)
+                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(link.path)
                     ? 'bg-primary/20 text-primary'
                     : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>

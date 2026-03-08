@@ -18,6 +18,11 @@ import {
   setUserTier,
 } from '../utils/storageUtils';
 import { resizeImageClientSide } from '../utils/imageUtils';
+import {
+  Camera, Smartphone, Monitor, Tv, Image as ImageIcon, Briefcase,
+  Package, X, Save, Download, AlertTriangle, FolderUp,
+  Check, XCircle, Settings, Link2, Search, Zap, Trash2, Shield
+} from 'lucide-react';
 import './BatchProcessor.css';
 
 const API_URL = '';
@@ -37,24 +42,24 @@ api.interceptors.request.use((config) => {
 // Preset sizes for quick selection
 const PRESET_SIZES = {
   social: [
-    { name: 'Instagram Post', width: 1080, height: 1080, icon: '📸' },
-    { name: 'Instagram Story', width: 1080, height: 1920, icon: '📱' },
-    { name: 'Facebook Cover', width: 820, height: 312, icon: '🌐' },
-    { name: 'Twitter Post', width: 1200, height: 675, icon: '🐦' },
-    { name: 'LinkedIn Banner', width: 1584, height: 396, icon: '💼' },
-    { name: 'YouTube Thumbnail', width: 1280, height: 720, icon: '▶️' },
+    { name: 'Instagram Post', width: 1080, height: 1080, icon: <Camera className="w-4 h-4" /> },
+    { name: 'Instagram Story', width: 1080, height: 1920, icon: <Smartphone className="w-4 h-4" /> },
+    { name: 'Facebook Cover', width: 820, height: 312, icon: <Monitor className="w-4 h-4" /> },
+    { name: 'Twitter Post', width: 1200, height: 675, icon: <Monitor className="w-4 h-4" /> },
+    { name: 'LinkedIn Banner', width: 1584, height: 396, icon: <Briefcase className="w-4 h-4" /> },
+    { name: 'YouTube Thumbnail', width: 1280, height: 720, icon: <Tv className="w-4 h-4" /> },
   ],
   devices: [
-    { name: 'Desktop HD', width: 1920, height: 1080, icon: '🖥️' },
-    { name: 'Desktop 4K', width: 3840, height: 2160, icon: '🖥️' },
-    { name: 'Mobile Portrait', width: 1080, height: 1920, icon: '📱' },
-    { name: 'Tablet', width: 1024, height: 768, icon: '📱' },
+    { name: 'Desktop HD', width: 1920, height: 1080, icon: <Monitor className="w-4 h-4" /> },
+    { name: 'Desktop 4K', width: 3840, height: 2160, icon: <Tv className="w-4 h-4" /> },
+    { name: 'Mobile Portrait', width: 1080, height: 1920, icon: <Smartphone className="w-4 h-4" /> },
+    { name: 'Tablet', width: 1024, height: 768, icon: <Smartphone className="w-4 h-4" /> },
   ],
   web: [
-    { name: 'Thumbnail', width: 150, height: 150, icon: '🖼️' },
-    { name: 'Small', width: 320, height: 240, icon: '🖼️' },
-    { name: 'Medium', width: 800, height: 600, icon: '🖼️' },
-    { name: 'Large', width: 1200, height: 900, icon: '🖼️' },
+    { name: 'Thumbnail', width: 150, height: 150, icon: <ImageIcon className="w-4 h-4" /> },
+    { name: 'Small', width: 320, height: 240, icon: <ImageIcon className="w-4 h-4" /> },
+    { name: 'Medium', width: 800, height: 600, icon: <ImageIcon className="w-4 h-4" /> },
+    { name: 'Large', width: 1200, height: 900, icon: <ImageIcon className="w-4 h-4" /> },
   ]
 };
 
@@ -435,10 +440,12 @@ const BatchProcessor = ({ isOpen, onClose }) => {
       <div className="batch-modal" onClick={e => e.stopPropagation()}>
         <div className="batch-header">
           <div className="batch-header-left">
-            <h2>📦 Batch Processing</h2>
+            <h2 className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-zinc-300" /> Batch Processing
+            </h2>
             {canBypassLimits ? (
               <div className="usage-badge admin-badge">
-                {isAdmin ? '👑 Admin' : '⭐ Premium'} • Unlimited
+                {isAdmin ? <><Shield className="w-4 h-4 inline mr-1" /> Admin</> : <><Zap className="w-4 h-4 inline mr-1 text-yellow-400" /> Premium</>} • Unlimited
               </div>
             ) : (
               <div className={`usage-badge ${hasReachedLimit ? 'limit-reached' : ''}`}>
@@ -446,7 +453,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               </div>
             )}
           </div>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose}><X className="w-5 h-5" /></button>
         </div>
 
         <div className="batch-content">
@@ -456,7 +463,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             {showCachedNotice && cachedImages.length > 0 && (
               <div className="cached-notice">
                 <div className="cached-notice-content">
-                  <span className="cached-icon">💾</span>
+                  <span className="cached-icon"><Save className="w-5 h-5" /></span>
                   <div className="cached-text">
                     <strong>Previously processed images found!</strong>
                     <span>{cachedImages.length} image(s) recovered from your last session</span>
@@ -491,7 +498,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                       onClick={() => downloadCachedImage(cachedImg)}
                       title="Download"
                     >
-                      ⬇️
+                      <Download className="w-4 h-4 mx-auto" />
                     </button>
                   </div>
                 ))}
@@ -501,7 +508,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             {/* Limit Reached Warning */}
             {hasReachedLimit && (
               <div className="limit-warning">
-                <span className="warning-icon">⚠️</span>
+                <span className="warning-icon"><AlertTriangle className="w-5 h-5 text-yellow-500" /></span>
                 <div className="warning-text">
                   <strong>Daily limit reached!</strong>
                   <span>You've used all {getDailyLimit()} free processes for today. Come back tomorrow!</span>
@@ -517,7 +524,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <span className="upload-icon">📁</span>
+              <span className="upload-icon flex justify-center text-zinc-400 mb-2"><FolderUp className="w-8 h-8" /></span>
               <p>Drop images here or click to browse</p>
               <span className="upload-hint">Select multiple files</span>
               <input
@@ -542,10 +549,10 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         </div>
                       )}
                       {img.status === 'done' && (
-                        <div className="done-overlay">✓</div>
+                        <div className="done-overlay"><Check className="w-4 h-4" /></div>
                       )}
                       {img.status === 'error' && (
-                        <div className="error-overlay">✕</div>
+                        <div className="error-overlay"><XCircle className="w-4 h-4" /></div>
                       )}
                     </div>
 
@@ -570,7 +577,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         onClick={() => toggleCustomSettings(img.id)}
                         title={img.useCustomSettings ? 'Using custom settings' : 'Using global settings'}
                       >
-                        {img.useCustomSettings ? '⚙️' : '🔗'}
+                        {img.useCustomSettings ? <Settings className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
                       </button>
                       {img.status === 'done' && (
                         <>
@@ -579,14 +586,14 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                             onClick={() => openComparison(img)}
                             title="Compare before/after"
                           >
-                            🔍
+                            <Search className="w-4 h-4 mx-auto" />
                           </button>
                           <button
                             className="download-single-btn"
                             onClick={() => downloadSingle(img)}
                             title="Download"
                           >
-                            ⬇️
+                            <Download className="w-4 h-4 mx-auto" />
                           </button>
                         </>
                       )}
@@ -595,7 +602,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                         onClick={() => removeImage(img.id)}
                         title="Remove"
                       >
-                        ✕
+                        <X className="w-4 h-4 mx-auto" />
                       </button>
                     </div>
 
@@ -829,29 +836,29 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                     Processing... ({processedCount}/{images.length})
                   </>
                 ) : !canBypassLimits && hasReachedLimit ? (
-                  <>
-                    🚫 Limit Reached
-                  </>
+                  <span className="flex items-center gap-2 justify-center">
+                    <XCircle className="w-4 h-4 inline" /> Limit Reached
+                  </span>
                 ) : !canBypassLimits && !canProcessImages(images.length) ? (
-                  <>
-                    ⚠️ Exceeds Limit ({images.length} &gt; {remainingCount})
-                  </>
+                  <span className="flex items-center gap-2 justify-center">
+                    <AlertTriangle className="w-4 h-4 inline" /> Exceeds Limit ({images.length} &gt; {remainingCount})
+                  </span>
                 ) : (
-                  <>
-                    ⚡ Process All
-                  </>
+                  <span className="flex items-center gap-2 justify-center">
+                    <Zap className="w-4 h-4 inline text-yellow-400" /> Process All
+                  </span>
                 )}
               </button>
 
               {images.some(i => i.status === 'done') && (
-                <button className="download-all-btn" onClick={downloadAll}>
-                  📥 Download All as ZIP
+                <button className="download-all-btn flex items-center gap-2 justify-center" onClick={downloadAll}>
+                  <Download className="w-4 h-4 inline" /> Download All as ZIP
                 </button>
               )}
 
               {images.length > 0 && (
-                <button className="clear-all-btn" onClick={clearAll}>
-                  🗑️ Clear All
+                <button className="clear-all-btn flex items-center gap-2 justify-center" onClick={clearAll}>
+                  <Trash2 className="w-4 h-4 inline" /> Clear All
                 </button>
               )}
             </div>
@@ -865,7 +872,7 @@ const BatchProcessor = ({ isOpen, onClose }) => {
               <div className="comparison-modal-header">
                 <h3>Before / After Comparison</h3>
                 <span className="comparison-image-name">{comparisonImage.name}</span>
-                <button className="close-comparison-btn" onClick={closeComparison}>✕</button>
+                <button className="close-comparison-btn" onClick={closeComparison}><X className="w-4 h-4" /></button>
               </div>
               <div className="comparison-modal-body">
                 <ImageComparison

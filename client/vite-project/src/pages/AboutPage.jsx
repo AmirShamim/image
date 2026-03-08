@@ -4,20 +4,21 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import { Zap, Lock, Target, Globe } from 'lucide-react';
 
 const AboutPage = () => {
   const { t } = useTranslation();
 
   const features = [
-    { icon: '⚡', title: 'Fast Processing', description: 'Process images in seconds with our optimized AI models.' },
-    { icon: '🔒', title: 'Privacy First', description: 'Your images are processed securely and deleted automatically.' },
-    { icon: '🎯', title: 'High Quality', description: 'Advanced AI algorithms ensure the best possible results.' },
-    { icon: '🌍', title: 'Global Access', description: 'Available worldwide with multiple language support.' }
+    { icon: <Zap className="w-8 h-8 text-primary" />, title: 'Fast Processing', description: 'Process images in seconds with our optimized AI models.' },
+    { icon: <Lock className="w-8 h-8 text-primary" />, title: 'Privacy First', description: 'Your images are processed securely and deleted automatically.' },
+    { icon: <Target className="w-8 h-8 text-primary" />, title: 'High Quality', description: 'Advanced AI algorithms ensure the best possible results.' },
+    { icon: <Globe className="w-8 h-8 text-primary" />, title: 'Global Access', description: 'Available worldwide with multiple language support.' }
   ];
 
   return (
     <div className="min-h-screen bg-dark-900">
-      <SEO 
+      <SEO
         title="About ImageStudio - AI Image Processing"
         description="Learn about ImageStudio, our mission, and how we're making professional image tools accessible to everyone."
         path="/about"
@@ -55,7 +56,7 @@ const AboutPage = () => {
                 key={index}
                 className="glass-card-hover p-6"
               >
-                <div className="text-3xl mb-4">{feature.icon}</div>
+                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-5">{feature.icon}</div>
                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{feature.description}</p>
               </div>

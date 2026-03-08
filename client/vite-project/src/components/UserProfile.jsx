@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, getImageHistory, deleteHistoryImage } from '../services/auth';
+import { Crown, Search, Ruler } from 'lucide-react';
 import './Auth.css';
 
 const UserProfile = ({ isOpen, onClose }) => {
@@ -10,31 +11,31 @@ const UserProfile = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef(null);
-  
+
   // Profile form
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  
+
   // Password form
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  
+
   // Delete account
   const [deletePassword, setDeletePassword] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
+
   // Image history
   const [imageHistory, setImageHistory] = useState([]);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPagination, setHistoryPagination] = useState(null);
-  
+
   // Profile stats
   const [profileStats, setProfileStats] = useState(null);
-  
+
   // Profile picture upload
   const [uploadingPicture, setUploadingPicture] = useState(false);
-  
+
   // Image deletion
   const [deletingImageId, setDeletingImageId] = useState(null);
   const [imageToDelete, setImageToDelete] = useState(null);
@@ -228,7 +229,7 @@ const UserProfile = ({ isOpen, onClose }) => {
 
     setDeletingImageId(imageToDelete.id);
     setShowDeleteImageConfirm(false);
-    
+
     try {
       await deleteHistoryImage(imageToDelete.id);
       // Reload the history and profile stats
@@ -257,15 +258,15 @@ const UserProfile = ({ isOpen, onClose }) => {
 
         <div className="profile-header">
           <div className="profile-avatar-container">
-            <div 
+            <div
               className={`profile-avatar ${uploadingPicture ? 'uploading' : ''}`}
               onClick={handleProfilePictureClick}
               title="Click to change profile picture"
             >
               {user?.profile_picture ? (
-                <img 
-                  src={user.profile_picture} 
-                  alt={user?.username || 'User'} 
+                <img
+                  src={user.profile_picture}
+                  alt={user?.username || 'User'}
                   className="profile-avatar-image"
                 />
               ) : (
@@ -287,7 +288,7 @@ const UserProfile = ({ isOpen, onClose }) => {
               style={{ display: 'none' }}
             />
             {user?.profile_picture && (
-              <button 
+              <button
                 className="remove-picture-btn"
                 onClick={handleRemoveProfilePicture}
                 disabled={uploadingPicture}
@@ -310,19 +311,19 @@ const UserProfile = ({ isOpen, onClose }) => {
         </div>
 
         <div className="profile-nav">
-          <button 
+          <button
             className={activeSection === 'profile' ? 'active' : ''}
             onClick={() => { setActiveSection('profile'); setError(''); setSuccess(''); }}
           >
             Profile
           </button>
-          <button 
+          <button
             className={activeSection === 'security' ? 'active' : ''}
             onClick={() => { setActiveSection('security'); setError(''); setSuccess(''); }}
           >
             Security
           </button>
-          <button 
+          <button
             className={activeSection === 'history' ? 'active' : ''}
             onClick={() => { setActiveSection('history'); setError(''); setSuccess(''); }}
           >
@@ -406,7 +407,7 @@ const UserProfile = ({ isOpen, onClose }) => {
               <div className="danger-zone">
                 <h3>Danger Zone</h3>
                 {!showDeleteConfirm ? (
-                  <button 
+                  <button
                     className="delete-account-btn"
                     onClick={() => setShowDeleteConfirm(true)}
                   >
@@ -423,7 +424,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                     />
                     <div className="delete-actions">
                       <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
-                      <button 
+                      <button
                         className="confirm-delete"
                         onClick={handleDeleteAccount}
                         disabled={loading}
@@ -454,8 +455,8 @@ const UserProfile = ({ isOpen, onClose }) => {
                             <img src={image.cloud_url} alt={image.original_filename} />
                           </div>
                         ) : (
-                          <div className="history-icon">
-                            {image.operation === 'upscale' ? '🔍' : '📐'}
+                          <div className="history-icon overflow-hidden flex items-center justify-center text-zinc-400">
+                            {image.operation === 'upscale' ? <Search className="w-5 h-5" /> : <Ruler className="w-5 h-5" />}
                           </div>
                         )}
                         <div className="history-details">
@@ -466,7 +467,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                         </div>
                         <div className="history-actions">
                           {image.cloud_url && (
-                            <button 
+                            <button
                               className="history-action-btn download"
                               onClick={() => handleDownloadImage(image)}
                               title="Download"
@@ -478,7 +479,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                               </svg>
                             </button>
                           )}
-                          <button 
+                          <button
                             className="history-action-btn delete"
                             onClick={() => handleDeleteImageClick(image)}
                             disabled={deletingImageId === image.id}
@@ -499,14 +500,14 @@ const UserProfile = ({ isOpen, onClose }) => {
                   </div>
                   {historyPagination && historyPagination.totalPages > 1 && (
                     <div className="history-pagination">
-                      <button 
+                      <button
                         disabled={historyPage === 1}
                         onClick={() => setHistoryPage(p => p - 1)}
                       >
                         Previous
                       </button>
                       <span>Page {historyPage} of {historyPagination.totalPages}</span>
-                      <button 
+                      <button
                         disabled={historyPage === historyPagination.totalPages}
                         onClick={() => setHistoryPage(p => p + 1)}
                       >
@@ -542,13 +543,13 @@ const UserProfile = ({ isOpen, onClose }) => {
             </p>
             <p className="warning-text">This action cannot be undone.</p>
             <div className="confirm-dialog-actions">
-              <button 
+              <button
                 className="confirm-dialog-cancel"
                 onClick={handleCancelDeleteImage}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 className="confirm-dialog-delete"
                 onClick={handleConfirmDeleteImage}
               >

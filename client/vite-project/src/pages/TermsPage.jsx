@@ -2,13 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { AlertTriangle } from 'lucide-react';
 import './LegalPage.css';
 
 const TermsPage = () => {
   return (
     <div className="legal-page">
       <Header />
-      
+
       <div className="legal-header">
         <Link to="/" className="back-link">← Back to Home</Link>
         <h1>Terms of Service</h1>
@@ -19,8 +20,8 @@ const TermsPage = () => {
         <section>
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By accessing or using Image Studio ("Service"), you agree to be bound by these 
-            Terms of Service ("Terms"). If you do not agree to these Terms, please do not 
+            By accessing or using Image Studio ("Service"), you agree to be bound by these
+            Terms of Service ("Terms"). If you do not agree to these Terms, please do not
             use our Service.
           </p>
         </section>
@@ -44,13 +45,13 @@ const TermsPage = () => {
           <h2>3. User Accounts</h2>
           <h3>3.1 Registration</h3>
           <p>
-            Some features require account registration. You agree to provide accurate 
+            Some features require account registration. You agree to provide accurate
             information and keep your account credentials secure.
           </p>
-          
+
           <h3>3.2 Account Responsibility</h3>
           <p>
-            You are responsible for all activities under your account. Notify us immediately 
+            You are responsible for all activities under your account. Notify us immediately
             of any unauthorized use.
           </p>
         </section>
@@ -67,8 +68,9 @@ const TermsPage = () => {
             <li>Resell or redistribute our Service without permission</li>
             <li>Process images depicting child exploitation (CSAM)</li>
           </ul>
-          <div className="warning-box">
-            <p>⚠️ Violations may result in immediate account termination and legal action.</p>
+          <div className="warning-box flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" />
+            <p>Violations may result in immediate account termination and legal action.</p>
           </div>
         </section>
 
@@ -76,13 +78,13 @@ const TermsPage = () => {
           <h2>5. Content Ownership</h2>
           <h3>5.1 Your Content</h3>
           <p>
-            You retain all rights to images you upload. By using our Service, you grant us 
+            You retain all rights to images you upload. By using our Service, you grant us
             a limited license to process your images solely to provide the Service.
           </p>
-          
+
           <h3>5.2 Our Content</h3>
           <p>
-            All software, design, and content of Image Studio is owned by us and protected 
+            All software, design, and content of Image Studio is owned by us and protected
             by intellectual property laws.
           </p>
         </section>
@@ -113,8 +115,8 @@ const TermsPage = () => {
         <section>
           <h2>7. Refunds</h2>
           <p>
-            We offer refunds within 7 days of purchase if you're unsatisfied with our Service. 
-            Contact <a href="mailto:support@imagestudio.app">support@imagestudio.app</a> for 
+            We offer refunds within 7 days of purchase if you're unsatisfied with our Service.
+            Contact <a href="mailto:support@imagestudio.app">support@imagestudio.app</a> for
             refund requests.
           </p>
         </section>
@@ -145,8 +147,8 @@ const TermsPage = () => {
         <section>
           <h2>10. Disclaimer of Warranties</h2>
           <p>
-            THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL 
-            WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR A 
+            THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL
+            WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR A
             PARTICULAR PURPOSE.
           </p>
         </section>
@@ -154,12 +156,12 @@ const TermsPage = () => {
         <section>
           <h2>11. Limitation of Liability</h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, IMAGE STUDIO SHALL NOT BE LIABLE FOR ANY 
-            INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF 
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, IMAGE STUDIO SHALL NOT BE LIABLE FOR ANY
+            INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF
             PROFITS OR REVENUES.
           </p>
           <p>
-            Our total liability shall not exceed the amount paid by you in the 12 months 
+            Our total liability shall not exceed the amount paid by you in the 12 months
             preceding the claim.
           </p>
         </section>
@@ -167,7 +169,7 @@ const TermsPage = () => {
         <section>
           <h2>12. Indemnification</h2>
           <p>
-            You agree to indemnify and hold harmless Image Studio from any claims arising 
+            You agree to indemnify and hold harmless Image Studio from any claims arising
             from your use of the Service or violation of these Terms.
           </p>
         </section>
@@ -175,7 +177,7 @@ const TermsPage = () => {
         <section>
           <h2>13. Governing Law</h2>
           <p>
-            These Terms are governed by the laws of the State of California, USA. Any disputes 
+            These Terms are governed by the laws of the State of California, USA. Any disputes
             shall be resolved in the courts of San Francisco County.
           </p>
         </section>
@@ -183,7 +185,7 @@ const TermsPage = () => {
         <section>
           <h2>14. Changes to Terms</h2>
           <p>
-            We may update these Terms at any time. Continued use of the Service after changes 
+            We may update these Terms at any time. Continued use of the Service after changes
             constitutes acceptance of the new Terms.
           </p>
         </section>
@@ -201,7 +203,7 @@ const TermsPage = () => {
       <div className="legal-footer">
         <p>See also: <Link to="/privacy">Privacy Policy</Link></p>
       </div>
-      
+
       <Footer />
     </div>
   );

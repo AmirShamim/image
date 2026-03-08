@@ -90,10 +90,10 @@ const ImageUpscaler = () => {
         const width = img.width;
         const height = img.height;
         const scaleNum = parseInt(selectedScale);
-        const limits = scaleNum <= 2 
+        const limits = scaleNum <= 2
           ? { width: 5120, height: 2880, name: '5K' }
           : { width: 3840, height: 2160, name: '4K' };
-        
+
         if (width > limits.width || height > limits.height) {
           reject(new Error(`Image resolution too large for ${selectedScale}x upscaling. Maximum allowed is ${limits.name} (${limits.width}x${limits.height}). Your image is ${width}x${height}.`));
         } else {
@@ -126,7 +126,7 @@ const ImageUpscaler = () => {
 
   const handleUpload = async () => {
     if (!file) return;
-    
+
     const scaleNum = scale.replace('x', '');
     if (!canUseModel(scaleNum)) {
       setError(`You've reached your limit for ${scale} upscaling. ${user ? 'Upgrade your plan for more uses!' : 'Please register for more uses!'}`);
@@ -137,7 +137,7 @@ const ImageUpscaler = () => {
       setError(`${AI_MODELS[modelType].name} requires a Pro or Business subscription.`);
       return;
     }
-    
+
     setLoading(true);
     setError('');
 
@@ -155,8 +155,8 @@ const ImageUpscaler = () => {
         responseType: 'blob',
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       };
-      
-      const response = await axios.post('/upscale', formData, config);
+
+      const response = await axios.post('/api/upscale', formData, config);
       const imageUrl = URL.createObjectURL(response.data);
       setResultImage(imageUrl);
       await loadUsage();
@@ -271,8 +271,8 @@ const ImageUpscaler = () => {
       </div>
 
       {/* Upload Button */}
-      <button 
-        onClick={handleUpload} 
+      <button
+        onClick={handleUpload}
         disabled={loading || !file || !canUseModel(scale.replace('x', '')) || !canUseModelType(modelType)}
         style={{
           padding: '12px 24px',

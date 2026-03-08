@@ -5,25 +5,16 @@
       "destination": "https://image-studio-5yqqy.ondigitalocean.app/api/:path*"
     },
     {
-      "source": "/upscale",
-      "destination": "https://image-studio-5yqqy.ondigitalocean.app/upscale"
-    },
-    {
-      "source": "/resize",
-      "destination": "https://image-studio-5yqqy.ondigitalocean.app/resize"
-    },
-    {
-      "source": "/get-dimensions",
-      "destination": "https://image-studio-5yqqy.ondigitalocean.app/get-dimensions"
-    },
-    {
       "source": "/profile_pictures/:path*",
       "destination": "https://image-studio-5yqqy.ondigitalocean.app/profile_pictures/:path*"
     },
     {
       "source": "/processed/:path*",
       "destination": "https://image-studio-5yqqy.ondigitalocean.app/processed/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
-
