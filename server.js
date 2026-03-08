@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
-        if (origin.includes('vercel.app') || origin.includes('localhost') || origin.includes('loca.lt')) return callback(null, true);
+        if (origin.includes('vercel.app') || origin.includes('localhost') || origin.includes('loca.lt') || origin.includes('ondigitalocean.app')) return callback(null, true);
         const allowedOrigins = ['https://image-navy-kappa-80.vercel.app', 'http://localhost:5173', 'http://localhost:5000'];
         if (allowedOrigins.includes(origin)) return callback(null, true);
         callback(new Error('Not allowed by CORS'));

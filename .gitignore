@@ -5,10 +5,11 @@ client/vite-project/node_modules/
 # Build output
 client/vite-project/dist/
 
-
 # Uploaded/processed files
 uploads/
 processed/
+data/
+profile_pictures/
 
 # Environment
 .env
