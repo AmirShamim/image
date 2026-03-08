@@ -2,27 +2,27 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://image-cf4l.onrender.com/api/:path*"
+      "destination": "https://image-studio-5yqqy.ondigitalocean.app/api/:path*"
     },
     {
       "source": "/upscale",
-      "destination": "https://image-cf4l.onrender.com/upscale"
+      "destination": "https://image-studio-5yqqy.ondigitalocean.app/upscale"
     },
     {
       "source": "/resize",
-      "destination": "https://image-cf4l.onrender.com/resize"
+      "destination": "https://image-studio-5yqqy.ondigitalocean.app/resize"
     },
     {
       "source": "/get-dimensions",
-      "destination": "https://image-cf4l.onrender.com/get-dimensions"
+      "destination": "https://image-studio-5yqqy.ondigitalocean.app/get-dimensions"
     },
     {
       "source": "/profile_pictures/:path*",
-      "destination": "https://image-cf4l.onrender.com/profile_pictures/:path*"
+      "destination": "https://image-studio-5yqqy.ondigitalocean.app/profile_pictures/:path*"
     },
     {
       "source": "/processed/:path*",
-      "destination": "https://image-cf4l.onrender.com/processed/:path*"
+      "destination": "https://image-studio-5yqqy.ondigitalocean.app/processed/:path*"
     }
   ]
 }
