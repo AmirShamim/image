@@ -49,15 +49,14 @@ app.use('/api/stripe', stripeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/', imageRoutes);
 
-// Serve React frontend in production (Render builds the frontend into client/vite-project/dist)
-const isProduction = process.env.NODE_ENV === 'production';
-if (isProduction) {
-    const clientDist = path.join(__dirname, 'client', 'vite-project', 'dist');
-    app.use(express.static(clientDist));
-    // For all unmatched routes, serve the React SPA
-    app.get(/.*/, (req, res) => {
-        res.sendFile(path.join(clientDist, 'index.html'));
-    });
-}
+// API Root
+app.get('/', (req, res) => {
+    res.json({ message: 'Image Studio API is running', status: 'ok', environment: process.env.NODE_ENV });
+});
+
+// JSON 404 handler for unmatched routes
+app.use((req, res) => {
+    res.status(404).json({ error: 'Endpoint not found' });
+});
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-const { db } = require('../database-pg');
+const db = require('../database-pg');
 const { uploadToCloudinary, isCloudinaryConfigured } = require('../config/cloudinary');
 const gpuProvider = require('../gpu-provider');
 const { optionalAuth } = require('../middleware/auth');
@@ -22,10 +22,10 @@ router.post('/get-dimensions', processLimiter, upload.single('image'), async (re
     try {
         const sharp = require('sharp');
         const metadata = await sharp(inputPath).metadata();
-        
+
         // Clean up the uploaded file
         fs.unlinkSync(inputPath);
-        
+
         res.json({ width: metadata.width, height: metadata.height });
     } catch (e) {
         // Clean up
