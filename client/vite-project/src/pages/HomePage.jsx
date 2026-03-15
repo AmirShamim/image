@@ -135,10 +135,10 @@ const HomePage = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="text-gradient">Transform Your Images</span>
+          <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <span className="gold-gradient-text">Transform Your Images</span>
             <br />
-            <span className="accent-gradient">With AI Magic</span>
+            <span>With AI Magic</span>
           </h1>
 
           {/* Subtitle */}
@@ -147,10 +147,10 @@ const HomePage = () => {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
             <Link
               to="/upscale"
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-cyan-400 text-black font-semibold rounded-xl transition-all duration-300 hover:shadow-glow-lg hover:-translate-y-1"
+              className="accent-button inline-flex items-center justify-center gap-2"
             >
               {t('home.hero.cta')}
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +159,7 @@ const HomePage = () => {
             </Link>
             <Link
               to="/tools"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 glass-button text-white"
+              className="liquid-button"
             >
               {t('home.hero.ctaSecondary')}
             </Link>
@@ -178,11 +178,11 @@ const HomePage = () => {
       <section className="py-24 px-4 relative">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Powerful Tools
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{t('home.tools.title')}</h2>
-            <p className="text-zinc-400 max-w-lg mx-auto">{t('tools.subtitle')}</p>
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">{t('home.tools.title')}</h2>
+            <p className="text-zinc-400 max-w-lg mx-auto text-lg">{t('tools.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -190,9 +190,7 @@ const HomePage = () => {
               <Link
                 key={tool.id}
                 to={tool.path}
-                className={`group relative glass-card p-6 transition-all duration-300 ${tool.available
-                    ? 'hover:bg-white/[0.06] hover:border-primary/50 hover:-translate-y-2 hover:shadow-glow cursor-pointer'
-                    : 'opacity-50 cursor-not-allowed'
+                className={`group relative liquid-card p-6 block ${!tool.available ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                   }`}
               >
                 {!tool.available && (
@@ -201,13 +199,13 @@ const HomePage = () => {
                   </span>
                 )}
 
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-cyan-400 p-3.5 mb-5 group-hover:shadow-glow transition-shadow">
-                  <div className="w-full h-full text-black">
+                <div className="w-14 h-14 rounded-full border border-yellow-500/30 bg-black/40 p-3.5 mb-5 group-hover:border-yellow-500 transition-colors">
+                  <div className="w-full h-full text-yellow-500">
                     {tool.icon}
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2">{tool.title}</h3>
+                <h3 className="font-serif text-xl font-semibold text-white mb-2">{tool.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{tool.description}</p>
 
                 {tool.available && (
@@ -228,20 +226,24 @@ const HomePage = () => {
       <section className="py-24 px-4 bg-dark-800/50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Why Choose Us
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{t('home.features.title')}</h2>
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">{t('home.features.title')}</h2>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="glass-card-hover p-6 text-center"
+                className="liquid-panel p-6 text-center"
               >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                <div className="flex justify-center mb-6">
+                  <div className="w-16 h-16 rounded-full border border-yellow-500/30 flex items-center justify-center bg-black/40">
+                    {React.cloneElement(feature.icon, { className: 'w-7 h-7 text-yellow-500' })}
+                  </div>
+                </div>
+                <h3 className="font-serif text-xl font-semibold text-white mb-3">{feature.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{feature.description}</p>
               </div>
             ))}
@@ -253,11 +255,11 @@ const HomePage = () => {
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Use Cases
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Built for Everyone</h2>
-            <p className="text-zinc-400">Whether you're a professional, student, or content creator</p>
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">Built for Everyone</h2>
+            <p className="text-zinc-400 text-lg">Whether you're a professional, student, or content creator</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -268,16 +270,19 @@ const HomePage = () => {
             ].map((useCase, index) => (
               <div
                 key={index}
-                className={`relative glass-card p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-glass-lg ${useCase.featured ? 'border-primary/50 shadow-glow' : ''
-                  }`}
+                className="relative liquid-card p-8 text-center"
               >
                 {useCase.featured && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-primary to-cyan-400 text-black text-xs font-bold rounded-full">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-yellow-300 to-yellow-600 text-black text-xs font-bold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)]">
                     Most Popular
                   </span>
                 )}
-                <div className="text-5xl mb-4">{useCase.icon}</div>
-                <h3 className="text-xl font-bold text-white mb-4">{useCase.title}</h3>
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 rounded-full border border-yellow-500/30 flex items-center justify-center bg-black/40">
+                    {React.cloneElement(useCase.icon, { className: 'w-10 h-10 text-zinc-300 group-hover:text-yellow-500 transition-colors' })}
+                  </div>
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-white mb-4">{useCase.title}</h3>
                 <ul className="space-y-3 text-left">
                   {useCase.items.map((item, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-zinc-400 text-sm">
@@ -304,9 +309,9 @@ const HomePage = () => {
               { value: '100%', label: 'Free to Start' },
               { value: '∞', label: 'No Watermarks' }
             ].map((stat, index) => (
-              <div key={index} className="glass-card p-6 text-center group hover:border-primary/50 transition-colors">
-                <div className="text-3xl md:text-4xl font-bold accent-gradient mb-2">{stat.value}</div>
-                <div className="text-sm text-zinc-500 uppercase tracking-wider">{stat.label}</div>
+              <div key={index} className="liquid-panel p-6 text-center">
+                <div className="font-serif text-3xl md:text-5xl font-bold gold-gradient-text mb-3">{stat.value}</div>
+                <div className="text-sm text-zinc-500 font-medium tracking-widest uppercase">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -320,13 +325,13 @@ const HomePage = () => {
         </div>
 
         <div className="relative z-10 max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Enhance Your Images?</h2>
+          <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">Ready to Enhance Your Images?</h2>
           <p className="text-zinc-400 text-lg mb-8">Start with our free tier. No credit card required.</p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
             <Link
               to="/upscale"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-cyan-400 text-black font-semibold rounded-xl hover:shadow-glow-lg hover:-translate-y-1 transition-all"
+              className="accent-button inline-flex items-center justify-center gap-2"
             >
               Try AI Upscaling
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -335,7 +340,7 @@ const HomePage = () => {
             </Link>
             <Link
               to="/resize"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 glass-button text-white"
+              className="liquid-button"
             >
               Resize Images
             </Link>

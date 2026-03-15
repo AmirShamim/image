@@ -23,7 +23,6 @@ import {
   Package, X, Save, Download, AlertTriangle, FolderUp,
   Check, XCircle, Settings, Link2, Search, Zap, Trash2, Shield
 } from 'lucide-react';
-import './BatchProcessor.css';
 
 const API_URL = '';
 
@@ -436,48 +435,48 @@ const BatchProcessor = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="batch-overlay" onClick={onClose}>
-      <div className="batch-modal" onClick={e => e.stopPropagation()}>
-        <div className="batch-header">
-          <div className="batch-header-left">
-            <h2 className="flex items-center gap-2">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[1000] p-4" onClick={onClose}>
+      <div className="liquid-panel w-full max-w-[1100px] max-h-[90vh] overflow-hidden flex flex-col shadow-[0_20px_40px_rgba(0,0,0,0.5)] pt-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 pb-4 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-4">
+            <h2 className="flex items-center gap-2 m-0 text-white text-[22px] font-bold font-serif">
               <Package className="w-5 h-5 text-zinc-300" /> Batch Processing
             </h2>
             {canBypassLimits ? (
-              <div className="usage-badge admin-badge">
-                {isAdmin ? <><Shield className="w-4 h-4 inline mr-1" /> Admin</> : <><Zap className="w-4 h-4 inline mr-1 text-yellow-400" /> Premium</>} • Unlimited
+              <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold tracking-wider uppercase text-emerald-400">
+                {isAdmin ? <><Shield className="w-3.5 h-3.5 inline mr-1" /> Admin</> : <><Zap className="w-3.5 h-3.5 inline mr-1 text-yellow-400" /> Premium</>} • Unlimited
               </div>
             ) : (
-              <div className={`usage-badge ${hasReachedLimit ? 'limit-reached' : ''}`}>
+              <div className={`px-2.5 py-1 rounded-full border text-[11px] font-bold tracking-wider uppercase ${hasReachedLimit ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-white/5 border-white/10 text-zinc-400'}`}>
                 {remainingCount}/{getDailyLimit()} remaining today
               </div>
             )}
           </div>
-          <button className="close-btn" onClick={onClose}><X className="w-5 h-5" /></button>
+          <button className="w-9 h-9 flex items-center justify-center rounded-xl liquid-button !p-0" onClick={onClose}><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="batch-content">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6 overflow-auto max-h-[calc(90vh-[80px])] custom-scrollbar">
           {/* Left Panel - Image List */}
-          <div className="batch-images-panel">
+          <div className="flex flex-col gap-4">
             {/* Cached Images Notice */}
             {showCachedNotice && cachedImages.length > 0 && (
-              <div className="cached-notice">
-                <div className="cached-notice-content">
-                  <span className="cached-icon"><Save className="w-5 h-5" /></span>
-                  <div className="cached-text">
-                    <strong>Previously processed images found!</strong>
-                    <span>{cachedImages.length} image(s) recovered from your last session</span>
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0"><Save className="w-5 h-5" /></span>
+                  <div className="flex flex-col">
+                    <strong className="text-sm text-blue-100 font-semibold">Previously processed images found!</strong>
+                    <span className="text-xs text-blue-200/70">{cachedImages.length} image(s) recovered from your last session</span>
                   </div>
                 </div>
-                <div className="cached-actions">
+                <div className="flex gap-2 shrink-0">
                   <button
-                    className="view-cached-btn"
+                    className="h-8 px-3 rounded-lg bg-blue-500/20 text-blue-300 text-xs font-semibold hover:bg-blue-500/30 transition-colors"
                     onClick={() => setShowCachedView(!showCachedView)}
                   >
                     {showCachedView ? 'Hide' : 'View'}
                   </button>
                   <button
-                    className="clear-cached-btn"
+                    className="h-8 px-3 rounded-lg border border-blue-500/30 text-blue-300 text-xs hover:bg-blue-500/10 transition-colors"
                     onClick={clearCachedImages}
                   >
                     Clear
@@ -488,18 +487,20 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
             {/* Cached Images View */}
             {showCachedView && cachedImages.length > 0 && (
-              <div className="cached-images-list">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-3 rounded-xl bg-black/20 border border-white/5">
                 {cachedImages.map((cachedImg) => (
-                  <div key={cachedImg.id} className="cached-image-item">
-                    <img src={cachedImg.processedBase64} alt={cachedImg.originalName} />
-                    <span className="cached-image-name">{cachedImg.originalName}</span>
-                    <button
-                      className="download-cached-btn"
-                      onClick={() => downloadCachedImage(cachedImg)}
-                      title="Download"
-                    >
-                      <Download className="w-4 h-4 mx-auto" />
-                    </button>
+                  <div key={cachedImg.id} className="relative group rounded-lg overflow-hidden border border-white/10 bg-white/5 aspect-square">
+                    <img src={cachedImg.processedBase64} alt={cachedImg.originalName} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
+                      <span className="text-[10px] text-zinc-300 truncate w-full text-center mb-2">{cachedImg.originalName}</span>
+                      <button
+                        className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
+                        onClick={() => downloadCachedImage(cachedImg)}
+                        title="Download"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -507,26 +508,28 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
             {/* Limit Reached Warning */}
             {hasReachedLimit && (
-              <div className="limit-warning">
-                <span className="warning-icon"><AlertTriangle className="w-5 h-5 text-yellow-500" /></span>
-                <div className="warning-text">
-                  <strong>Daily limit reached!</strong>
-                  <span>You've used all {getDailyLimit()} free processes for today. Come back tomorrow!</span>
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
+                <span className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center shrink-0"><AlertTriangle className="w-5 h-5 text-yellow-500" /></span>
+                <div className="flex flex-col">
+                  <strong className="text-sm text-yellow-100 font-semibold">Daily limit reached!</strong>
+                  <span className="text-xs text-yellow-200/70">You've used all {getDailyLimit()} free processes for today. Come back tomorrow!</span>
                 </div>
               </div>
             )}
 
             <div
-              className={`batch-upload-area ${dragActive ? 'drag-active' : ''}`}
+              className={`p-8 border-2 border-dashed rounded-[18px] text-center cursor-pointer transition-all duration-200 ${dragActive ? 'border-yellow-500 bg-yellow-500/10' : 'border-white/20 bg-white/5 hover:border-yellow-500/50 hover:bg-white/10'}`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <span className="upload-icon flex justify-center text-zinc-400 mb-2"><FolderUp className="w-8 h-8" /></span>
-              <p>Drop images here or click to browse</p>
-              <span className="upload-hint">Select multiple files</span>
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-800/20 text-yellow-500 flex items-center justify-center shadow-[inset_0_0_0_1px_rgba(212,175,55,0.2)]">
+                <FolderUp className="w-8 h-8" />
+              </div>
+              <p className="text-zinc-200 font-semibold">Drop images here or click to browse</p>
+              <span className="text-xs text-zinc-500 block mt-1">Select multiple files</span>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -538,131 +541,137 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             </div>
 
             {images.length > 0 && (
-              <div className="batch-image-list">
+              <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                 {images.map((img) => (
-                  <div key={img.id} className={`batch-image-item ${img.status}`}>
-                    <div className="image-preview-thumb">
-                      <img src={img.preview} alt={img.name} />
-                      {img.status === 'processing' && (
-                        <div className="processing-overlay">
-                          <div className="mini-spinner"></div>
-                        </div>
-                      )}
-                      {img.status === 'done' && (
-                        <div className="done-overlay"><Check className="w-4 h-4" /></div>
-                      )}
-                      {img.status === 'error' && (
-                        <div className="error-overlay"><XCircle className="w-4 h-4" /></div>
-                      )}
-                    </div>
+                  <div key={img.id} className={`flex flex-col p-3 rounded-2xl bg-white/5 border transition-all ${img.status === 'done' ? 'border-emerald-500/30 shadow-[inset_4px_0_0_0_rgba(16,185,129,0.5)]' : img.status === 'error' ? 'border-red-500/30 shadow-[inset_4px_0_0_0_rgba(239,68,68,0.5)]' : img.status === 'processing' ? 'border-yellow-500/30 shadow-[inset_4px_0_0_0_rgba(234,179,8,0.5)]' : 'border-white/10 hover:bg-white/10'}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-[50px] h-[50px] shrink-0 rounded-[12px] overflow-hidden relative bg-black/40">
+                        <img src={img.preview} alt={img.name} className="w-full h-full object-cover" />
+                        {img.status === 'processing' && (
+                          <div className="absolute inset-0 bg-black/60 grid place-items-center">
+                            <div className="w-5 h-5 border-2 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                        {img.status === 'done' && (
+                          <div className="absolute inset-0 bg-emerald-500/70 text-white grid place-items-center"><Check className="w-4 h-4" /></div>
+                        )}
+                        {img.status === 'error' && (
+                          <div className="absolute inset-0 bg-red-500/70 text-white grid place-items-center"><XCircle className="w-4 h-4" /></div>
+                        )}
+                      </div>
 
-                    <div className="image-info">
-                      <span className="image-name" title={img.name}>
-                        {img.name.length > 20 ? img.name.substring(0, 20) + '...' : img.name}
-                      </span>
-                      <span className="image-meta">
-                        {img.dimensions.width}×{img.dimensions.height} • {formatFileSize(img.size)}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span className="block text-[13px] font-semibold text-white truncate" title={img.name}>
+                          {img.name.length > 25 ? img.name.substring(0, 25) + '...' : img.name}
+                        </span>
+                        <span className="block text-[11px] text-zinc-400 mt-1">
+                          {img.dimensions.width}×{img.dimensions.height} • {formatFileSize(img.size)}
+                        </span>
 
-                      {img.status === 'processing' && (
-                        <div className="mini-progress">
-                          <div className="mini-progress-fill" style={{ width: `${img.progress}%` }}></div>
-                        </div>
-                      )}
-                    </div>
+                        {img.status === 'processing' && (
+                          <div className="h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-200 transition-all duration-300" style={{ width: `${img.progress}%` }}></div>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="image-actions">
-                      <button
-                        className={`custom-toggle ${img.useCustomSettings ? 'active' : ''}`}
-                        onClick={() => toggleCustomSettings(img.id)}
-                        title={img.useCustomSettings ? 'Using custom settings' : 'Using global settings'}
-                      >
-                        {img.useCustomSettings ? <Settings className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
-                      </button>
-                      {img.status === 'done' && (
-                        <>
-                          <button
-                            className="compare-btn"
-                            onClick={() => openComparison(img)}
-                            title="Compare before/after"
-                          >
-                            <Search className="w-4 h-4 mx-auto" />
-                          </button>
-                          <button
-                            className="download-single-btn"
-                            onClick={() => downloadSingle(img)}
-                            title="Download"
-                          >
-                            <Download className="w-4 h-4 mx-auto" />
-                          </button>
-                        </>
-                      )}
-                      <button
-                        className="remove-btn"
-                        onClick={() => removeImage(img.id)}
-                        title="Remove"
-                      >
-                        <X className="w-4 h-4 mx-auto" />
-                      </button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${img.useCustomSettings ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-500' : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'}`}
+                          onClick={() => toggleCustomSettings(img.id)}
+                          title={img.useCustomSettings ? 'Using custom settings' : 'Using global settings'}
+                        >
+                          {img.useCustomSettings ? <Settings className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
+                        </button>
+                        {img.status === 'done' && (
+                          <>
+                            <button
+                              className="w-8 h-8 rounded-xl border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:border-white/20 transition-all flex items-center justify-center"
+                              onClick={() => openComparison(img)}
+                              title="Compare before/after"
+                            >
+                              <Search className="w-4 h-4" />
+                            </button>
+                            <button
+                              className="w-8 h-8 rounded-xl border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:border-white/20 transition-all flex items-center justify-center"
+                              onClick={() => downloadSingle(img)}
+                              title="Download"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                        <button
+                          className="w-8 h-8 rounded-xl border border-white/10 bg-white/5 text-zinc-300 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all flex items-center justify-center"
+                          onClick={() => removeImage(img.id)}
+                          title="Remove"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Custom Settings Panel */}
                     {img.useCustomSettings && (
-                      <div className="custom-settings-panel">
-                        <div className="custom-settings-row">
-                          <label>Size:</label>
-                          <input
-                            type="number"
-                            value={img.customSettings.width}
-                            onChange={(e) => updateImageSettings(img.id, {
-                              width: parseInt(e.target.value) || 0,
-                              resizeType: 'pixels'
-                            })}
-                            className="small-input"
-                          />
-                          <span>×</span>
-                          <input
-                            type="number"
-                            value={img.customSettings.height}
-                            onChange={(e) => updateImageSettings(img.id, {
-                              height: parseInt(e.target.value) || 0,
-                              resizeType: 'pixels'
-                            })}
-                            className="small-input"
-                          />
+                      <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Size</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              value={img.customSettings.width}
+                              onChange={(e) => updateImageSettings(img.id, {
+                                width: parseInt(e.target.value) || 0,
+                                resizeType: 'pixels'
+                              })}
+                              className="w-full h-8 bg-black/20 border border-white/10 rounded-lg text-xs text-white px-2 focus:border-yellow-500/50 focus:outline-none focus:ring-1 focus:ring-yellow-500/50"
+                            />
+                            <span className="text-zinc-500 text-xs">×</span>
+                            <input
+                              type="number"
+                              value={img.customSettings.height}
+                              onChange={(e) => updateImageSettings(img.id, {
+                                height: parseInt(e.target.value) || 0,
+                                resizeType: 'pixels'
+                              })}
+                              className="w-full h-8 bg-black/20 border border-white/10 rounded-lg text-xs text-white px-2 focus:border-yellow-500/50 focus:outline-none focus:ring-1 focus:ring-yellow-500/50"
+                            />
+                          </div>
                         </div>
-                        <div className="custom-settings-row">
-                          <label>Quality:</label>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold flex justify-between">
+                            <span>Quality</span>
+                            <span className="text-yellow-500">{img.customSettings.quality}%</span>
+                          </label>
                           <input
                             type="range"
                             min="1"
                             max="100"
                             value={img.customSettings.quality}
                             onChange={(e) => updateImageSettings(img.id, { quality: parseInt(e.target.value) })}
-                            className="small-range"
+                            className="w-full h-1.5 bg-black/30 rounded-full appearance-none outline-none overflow-hidden [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-yellow-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[-100vw_0_0_100vw_rgba(234,179,8,0.5)]"
                           />
-                          <span>{img.customSettings.quality}%</span>
                         </div>
-                        <div className="custom-settings-row">
-                          <label>Format:</label>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Format</label>
                           <select
                             value={img.customSettings.format}
                             onChange={(e) => updateImageSettings(img.id, { format: e.target.value })}
-                            className="small-select"
+                            className="w-full h-8 bg-black/20 border border-white/10 rounded-lg text-xs text-white px-2 outline-none focus:border-yellow-500/50 focus:ring-1 focus:ring-yellow-500/50"
                           >
                             <option value="jpg">JPG</option>
                             <option value="png">PNG</option>
                             <option value="webp">WebP</option>
                           </select>
                         </div>
-                        <div className="preset-quick-btns">
+                        <div className="col-span-1 sm:col-span-3 flex flex-wrap gap-2 mt-1">
                           {PRESET_SIZES.web.slice(0, 3).map(preset => (
                             <button
                               key={preset.name}
-                              className="mini-preset-btn"
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white/5 border border-white/10 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
                               onClick={() => applyPreset(preset, img.id)}
                             >
-                              {preset.icon} {preset.width}×{preset.height}
+                              <span className="opacity-70">{preset.icon}</span> {preset.width}×{preset.height}
                             </button>
                           ))}
                         </div>
@@ -675,42 +684,45 @@ const BatchProcessor = ({ isOpen, onClose }) => {
           </div>
 
           {/* Right Panel - Global Settings */}
-          <div className="batch-settings-panel">
-            <h3>Global Settings</h3>
-            <p className="settings-hint">Applied to images without custom settings</p>
+          <div className="liquid-card p-5 h-full overflow-y-auto custom-scrollbar border border-white/5 flex flex-col gap-6 rounded-2xl">
+            <div>
+              <h3 className="text-sm font-bold text-white mb-1 uppercase tracking-wider text-yellow-500/90">Global Settings</h3>
+              <p className="text-[11px] text-zinc-400">Applied to images without custom settings</p>
+            </div>
 
             {/* Preset Sizes */}
-            <div className="preset-section">
+            <div className="flex flex-col gap-2">
               <button
-                className="preset-toggle-btn"
+                className="flex items-center justify-between w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 hover:border-white/20 transition-all text-zinc-300"
                 onClick={() => setShowPresets(!showPresets)}
               >
-                📐 Quick Presets {showPresets ? '▲' : '▼'}
+                <span>📐 Quick Presets</span>
+                <span className="text-zinc-500">{showPresets ? '▲' : '▼'}</span>
               </button>
 
               {showPresets && (
-                <div className="preset-dropdown">
-                  <div className="preset-tabs">
+                <div className="flex flex-col gap-3 p-3 rounded-xl bg-black/20 border border-white/5 animate-in slide-in-from-top-2">
+                  <div className="flex bg-white/5 p-1 rounded-lg gap-1 border border-white/5">
                     {Object.keys(PRESET_SIZES).map(cat => (
                       <button
                         key={cat}
-                        className={`preset-tab ${presetCategory === cat ? 'active' : ''}`}
+                        className={`flex-1 text-[10px] font-semibold py-1.5 rounded-md transition-all ${presetCategory === cat ? 'bg-white/10 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'}`}
                         onClick={() => setPresetCategory(cat)}
                       >
                         {cat.charAt(0).toUpperCase() + cat.slice(1)}
                       </button>
                     ))}
                   </div>
-                  <div className="preset-grid">
+                  <div className="grid grid-cols-2 gap-2">
                     {PRESET_SIZES[presetCategory].map(preset => (
                       <button
                         key={preset.name}
-                        className="preset-item"
+                        className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-yellow-500/10 hover:border-yellow-500/30 transition-all group"
                         onClick={() => applyPreset(preset)}
                       >
-                        <span className="preset-icon">{preset.icon}</span>
-                        <span className="preset-name">{preset.name}</span>
-                        <span className="preset-size">{preset.width}×{preset.height}</span>
+                        <span className="text-zinc-400 group-hover:text-yellow-500/70">{preset.icon}</span>
+                        <span className="text-[10px] font-medium text-zinc-300 text-center leading-tight">{preset.name}</span>
+                        <span className="text-[9px] text-zinc-500 bg-black/30 px-1.5 py-0.5 rounded uppercase">{preset.width}×{preset.height}</span>
                       </button>
                     ))}
                   </div>
@@ -719,17 +731,17 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             </div>
 
             {/* Resize Type */}
-            <div className="setting-group">
-              <label>Resize By</label>
-              <div className="toggle-buttons">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Resize By</label>
+              <div className="flex border border-white/10 rounded-xl p-1 bg-black/20">
                 <button
-                  className={globalSettings.resizeType === 'percentage' ? 'active' : ''}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${globalSettings.resizeType === 'percentage' ? 'bg-white/10 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                   onClick={() => setGlobalSettings(prev => ({ ...prev, resizeType: 'percentage' }))}
                 >
                   Percentage
                 </button>
                 <button
-                  className={globalSettings.resizeType === 'pixels' ? 'active' : ''}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${globalSettings.resizeType === 'pixels' ? 'bg-white/10 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                   onClick={() => setGlobalSettings(prev => ({ ...prev, resizeType: 'pixels' }))}
                 >
                   Pixels
@@ -738,20 +750,24 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             </div>
 
             {globalSettings.resizeType === 'percentage' ? (
-              <div className="setting-group">
-                <label>Scale: {globalSettings.percentage}%</label>
+              <div className="flex flex-col gap-3">
+                <label className="text-xs font-bold text-zinc-300 uppercase tracking-widest flex justify-between">
+                  <span>Scale</span>
+                  <span className="text-yellow-500">{globalSettings.percentage}%</span>
+                </label>
                 <input
                   type="range"
                   min="1"
                   max="200"
                   value={globalSettings.percentage}
                   onChange={(e) => setGlobalSettings(prev => ({ ...prev, percentage: parseInt(e.target.value) }))}
+                  className="w-full h-1.5 bg-black/30 rounded-full appearance-none outline-none overflow-hidden [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-yellow-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[-100vw_0_0_100vw_rgba(234,179,8,0.5)]"
                 />
-                <div className="percentage-presets">
+                <div className="flex flex-wrap gap-2 mt-1">
                   {[25, 50, 75, 100, 150].map(p => (
                     <button
                       key={p}
-                      className={globalSettings.percentage === p ? 'active' : ''}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${globalSettings.percentage === p ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-500' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
                       onClick={() => setGlobalSettings(prev => ({ ...prev, percentage: p }))}
                     >
                       {p}%
@@ -760,54 +776,64 @@ const BatchProcessor = ({ isOpen, onClose }) => {
                 </div>
               </div>
             ) : (
-              <div className="setting-group">
-                <label>Dimensions</label>
-                <div className="dimension-inputs">
+              <div className="flex flex-col gap-3">
+                <label className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Dimensions</label>
+                <div className="flex items-center gap-2">
                   <input
                     type="number"
                     value={globalSettings.width}
                     onChange={(e) => setGlobalSettings(prev => ({ ...prev, width: parseInt(e.target.value) || 0 }))}
-                    placeholder="Width"
+                    placeholder="W"
+                    className="flex-1 h-10 bg-black/20 border border-white/10 rounded-xl text-sm text-white px-3 focus:border-yellow-500/50 focus:outline-none focus:ring-1 focus:ring-yellow-500/50"
                   />
-                  <span>×</span>
+                  <span className="text-zinc-500">×</span>
                   <input
                     type="number"
                     value={globalSettings.height}
                     onChange={(e) => setGlobalSettings(prev => ({ ...prev, height: parseInt(e.target.value) || 0 }))}
-                    placeholder="Height"
+                    placeholder="H"
+                    className="flex-1 h-10 bg-black/20 border border-white/10 rounded-xl text-sm text-white px-3 focus:border-yellow-500/50 focus:outline-none focus:ring-1 focus:ring-yellow-500/50"
                   />
                 </div>
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={globalSettings.maintainAspect}
-                    onChange={(e) => setGlobalSettings(prev => ({ ...prev, maintainAspect: e.target.checked }))}
-                  />
-                  Maintain aspect ratio
+                <label className="flex items-center gap-2 mt-1 cursor-pointer group w-max">
+                  <div className="relative flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={globalSettings.maintainAspect}
+                      onChange={(e) => setGlobalSettings(prev => ({ ...prev, maintainAspect: e.target.checked }))}
+                      className="peer appearance-none w-4 h-4 rounded-[4px] border border-white/20 bg-black/20 checked:bg-yellow-500 checked:border-yellow-500 transition-colors cursor-pointer"
+                    />
+                    <Check className="w-3 h-3 text-[var(--bg-dark-base)] absolute opacity-0 peer-checked:opacity-100 pointer-events-none stroke-[3]" />
+                  </div>
+                  <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors">Maintain aspect ratio</span>
                 </label>
               </div>
             )}
 
             {/* Quality */}
-            <div className="setting-group">
-              <label>Quality: {globalSettings.quality}%</label>
+            <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
+              <label className="text-xs font-bold text-zinc-300 uppercase tracking-widest flex justify-between">
+                <span>Quality</span>
+                <span className="text-yellow-500">{globalSettings.quality}%</span>
+              </label>
               <input
                 type="range"
                 min="1"
                 max="100"
                 value={globalSettings.quality}
                 onChange={(e) => setGlobalSettings(prev => ({ ...prev, quality: parseInt(e.target.value) }))}
+                className="w-full h-1.5 bg-black/30 rounded-full appearance-none outline-none overflow-hidden [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-yellow-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[-100vw_0_0_100vw_rgba(234,179,8,0.5)]"
               />
             </div>
 
             {/* Format */}
-            <div className="setting-group">
-              <label>Output Format</label>
-              <div className="format-buttons">
+            <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
+              <label className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Output Format</label>
+              <div className="flex gap-2">
                 {['jpg', 'png', 'webp'].map(f => (
                   <button
                     key={f}
-                    className={globalSettings.format === f ? 'active' : ''}
+                    className={`flex-1 py-2 rounded-xl text-xs font-semibold tracking-wider border transition-all ${globalSettings.format === f ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-500' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
                     onClick={() => setGlobalSettings(prev => ({ ...prev, format: f }))}
                   >
                     {f.toUpperCase()}
@@ -817,47 +843,47 @@ const BatchProcessor = ({ isOpen, onClose }) => {
             </div>
 
             {/* Actions */}
-            <div className="batch-actions">
-              <div className="batch-stats">
-                <span>{images.length} image{images.length !== 1 ? 's' : ''}</span>
+            <div className="flex flex-col gap-3 pt-6 mt-auto border-t border-white/5">
+              <div className="flex items-center justify-between text-xs font-semibold px-1">
+                <span className="text-zinc-400">{images.length} image{images.length !== 1 ? 's' : ''}</span>
                 {processedCount > 0 && (
-                  <span className="done-count">• {processedCount} done</span>
+                  <span className="text-emerald-400 flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> {processedCount} done</span>
                 )}
               </div>
 
               <button
-                className="process-all-btn"
+                className="accent-button w-full flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:pointer-events-none h-[46px]"
                 onClick={processImages}
                 disabled={images.length === 0 || processing || (!canBypassLimits && (hasReachedLimit || !canProcessImages(images.length)))}
               >
                 {processing ? (
                   <>
-                    <span className="spinner"></span>
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
                     Processing... ({processedCount}/{images.length})
                   </>
                 ) : !canBypassLimits && hasReachedLimit ? (
-                  <span className="flex items-center gap-2 justify-center">
+                  <>
                     <XCircle className="w-4 h-4 inline" /> Limit Reached
-                  </span>
+                  </>
                 ) : !canBypassLimits && !canProcessImages(images.length) ? (
-                  <span className="flex items-center gap-2 justify-center">
+                  <>
                     <AlertTriangle className="w-4 h-4 inline" /> Exceeds Limit ({images.length} &gt; {remainingCount})
-                  </span>
+                  </>
                 ) : (
-                  <span className="flex items-center gap-2 justify-center">
-                    <Zap className="w-4 h-4 inline text-yellow-400" /> Process All
-                  </span>
+                  <>
+                    <Zap className="w-4 h-4 inline text-yellow-900" /> Process All
+                  </>
                 )}
               </button>
 
               {images.some(i => i.status === 'done') && (
-                <button className="download-all-btn flex items-center gap-2 justify-center" onClick={downloadAll}>
+                <button className="liquid-button w-full flex items-center justify-center gap-2 h-[46px] mt-1" onClick={downloadAll}>
                   <Download className="w-4 h-4 inline" /> Download All as ZIP
                 </button>
               )}
 
               {images.length > 0 && (
-                <button className="clear-all-btn flex items-center gap-2 justify-center" onClick={clearAll}>
+                <button className="w-full h-10 mt-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-red-500 hover:text-red-400 text-xs font-bold transition-colors flex items-center justify-center gap-2" onClick={clearAll}>
                   <Trash2 className="w-4 h-4 inline" /> Clear All
                 </button>
               )}
@@ -867,14 +893,16 @@ const BatchProcessor = ({ isOpen, onClose }) => {
 
         {/* Comparison Modal */}
         {showComparison && comparisonImage && (
-          <div className="comparison-modal-overlay" onClick={closeComparison}>
-            <div className="comparison-modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="comparison-modal-header">
-                <h3>Before / After Comparison</h3>
-                <span className="comparison-image-name">{comparisonImage.name}</span>
-                <button className="close-comparison-btn" onClick={closeComparison}><X className="w-4 h-4" /></button>
+          <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={closeComparison}>
+            <div className="liquid-panel w-full max-w-[90vw] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/10 rounded-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0 bg-black/40">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-white font-bold font-serif text-lg">Before / After Comparison</h3>
+                  <span className="px-2 py-0.5 rounded-md bg-white/10 text-[11px] text-zinc-300 truncate max-w-[200px]">{comparisonImage.name}</span>
+                </div>
+                <button className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors" onClick={closeComparison}><X className="w-4 h-4" /></button>
               </div>
-              <div className="comparison-modal-body">
+              <div className="flex-1 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxwYXRoIGZpbGw9IiMzMzMzMzMiIGQ9Ik0wLDBIMTBWMTBIMHoiLz4KPHBhdGggZmlsbD0iIzM1MzUzNSIgZD0iTTEwLDBIMjBWMTBIMTB6Ii8+CjxwYXRoIGZpbGw9IiMzMzMzMzMiIGQ9Ik0xMCwxMEgyMFYyMEgxMHoiLz4KPHBhdGggZmlsbD0iIzM1MzUzNSIgZD0iTTAsMTBIMTBWMjBIMHoiLz4KPC9zdmc+')] overflow-auto custom-scrollbar p-6 min-h-[500px]">
                 <ImageComparison
                   beforeImage={comparisonImage.before}
                   afterImage={comparisonImage.after}

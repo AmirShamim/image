@@ -55,31 +55,31 @@ const Header = () => {
               <div className="w-9 h-9 relative">
                 <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                   <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#logo-gradient)" />
-                  <path d="M8 20L12 14L16 18L22 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="22" cy="10" r="2" fill="white" />
+                  <path d="M8 20L12 14L16 18L22 10" stroke="var(--color-gold-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="22" cy="10" r="2" fill="var(--color-gold-light)" />
                   <defs>
                     <linearGradient id="logo-gradient" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#00d4aa" />
-                      <stop offset="1" stopColor="#00a8cc" />
+                      <stop stopColor="var(--color-gold-dark)" />
+                      <stop offset="1" stopColor="var(--color-gold-main)" />
                     </linearGradient>
                   </defs>
                 </svg>
               </div>
-              <span className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
+              <span className="font-serif text-xl font-bold text-white group-hover:text-yellow-500 transition-colors">
                 ImageStudio
               </span>
             </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center">
-              <div className="flex items-center gap-1 bg-zinc-800/80 rounded-xl p-1 border border-zinc-700/50">
+              <div className="flex items-center gap-1 bg-black/40 rounded-full p-1 border border-yellow-500/20">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive(link.path)
-                        ? 'bg-primary/20 text-primary'
-                        : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
+                    className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ${isActive(link.path)
+                      ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/30'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/[0.05] border border-transparent'
                       }`}
                   >
                     {link.label}
@@ -96,11 +96,11 @@ const Header = () => {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-colors"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/[0.06] border border-transparent hover:border-yellow-500/30 transition-colors"
                     aria-haspopup="menu"
                     aria-expanded={userDropdownOpen}
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center text-sm font-semibold text-black overflow-hidden">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 flex items-center justify-center text-sm font-semibold text-black overflow-hidden border border-yellow-300/30">
                       {user.profile_picture ? (
                         <img src={user.profile_picture} alt="" className="w-full h-full rounded-full object-cover" />
                       ) : (
@@ -124,7 +124,7 @@ const Header = () => {
 
                   {userDropdownOpen && (
                     <div
-                      className="absolute right-0 mt-2 w-64 glass-card p-2 shadow-glass-lg origin-top-right"
+                      className="absolute right-0 mt-2 w-64 liquid-card p-2 origin-top-right"
                       role="menu"
                     >
                       <div className="px-3 py-2 border-b border-white/[0.06]">
@@ -133,8 +133,8 @@ const Header = () => {
                           {user.role === 'admin' && <Crown className="w-4 h-4 text-yellow-500 ml-1" title="Admin" />}
                         </p>
                         <p className="text-xs text-zinc-500 truncate">{user.email}</p>
-                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-primary/15 text-primary border border-primary/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-yellow-500/15 text-yellow-500 border border-yellow-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
                           {user.role === 'admin' ? 'Admin' : `${user.subscription_tier || 'Free'} Plan`}
                         </span>
                       </div>
@@ -212,8 +212,8 @@ const Header = () => {
                 to={link.path}
                 onClick={() => setMenuOpen(false)}
                 className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(link.path)
-                    ? 'bg-primary/20 text-primary'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
+                  ? 'bg-primary/20 text-primary'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
                   }`}
               >
                 {link.label}
