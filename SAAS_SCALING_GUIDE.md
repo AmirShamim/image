@@ -234,18 +234,18 @@ Profit margin after 1st user: $1/user
 
 ### Current Architecture (Free Tier)
 ```
-Users → Render (Free) → SQLite/PostgreSQL
+Users → DigitalOcean/Render → Neon (Free DB)
               ↓
-         Python Processing
+         Modal Serverless GPU (PyTorch)
               ↓
-         Local File Storage
+         Local File Storage (Temporary)
 ```
 
 ### Stage 1: First Paying Users ($7/mo)
 ```
-Users → Render (Starter $7) → Supabase (Free)
+Users → DigitalOcean/Render ($5) → Neon/Supabase DB
               ↓
-         Python Processing
+         Modal Serverless GPU (Pro Tier Compute)
               ↓
          Cloudinary (Free 25GB)
 ```

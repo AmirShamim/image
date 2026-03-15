@@ -3,7 +3,7 @@
 ## 🎯 What Was Completed
 
 ### Core Features (All Complete ✅)
-- **Image Upscaling**: Real-ESRGAN (Pro/Fast/Anime), EDSR, FSRCNN, ESPCN
+- **Image Upscaling**: Real-ESRGAN (Pro/Anime) via GPU Serverless
 - **Image Resize**: Percentage, dimensions, social media presets
 - **Batch Processing**: Multiple images, ZIP download, progress tracking
 - **Before/After Comparison**: Interactive slider component

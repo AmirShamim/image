@@ -15,7 +15,7 @@
 | Payments | ✅ Ready | Stripe subscriptions |
 | Analytics | ✅ Ready | Built-in dashboard |
 | Rate Limiting | ✅ Ready | Server-side + client-side |
-| AI Upscaling | ✅ Ready | Real-ESRGAN + 4 fallback models |
+| AI Upscaling | ✅ Ready | Real-ESRGAN via Serverless GPU |
 
 ---
 
@@ -119,7 +119,7 @@ database-pg.js      # Database (PostgreSQL/SQLite)
 routes/auth.js      # Authentication
 routes/stripe.js    # Payments
 routes/analytics.js # Analytics
-upscale_script.py   # Image processing
+gpu-provider/       # Microservice interface
 ```
 
 ---
@@ -150,7 +150,7 @@ upscale_script.py   # Image processing
 |-------|----------|
 | Routes return 404 | Check server started, check Express middleware order |
 | DB connection failed | Verify DATABASE_URL, ensure SSL=true for cloud DBs |
-| Images not processing | Check Python deps, verify Real-ESRGAN binary |
+| Images not processing | Verify GPU_PROVIDER_URL and check Modal logs |
 | Email not sending | Use Gmail App Password, not regular password |
 | Stripe webhook fails | Verify webhook secret, check endpoint URL |
 
