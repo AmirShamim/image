@@ -80,7 +80,10 @@ def upscale(request: dict):
             scale=netscale,
             model_path=file_url,
             model=model,
-            half=True
+            half=True,
+            tile=512,
+            tile_pad=10,
+            pre_pad=0
         )
 
         # 4. Process image

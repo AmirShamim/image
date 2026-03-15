@@ -53,8 +53,8 @@ async function upscale(inputPath, outputPath, options) {
 
     const result = await response.json();
 
-    if (!result.output_image) {
-        throw new Error('Invalid response from Modal format: missing output_image');
+    if (!result.success || !result.output_image) {
+        throw new Error(result.error || 'Invalid response from Modal format: missing output_image');
     }
 
     // Decode base64 and save to disk

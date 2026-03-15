@@ -8,7 +8,8 @@ import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
 import PageShell from '../components/PageShell';
 import PageHero from '../components/PageHero';
-import { AlertTriangle, Paintbrush, Wand2, ArrowLeftRight, SplitSquareHorizontal, Brain } from 'lucide-react';
+import { AlertTriangle, Paintbrush, Wand2, ArrowLeftRight, SplitSquareHorizontal, Brain, Clock, Download, Trash2, Crown } from 'lucide-react';
+import { saveImageToHistory, getHistoryImages, deleteImageFromHistory, clearOldHistory } from '../utils/indexedDB';
 
 // In production, bypass Vercel proxy by using absolute URL
 const API_URL = import.meta.env.PROD ? 'https://image-studio-5yqqy.ondigitalocean.app' : '';
@@ -46,6 +47,20 @@ const UpscalePage = () => {
 
   // Comparison view
   const [showComparison, setShowComparison] = useState(true);
+
+  // Session History
+  const [sessionHistory, setSessionHistory] = useState([]);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // Clear old history on mount
+  useEffect(() => {
+    const initHistory = async () => {
+      await clearOldHistory(30);
+      const history = await getHistoryImages();
+      setSessionHistory(history);
+    };
+    initHistory();
+  }, []);
 
   // Size limits for upscaling (in pixels)
   const SIZE_LIMITS = {
@@ -247,6 +262,33 @@ const UpscalePage = () => {
       setProgress(100);
       const imageUrl = URL.createObjectURL(response.data);
       setResultImage(imageUrl);
+      
+      // Save to IndexedDB history
+      try {
+        const savedImage = await saveImageToHistory({
+          originalBlob: file,
+          upscaledBlob: response.data,
+          scale,
+          modelType,
+          originalWidth: originalDimensions.width,
+          originalHeight: originalDimensions.height
+        });
+        
+        setSessionHistory(prev => [savedImage, ...prev]);
+        
+        // Show Pro Upsell Toast
+        setToastMessage({
+          title: "Image saved locally!",
+          description: "This image is stored temporarily in your browser and will be deleted in 30 minutes.",
+          upsell: "Upgrade to Pro to save images securely in the cloud with faster processing."
+        });
+        
+        setTimeout(() => setToastMessage(null), 8000);
+      } catch (err) {
+        console.error("Failed to save to local session:", err);
+      }
+
+
       await loadUsageData();
     } catch (err) {
       console.error('Error uploading file', err);
@@ -312,7 +354,33 @@ const UpscalePage = () => {
         subtitle="Enhance image resolution up to 4x using neural upscaling. Great for prints, presentations, and professional work."
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        
+        {/* --- Toast Notification --- */}
+        {toastMessage && (
+          <div className="fixed bottom-4 right-4 z-50 bg-gray-900 border border-[#00d4aa]/30 rounded-xl p-4 shadow-2xl max-w-sm animate-in slide-in-from-bottom-5">
+            <div className="flex gap-3">
+              <Clock className="w-6 h-6 text-[#00d4aa] flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="text-white font-medium text-sm">{toastMessage.title}</h4>
+                <p className="text-zinc-400 text-xs mt-1">{toastMessage.description}</p>
+                <div className="mt-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-amber-500 font-medium text-xs mb-1">
+                    <Crown className="w-3 h-3" /> Go Pro
+                  </div>
+                  <p className="text-zinc-300 text-xs">{toastMessage.upsell}</p>
+                  <a href="/pricing" className="block text-amber-500 hover:text-amber-400 text-xs font-medium mt-2">
+                    View Plans &rarr;
+                  </a>
+                </div>
+              </div>
+              <button onClick={() => setToastMessage(null)} className="text-zinc-500 hover:text-zinc-300">
+                &times;
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Upload Section */}
         {!preview && (
           <div
@@ -570,6 +638,55 @@ const UpscalePage = () => {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Session History Section */}
+        {sessionHistory.length > 0 && (
+          <div className="session-history-section mt-12 bg-black/20 border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-white font-semibold flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  Local Session History
+                </h3>
+                <p className="text-sm text-zinc-400 mt-1">Images are stored locally in your browser and will be automatically deleted after 30 minutes.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {sessionHistory.map((item) => {
+                const url = URL.createObjectURL(item.upscaledBlob);
+                return (
+                  <div key={item.id} className="relative group rounded-xl overflow-hidden border border-white/5 bg-zinc-900/50 aspect-square">
+                    <img src={url} alt={`Upscaled ${item.scale}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" onLoad={() => URL.revokeObjectURL(url)} />
+                    
+                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md rounded px-2 py-1 text-[10px] font-mono text-primary font-bold border border-primary/20">
+                      {item.scale}
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col justify-end p-3">
+                      <div className="flex gap-2 justify-center">
+                        <button 
+                          onClick={() => handleDownloadHistoryImage(item.upscaledBlob, item.scale, item.modelType)}
+                          className="p-2 bg-primary/20 hover:bg-primary/40 text-primary rounded-lg transition-colors"
+                          title="Download"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteHistoryImage(item.id)}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
