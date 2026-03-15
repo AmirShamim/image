@@ -128,13 +128,13 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         const sharp = require('sharp');
         try {
             const metadata = await sharp(inputPath).metadata();
-            const maxDimension = subscriptionTier === 'guest' || subscriptionTier === 'free' ? 512 : 1024;
+            const maxDimension = finalScale === 2 ? 2048 : 1024; // Match frontend logic: 2048 for 2x, 1024 for 4x
 
             if (metadata.width > maxDimension || metadata.height > maxDimension) {
                 fs.unlinkSync(inputPath);
                 return res.status(400).json({
                     error: 'Image too large for this scale',
-                    message: `${finalScale}x upscaling requires images ≤${maxDimension}px for your plan. Your image is ${metadata.width}×${metadata.height}px.`,
+                    message: `${finalScale}x upscaling requires images ≤${maxDimension}px due to GPU limits. Your image is ${metadata.width}×${metadata.height}px.`,
                     limit: maxDimension,
                     imageWidth: metadata.width,
                     imageHeight: metadata.height,
