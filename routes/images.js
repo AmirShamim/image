@@ -58,16 +58,8 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         ? (plan?.upscale_2x_limit ?? 3)
         : (plan?.upscale_4x_limit ?? 1);
 
-    // Check if Real-ESRGAN Pro is allowed for this tier (skip check in dev mode or for admins)
-    const isProTier = ['pro', 'business'].includes(subscriptionTier);
-    if (finalModelType === 'realesrgan' && !isProTier && isProduction && !isAdminRequest(req)) {
-        fs.unlinkSync(inputPath);
-        return res.status(403).json({
-            error: 'Model not available',
-            message: 'Real-ESRGAN Pro model is only available for Pro and Business subscribers.',
-            upgradeUrl: '/pricing'
-        });
-    }
+    // All models now available to all users (Guest/Free/Pro)
+    // removed explicit block for realesrgan Model
 
     // -1 means unlimited; skip limits entirely in dev mode or for admins
     if (dailyLimit !== -1 && isProduction && !isAdminRequest(req)) {
@@ -128,7 +120,7 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         const sharp = require('sharp');
         try {
             const metadata = await sharp(inputPath).metadata();
-            const maxDimension = finalScale === 2 ? 2048 : 1024; // Match frontend logic: 2048 for 2x, 1024 for 4x
+            const maxDimension = finalScale === 2 ? 3840 : 2048; // Match frontend logic: 3840 for 2x, 2048 for 4x
 
             if (metadata.width > maxDimension || metadata.height > maxDimension) {
                 fs.unlinkSync(inputPath);

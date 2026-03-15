@@ -471,7 +471,7 @@ router.get('/usage/guest', (req, res) => {
         const guestPlan = db.prepare("SELECT upscale_2x_limit, upscale_4x_limit FROM subscription_plans WHERE name = 'guest'").get();
         const limits = guestPlan ? 
             { upscale_2x: guestPlan.upscale_2x_limit, upscale_4x: guestPlan.upscale_4x_limit } : 
-            { upscale_2x: 5, upscale_4x: 3 };
+            { upscale_2x: 10, upscale_4x: 5 };
         
         res.json({
             usage: {
@@ -497,8 +497,8 @@ router.get('/plans', (req, res) => {
         
         // Add feature descriptions for each plan
         const planFeatures = {
-            guest: ['3 AI upscales/day (2x)', '1 AI upscale/day (4x)', '5MB max file size'],
-            free: ['5 AI upscales/day (2x)', '2 AI upscales/day (4x)', '10MB max file size', 'Cloud storage'],
+            guest: ['10 AI upscales/day (2x)', '5 AI upscales/day (4x)', '5MB max file size'],
+            free: ['10 AI upscales/day (2x)', '5 AI upscales/day (4x)', '10MB max file size', 'Cloud storage'],
             pro: ['50 AI upscales/day (2x)', '20 AI upscales/day (4x)', '25MB max file size', 'Batch processing', 'Priority queue', 'Cloud storage'],
             business: ['Unlimited 2x upscales', '100 AI upscales/day (4x)', '100MB max file size', 'Batch processing', 'Priority queue', 'API access', 'White-label option']
         };

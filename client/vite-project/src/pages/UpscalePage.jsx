@@ -49,8 +49,8 @@ const UpscalePage = () => {
 
   // Size limits for upscaling (in pixels)
   const SIZE_LIMITS = {
-    '2x': { maxWidth: 2048, maxHeight: 2048, label: '2K' },
-    '4x': { maxWidth: 1024, maxHeight: 1024, label: '1K' }
+    '2x': { maxWidth: 3840, maxHeight: 3840, label: '4K' },
+    '4x': { maxWidth: 2048, maxHeight: 2048, label: '2K' }
   };
 
   // AI Model configurations (GPU only — 2 models)
@@ -68,7 +68,7 @@ const UpscalePage = () => {
       description: 'Best quality for photos',
       icon: <Wand2 className="w-6 h-6" />,
       scales: ['2x', '4x'],
-      tier: 'pro',
+      tier: 'free',
       speed: '~3-7s'
     }
   };
@@ -82,7 +82,7 @@ const UpscalePage = () => {
       if (user) {
         if (user.usage) setUsage(user.usage);
         const tierLimits = {
-          guest: { upscale_2x: 5, upscale_4x: 3 },
+          guest: { upscale_2x: 10, upscale_4x: 5 },
           free: { upscale_2x: 10, upscale_4x: 5 },
           pro: { upscale_2x: -1, upscale_4x: 100 },
           business: { upscale_2x: -1, upscale_4x: -1 },
@@ -95,19 +95,19 @@ const UpscalePage = () => {
           const fingerprint = getOrCreateFingerprint();
           const guestData = await getGuestUsage(fingerprint);
           setUsage(guestData.usage || { upscale_2x: 0, upscale_4x: 0 });
-          setLimits(guestData.limits || { upscale_2x: 5, upscale_4x: 3 });
+          setLimits(guestData.limits || { upscale_2x: 10, upscale_4x: 5 });
         } catch (guestErr) {
           console.error('Failed to load guest usage, using defaults:', guestErr);
           // Default guest limits - allow usage even if API fails
           setUsage({ upscale_2x: 0, upscale_4x: 0 });
-          setLimits({ upscale_2x: 5, upscale_4x: 3 });
+          setLimits({ upscale_2x: 10, upscale_4x: 5 });
         }
       }
     } catch (err) {
       console.error('Failed to load usage:', err);
       // Default to guest limits on error
       setUsage({ upscale_2x: 0, upscale_4x: 0 });
-      setLimits({ upscale_2x: 5, upscale_4x: 3 });
+      setLimits({ upscale_2x: 10, upscale_4x: 5 });
     }
   };
 
