@@ -12,7 +12,8 @@ import PageHero from '../components/PageHero';
 import { resizeImageClientSide } from '../utils/imageUtils';
 import { Camera, Smartphone, Monitor, Tv, Image as ImageIcon, AlertTriangle, Link, Unlink, Columns, Package } from 'lucide-react';
 
-const API_URL = '';
+// In production, bypass Vercel proxy by using absolute URL
+const API_URL = import.meta.env.PROD ? 'https://image-studio-5yqqy.ondigitalocean.app' : '';
 
 const api = axios.create({ baseURL: API_URL });
 api.interceptors.request.use((config) => {

@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // In development, Vite proxy handles forwarding to backend
 // In production, requests go to same origin
-const API_URL = '';
+// In production, bypass Vercel proxy by using absolute URL
+const API_URL = import.meta.env.PROD ? 'https://image-studio-5yqqy.ondigitalocean.app' : '';
 
 // Create axios instance with auth interceptor
 const api = axios.create({

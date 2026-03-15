@@ -8,7 +8,8 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const API_URL = '';
+// In production, bypass Vercel proxy by using absolute URL
+const API_URL = import.meta.env.PROD ? 'https://image-studio-5yqqy.ondigitalocean.app' : '';
 
 // Generate a session ID that persists for the browser session
 const getSessionId = () => {

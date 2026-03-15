@@ -24,7 +24,8 @@ import {
   Check, XCircle, Settings, Link2, Search, Zap, Trash2, Shield
 } from 'lucide-react';
 
-const API_URL = '';
+// In production, bypass Vercel proxy by using absolute URL
+const API_URL = import.meta.env.PROD ? 'https://image-studio-5yqqy.ondigitalocean.app' : '';
 
 const api = axios.create({
   baseURL: API_URL

@@ -8,7 +8,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './AnalyticsDashboard.css';
 
-const API_URL = '';
+// In production, bypass Vercel proxy by using absolute URL
+const API_URL = import.meta.env.PROD ? 'https://image-studio-5yqqy.ondigitalocean.app' : '';
 
 const AnalyticsDashboard = () => {
   const { isAdmin } = useAuth();
