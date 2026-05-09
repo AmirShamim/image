@@ -1,5 +1,5 @@
 /**
- * PostgreSQL Database Module for ImageStudio
+ * PostgreSQL Database Module for UpscalePro
  *
  * Supports both PostgreSQL (production) and SQLite (development fallback)
  * Provides backward-compatible API for existing SQLite code
@@ -524,18 +524,58 @@ const initializeSQLite = () => {
     console.log('✅ SQLite tables initialized');
 };
 
+// ============== CROSS-DB HELPERS ==============
+// These helpers let route code work identically on SQLite and Postgres.
+
+/**
+ * Returns the correct SQL literal for "current timestamp" on each engine.
+ * Use in template strings:  `... created_at >= ${nowFn()}`
+ */
+const nowFn = () => isPostgres ? 'NOW()' : "datetime('now')";
+
+/**
+ * Returns a SQL-safe boolean value (1/0 for SQLite, TRUE/FALSE for Postgres).
+ */
+const boolVal = (val) => {
+    if (isPostgres) return val ? 'TRUE' : 'FALSE';
+    return val ? 1 : 0;
+};
+
+/**
+ * Returns a SQL fragment to filter rows created today.
+ * @param {string} column - the column name, e.g. 'created_at'
+ */
+const todayFilter = (column = 'created_at') => {
+    if (isPostgres) {
+        return `${column}::date = CURRENT_DATE`;
+    }
+    return `date(${column}) = date('now')`;
+};
+
+/**
+ * Returns a SQL fragment for "start of current month".
+ * @param {string} column - the column name, e.g. 'created_at'
+ */
+const monthFilter = (column = 'created_at') => {
+    if (isPostgres) {
+        return `${column} >= date_trunc('month', CURRENT_DATE)`;
+    }
+    return `date(${column}) >= date('now', 'start of month')`;
+};
+
 // ============== QUERY WRAPPER ==============
 // Provides unified interface for both PostgreSQL and SQLite
 
 const query = async (sql, params = []) => {
     if (isPostgres) {
-        // PostgreSQL uses $1, $2, etc. for parameters
-        const pgSql = sql.replace(/\?/g, (_, i) => `$${params.indexOf(_) + 1}`);
-        const result = await db.query(sql, params);
+        // Convert ? placeholders to $1, $2, etc.
+        let paramIndex = 0;
+        const pgSql = sql.replace(/\?/g, () => `$${++paramIndex}`);
+        const result = await db.query(pgSql, params);
         return result.rows;
     } else {
         // SQLite - synchronous
-        const stmt = db.prepare(sql);
+        const stmt = sqliteDb.prepare(sql);
         if (sql.trim().toUpperCase().startsWith('SELECT')) {
             return stmt.all(...params);
         } else {
@@ -546,7 +586,9 @@ const query = async (sql, params = []) => {
 
 const queryOne = async (sql, params = []) => {
     if (isPostgres) {
-        const result = await db.query(sql, params);
+        let paramIndex = 0;
+        const pgSql = sql.replace(/\?/g, () => `$${++paramIndex}`);
+        const result = await db.query(pgSql, params);
         return result.rows[0] || null;
     } else {
         return sqliteDb.prepare(sql).get(...params) || null;
@@ -555,7 +597,9 @@ const queryOne = async (sql, params = []) => {
 
 const execute = async (sql, params = []) => {
     if (isPostgres) {
-        return await db.query(sql, params);
+        let paramIndex = 0;
+        const pgSql = sql.replace(/\?/g, () => `$${++paramIndex}`);
+        return await db.query(pgSql, params);
     } else {
         return sqliteDb.prepare(sql).run(...params);
     }
@@ -575,3 +619,7 @@ module.exports.initializeDatabase = initializeDatabase;
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.execute = execute;
+module.exports.nowFn = nowFn;
+module.exports.boolVal = boolVal;
+module.exports.todayFilter = todayFilter;
+module.exports.monthFilter = monthFilter;

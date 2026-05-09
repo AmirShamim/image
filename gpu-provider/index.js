@@ -41,7 +41,7 @@ console.log(`[GPU Provider] Using "${PROVIDER_NAME}" backend`);
  * @returns {Promise<{success: boolean, model: string, width: number, height: number, provider: string}>}
  */
 async function upscale(inputPath, outputPath, options) {
-    const { model = 'realesrgan', scale = 4 } = options;
+    const { model = 'realesrgan', scale = 4, tileSize = 512 } = options;
 
     // Validate model
     const validModels = ['realesrgan', 'realesrgan-anime'];
@@ -55,9 +55,9 @@ async function upscale(inputPath, outputPath, options) {
         throw new Error(`Invalid scale ${scale}. Valid options: ${validScales.join(', ')}`);
     }
 
-    console.log(`[GPU Provider] Upscaling with model="${model}", scale=${scale}x, provider="${PROVIDER_NAME}"`);
+    console.log(`[GPU Provider] Upscaling with model="${model}", scale=${scale}x, tile=${tileSize}, provider="${PROVIDER_NAME}"`);
 
-    const result = await activeProvider.upscale(inputPath, outputPath, { model, scale });
+    const result = await activeProvider.upscale(inputPath, outputPath, { model, scale, tileSize });
 
     return {
         ...result,

@@ -1,9 +1,4 @@
-@import "tailwindcss";
-/* App.css - Clean Professional Design */
-
-* {
-  box-sizing: border-box;
-}
+/* App.css — App-level layout and RTL overrides */
 
 .app {
   min-height: 100vh;
@@ -13,11 +8,7 @@
   background: var(--bg-primary);
 }
 
-/* RTL Support */
-[dir="rtl"] {
-  text-align: right;
-}
-
+/* RTL Support for specific components */
 [dir="rtl"] .hero-cta,
 [dir="rtl"] .auth-buttons,
 [dir="rtl"] .header-actions {

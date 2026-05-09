@@ -8,9 +8,12 @@ export default defineConfig(({ mode }) => {
   // In dev, proxy requests to the backend.
   // Prefer VITE_API_URL locally; fallback keeps current behavior.
   const apiTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
-  // this is a frontend comment
 
   console.log(`Using Proxy Target: ${apiTarget}`);
+
+  // GPU upscaling can take 30-120s (cold start + inference + base64 transfer).
+  // Vite's default proxy timeout is too short and causes ECONNRESET on long requests.
+  const PROXY_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 
   return {
     plugins: [react()],
@@ -20,6 +23,8 @@ export default defineConfig(({ mode }) => {
           target: apiTarget,
           changeOrigin: true,
           secure: false,
+          timeout: PROXY_TIMEOUT_MS,
+          proxyTimeout: PROXY_TIMEOUT_MS,
         },
         '/profile_pictures': {
           target: apiTarget,

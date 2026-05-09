@@ -4,6 +4,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const db = require('../database-pg');
+const { todayFilter } = require('../database-pg');
 const { uploadToCloudinary, isCloudinaryConfigured } = require('../config/cloudinary');
 const gpuProvider = require('../gpu-provider');
 const { optionalAuth } = require('../middleware/auth');
@@ -43,7 +44,7 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
     // Get subscription tier for authenticated users
     if (userId) {
         try {
-            const user = db.prepare('SELECT subscription_tier FROM users WHERE id = ?').get(userId);
+            const user = await db.prepare('SELECT subscription_tier FROM users WHERE id = ?').getAsync(userId);
             if (user && user.subscription_tier) {
                 subscriptionTier = user.subscription_tier;
             }
@@ -53,7 +54,7 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
     }
 
     // Get plan limits
-    const plan = db.prepare('SELECT * FROM subscription_plans WHERE id = ?').get(subscriptionTier);
+    const plan = await db.prepare('SELECT * FROM subscription_plans WHERE id = ?').getAsync(subscriptionTier);
     const dailyLimit = finalScale === 2
         ? (plan?.upscale_2x_limit ?? 3)
         : (plan?.upscale_4x_limit ?? 1);
@@ -67,18 +68,18 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         let usageCount = 0;
         try {
             if (userId) {
-                const result = db.prepare(`
+                const result = await db.prepare(`
                     SELECT COUNT(*) as count
                     FROM usage_tracking
-                    WHERE user_id = ? AND model = ? AND date(created_at) = date('now')
-                `).get(userId, `${finalScale}x`);
+                    WHERE user_id = ? AND model = ? AND ${todayFilter('created_at')}
+                `).getAsync(userId, `${finalScale}x`);
                 usageCount = result?.count || 0;
             } else if (fingerprint) {
-                const result = db.prepare(`
+                const result = await db.prepare(`
                     SELECT COUNT(*) as count
                     FROM usage_tracking
-                    WHERE fingerprint = ? AND model = ? AND date(created_at) = date('now')
-                `).get(fingerprint, `${finalScale}x`);
+                    WHERE fingerprint = ? AND model = ? AND ${todayFilter('created_at')}
+                `).getAsync(fingerprint, `${finalScale}x`);
                 usageCount = result?.count || 0;
             }
         } catch (err) {
@@ -114,44 +115,80 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         });
     }
 
-    // Check image dimensions for upscaling limits (skip in dev mode)
-    // 4x: max 1024px, 2x: max 2048px (GPU VRAM constraint from benchmarks)
-    if (isProduction) {
-        const sharp = require('sharp');
-        try {
-            const metadata = await sharp(inputPath).metadata();
-            const maxDimension = finalScale === 2 ? 3840 : 2048; // Match frontend logic: 3840 for 2x, 2048 for 4x
+    // ============== DIMENSION CHECK & TILING ==============
+    // Tier-based dimension limits (server-side tiling handles large images for paid tiers)
+    let tileSize = 512; // Default tile size for GPU processing
+    const sharp = require('sharp');
+    let imageWidth = 0, imageHeight = 0;
 
-            if (metadata.width > maxDimension || metadata.height > maxDimension) {
-                fs.unlinkSync(inputPath);
-                return res.status(400).json({
-                    error: 'Image too large for this scale',
-                    message: `${finalScale}x upscaling requires images ≤${maxDimension}px due to GPU limits. Your image is ${metadata.width}×${metadata.height}px.`,
-                    limit: maxDimension,
-                    imageWidth: metadata.width,
-                    imageHeight: metadata.height,
-                    upgradeUrl: '/pricing'
-                });
-            }
-        } catch (err) {
-            console.error('Failed to check image dimensions:', err);
+    try {
+        const metadata = await sharp(inputPath).metadata();
+        imageWidth = metadata.width;
+        imageHeight = metadata.height;
+        const maxDim = Math.max(imageWidth, imageHeight);
+
+        // Dimension limits per tier — these match what Modal can handle with tiling
+        // Guest/Free use the same limits as original (2048 for 4x, 3840 for 2x)
+        const dimensionLimits = {
+            guest:    { '2': 3840, '4': 2048 },
+            free:     { '2': 3840, '4': 2048 },
+            pro:      { '2': 4096, '4': 3072 },   // Tiling enabled, higher limits
+            business: { '2': 8192, '4': 4096 },   // Large tiling enabled
+        };
+
+        const tierLimits = dimensionLimits[subscriptionTier] || dimensionLimits.guest;
+        const maxDimension = tierLimits[String(finalScale)] || 2048;
+
+        // Only enforce dimension limits in production (dev mode always allows processing)
+        if (isProduction && maxDim > maxDimension) {
+            fs.unlinkSync(inputPath);
+            const canUpgrade = subscriptionTier === 'guest' || subscriptionTier === 'free';
+            return res.status(400).json({
+                error: 'Image too large for this scale',
+                message: canUpgrade
+                    ? `${finalScale}x upscaling on ${subscriptionTier} tier supports images up to ${maxDimension}px. Your image is ${imageWidth}×${imageHeight}px. Upgrade to Pro for larger images with tiling.`
+                    : `${finalScale}x upscaling supports images up to ${maxDimension}px on your plan. Your image is ${imageWidth}×${imageHeight}px.`,
+                limit: maxDimension,
+                imageWidth,
+                imageHeight,
+                upgradeUrl: canUpgrade ? '/pricing' : undefined
+            });
         }
+
+        // Auto-adjust tile size based on image dimensions
+        // T4 GPU (16GB VRAM) handles up to ~2048px in one pass without OOM
+        // Only enable tiling for images that genuinely need it
+        if (maxDim > 4096) {
+            tileSize = 256;
+        } else if (maxDim > 2048) {
+            tileSize = 384;
+        } else {
+            tileSize = 0;  // No tiling — single-pass is faster for images ≤2048px
+        }
+
+    } catch (err) {
+        console.error('Failed to check image dimensions:', err);
     }
 
     // ============== GPU PROVIDER UPSCALE ==============
+    const startTime = Date.now();
     try {
+        console.log(`[Upscale] Starting GPU upscale (${imageWidth}×${imageHeight} → ${finalScale}x, model=${finalModelType})...`);
         const result = await gpuProvider.upscale(inputPath, outputPath, {
             model: finalModelType,
             scale: finalScale,
+            tileSize: tileSize,
         });
 
-        console.log(`Upscale complete: ${result.width}x${result.height} via ${result.provider}`);
+        const gpuTime = Date.now() - startTime;
+        console.log(`[Upscale] ✅ GPU done in ${(gpuTime / 1000).toFixed(1)}s — ${result.width}×${result.height} via ${result.provider}`);
 
         let cloudUrl = null;
         let cloudPublicId = null;
 
         // Upload to Cloudinary if user is authenticated and Cloudinary is configured
         if (req.user && isCloudinaryConfigured()) {
+            const cloudStart = Date.now();
             try {
                 const cloudResult = await uploadToCloudinary(outputPath, {
                     public_id: `upscale_${req.user.userId}_${Date.now()}`
@@ -159,47 +196,46 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
                 if (cloudResult.success) {
                     cloudUrl = cloudResult.url;
                     cloudPublicId = cloudResult.publicId;
-                    console.log('Uploaded to Cloudinary:', cloudUrl);
+                    console.log(`[Upscale] ☁️ Cloudinary upload in ${(Date.now() - cloudStart) / 1000}s`);
                 }
             } catch (err) {
-                console.error('Cloudinary upload failed:', err);
+                console.error('[Upscale] Cloudinary upload failed:', err.message);
             }
         }
 
-        // Log image operation if user is authenticated
+        // Log image operation (non-blocking — don't await, just fire and forget)
         if (req.user) {
-            try {
-                const imageId = uuidv4();
-                db.prepare(`
-                    INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url,
-                                             cloud_public_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                `).run(
-                    imageId,
-                    req.user.userId,
-                    originalFilename,
-                    `${req.file.filename}_upscaled_${finalModelType}_${finalScale}x.png`,
-                    'upscale',
-                    cloudUrl,
-                    cloudPublicId
-                );
-            } catch (err) {
-                console.error('Failed to log image operation:', err);
-            }
+            const imageId = uuidv4();
+            db.prepare(`
+                INSERT INTO user_images (id, user_id, original_filename, stored_filename, operation, cloud_url,
+                                         cloud_public_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `).runAsync(
+                imageId,
+                req.user.userId,
+                originalFilename,
+                `${req.file.filename}_upscaled_${finalModelType}_${finalScale}x.png`,
+                'upscale',
+                cloudUrl,
+                cloudPublicId
+            ).catch(err => console.error('[Upscale] DB image log failed:', err.message));
         }
 
-        // Track usage (user or guest)
-        try {
-            db.prepare(`
-                INSERT INTO usage_tracking (user_id, fingerprint, operation, model, created_at)
-                VALUES (?, ?, 'upscale', ?, datetime('now'))
-            `).run(userId, fingerprint, `${finalScale}x`);
-        } catch (err) {
-            console.error('Failed to log usage:', err);
-        }
+        // Track usage (non-blocking)
+        const trackingId = uuidv4();
+        db.prepare(`
+            INSERT INTO usage_tracking (id, user_id, fingerprint, operation, model, created_at)
+            VALUES (?, ?, ?, 'upscale', ?, CURRENT_TIMESTAMP)
+        `).runAsync(trackingId, userId, fingerprint, `${finalScale}x`)
+            .catch(err => console.error('[Upscale] Usage tracking failed:', err.message));
+
+        // Send file to client
+        const totalTime = Date.now() - startTime;
+        console.log(`[Upscale] 📤 Sending file to client (total pipeline: ${(totalTime / 1000).toFixed(1)}s)...`);
 
         res.download(outputPath, `upscaled_${finalModelType}_${finalScale}x_${originalFilename}`, (err) => {
-            if (err) console.error(err);
+            if (err) console.error('[Upscale] Download error:', err.message);
+            else console.log(`[Upscale] ✅ Download complete (total: ${((Date.now() - startTime) / 1000).toFixed(1)}s)`);
             // Clean up input file
             if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
             // Clean up processed file after a delay

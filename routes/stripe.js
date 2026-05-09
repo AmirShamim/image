@@ -52,7 +52,7 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
         }
 
         // Get user
-        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+        const user = await db.prepare('SELECT * FROM users WHERE id = ?').getAsync(userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -65,7 +65,7 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
                 metadata: { userId: user.id }
             });
             customerId = customer.id;
-            db.prepare('UPDATE users SET stripe_customer_id = ? WHERE id = ?').run(customerId, userId);
+            await db.prepare('UPDATE users SET stripe_customer_id = ? WHERE id = ?').runAsync(customerId, userId);
         }
 
         // Create checkout session
@@ -120,11 +120,11 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
                 const subscription = await stripe.subscriptions.retrieve(session.subscription);
                 const expiresAt = new Date(subscription.current_period_end * 1000);
 
-                db.prepare(`
+                await db.prepare(`
                     UPDATE users 
                     SET subscription_tier = ?, subscription_expires = ?, updated_at = CURRENT_TIMESTAMP 
                     WHERE id = ?
-                `).run(planName, expiresAt.toISOString(), userId);
+                `).runAsync(planName, expiresAt.toISOString(), userId);
 
                 console.log(`User ${userId} upgraded to ${planName} until ${expiresAt}`);
             }
@@ -136,15 +136,15 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
             const customerId = subscription.customer;
 
             // Find user by Stripe customer ID
-            const user = db.prepare('SELECT id FROM users WHERE stripe_customer_id = ?').get(customerId);
+            const user = await db.prepare('SELECT id FROM users WHERE stripe_customer_id = ?').getAsync(customerId);
             if (user) {
                 const expiresAt = new Date(subscription.current_period_end * 1000);
                 const status = subscription.status;
 
                 if (status === 'active') {
-                    db.prepare(`
+                    await db.prepare(`
                         UPDATE users SET subscription_expires = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
-                    `).run(expiresAt.toISOString(), user.id);
+                    `).runAsync(expiresAt.toISOString(), user.id);
                 }
             }
             break;
@@ -155,13 +155,13 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
             const customerId = subscription.customer;
 
             // Downgrade user to free
-            const user = db.prepare('SELECT id FROM users WHERE stripe_customer_id = ?').get(customerId);
+            const user = await db.prepare('SELECT id FROM users WHERE stripe_customer_id = ?').getAsync(customerId);
             if (user) {
-                db.prepare(`
+                await db.prepare(`
                     UPDATE users 
                     SET subscription_tier = 'free', subscription_expires = NULL, updated_at = CURRENT_TIMESTAMP 
                     WHERE id = ?
-                `).run(user.id);
+                `).runAsync(user.id);
                 console.log(`User ${user.id} subscription canceled, downgraded to free`);
             }
             break;
@@ -189,7 +189,7 @@ router.post('/create-portal-session', authenticateToken, async (req, res) => {
 
     try {
         const userId = req.user.userId;
-        const user = db.prepare('SELECT stripe_customer_id FROM users WHERE id = ?').get(userId);
+        const user = await db.prepare('SELECT stripe_customer_id FROM users WHERE id = ?').getAsync(userId);
 
         if (!user?.stripe_customer_id) {
             return res.status(400).json({ error: 'No subscription found' });
@@ -211,10 +211,10 @@ router.post('/create-portal-session', authenticateToken, async (req, res) => {
 router.get('/subscription', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
-        const user = db.prepare(`
+        const user = await db.prepare(`
             SELECT subscription_tier, subscription_expires, stripe_customer_id 
             FROM users WHERE id = ?
-        `).get(userId);
+        `).getAsync(userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });

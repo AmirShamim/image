@@ -288,14 +288,17 @@ const UpscalePage = () => {
         console.error("Failed to save to local session:", err);
       }
 
-
       await loadUsageData();
     } catch (err) {
       console.error('Error uploading file', err);
       if (err.response?.status === 429) {
         setError('Daily limit reached. Please try again tomorrow or upgrade your plan.');
+      } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Processing timed out. The GPU server may be warming up — please try again in a few seconds.');
+      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('ECONNRESET') || !err.response) {
+        setError('Connection lost during processing. The GPU server may be starting up — please try again.');
       } else {
-        setError(err.response?.data?.message || 'Error processing image. Please try again.');
+        setError(err.response?.data?.message || err.response?.data?.error || 'Error processing image. Please try again.');
       }
     } finally {
       setLoading(false);

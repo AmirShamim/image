@@ -1,4 +1,4 @@
-/**
+ /**
  * Analytics Routes and Tracking for ImageStudio
  *
  * Free, privacy-friendly analytics that tracks:

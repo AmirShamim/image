@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 // Use DB wrapper that supports both SQLite (dev) and Postgres (prod)
 const db = require('../database-pg');
 const { generateVerificationCode, sendVerificationEmail, isSmtpConfigured } = require('../services/email');
+const { boolVal, todayFilter } = require('../database-pg');
 
 const router = express.Router();
 
@@ -49,12 +50,12 @@ router.post('/register', async (req, res) => {
         }
 
         // Check if user already exists
-        const existingUser = db.prepare('SELECT id, email_verified FROM users WHERE email = ? OR username = ?').get(email.toLowerCase(), username.toLowerCase());
+        const existingUser = await db.prepare('SELECT id, email_verified FROM users WHERE email = ? OR username = ?').getAsync(email.toLowerCase(), username.toLowerCase());
         if (existingUser) {
             // If user exists but not verified, allow re-registration
             if (!existingUser.email_verified) {
                 // Delete unverified user to allow fresh registration
-                db.prepare('DELETE FROM users WHERE id = ?').run(existingUser.id);
+                await db.prepare('DELETE FROM users WHERE id = ?').runAsync(existingUser.id);
             } else {
                 return res.status(409).json({ error: 'User with this email or username already exists' });
             }
@@ -70,10 +71,10 @@ router.post('/register', async (req, res) => {
 
         // Create user (unverified)
         const userId = uuidv4();
-        db.prepare(`
+        await db.prepare(`
             INSERT INTO users (id, email, username, password, email_verified, verification_code, verification_expires, subscription_tier) 
-            VALUES (?, ?, ?, ?, 0, ?, ?, 'free')
-        `).run(
+            VALUES (?, ?, ?, ?, ${boolVal(false)}, ?, ?, 'free')
+        `).runAsync(
             userId,
             email.toLowerCase(),
             username.toLowerCase(),
@@ -94,11 +95,11 @@ router.post('/register', async (req, res) => {
 
             if (isDevelopment && smtpNotConfigured) {
                 // Auto-verify user in development when SMTP is not configured
-                db.prepare(`
+                await db.prepare(`
                     UPDATE users 
-                    SET email_verified = 1, verification_code = NULL, verification_expires = NULL 
+                    SET email_verified = ${boolVal(true)}, verification_code = NULL, verification_expires = NULL 
                     WHERE id = ?
-                `).run(userId);
+                `).runAsync(userId);
 
                 // Generate JWT token
                 const token = jwt.sign(
@@ -110,14 +111,14 @@ router.post('/register', async (req, res) => {
                 // Store session
                 const sessionId = uuidv4();
                 const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-                db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
+                await db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').runAsync(
                     sessionId,
                     userId,
                     token,
                     expiresAt.toISOString()
                 );
 
-                const user = db.prepare('SELECT id, email, username, subscription_tier, role FROM users WHERE id = ?').get(userId);
+                const user = await db.prepare('SELECT id, email, username, subscription_tier, role FROM users WHERE id = ?').getAsync(userId);
 
                 console.log('Development mode: Auto-verified user due to missing SMTP config');
                 return res.status(201).json({
@@ -168,11 +169,8 @@ router.post('/verify-email', async (req, res) => {
       return res.status(400).json({ error: 'Email and verification code are required' });
     }
 
-    // Find user by code.
-    // We check expiration in JS to remain compatible with both SQLite and Postgres.
-    const user = await db
-      .prepare('SELECT * FROM users WHERE email = ? AND verification_code = ?')
-      .getAsync(email.toLowerCase(), code);
+    // Find user by code (async — works on both SQLite and Postgres)
+    const user = await db.prepare('SELECT * FROM users WHERE email = ? AND verification_code = ?').getAsync(email.toLowerCase(), code);
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid or expired verification code' });
@@ -188,13 +186,11 @@ router.post('/verify-email', async (req, res) => {
     }
 
     // Mark as verified
-    db.prepare(
-      `
+    await db.prepare(`
             UPDATE users 
-            SET email_verified = 1, verification_code = NULL, verification_expires = NULL, updated_at = CURRENT_TIMESTAMP 
+            SET email_verified = ${boolVal(true)}, verification_code = NULL, verification_expires = NULL, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
-        `
-    ).run(user.id);
+        `).runAsync(user.id);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -206,11 +202,11 @@ router.post('/verify-email', async (req, res) => {
     // Store session
     const sessionId = uuidv4();
     const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
+    await db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').runAsync(
         sessionId,
         user.id,
         token,
-        expiresAt.toISOString()
+        sessionExpiresAt.toISOString()
     );
 
     res.json({
@@ -240,7 +236,7 @@ router.post('/resend-verification', async (req, res) => {
         }
 
         // Find unverified user
-        const user = db.prepare('SELECT * FROM users WHERE email = ? AND email_verified = 0').get(email.toLowerCase());
+        const user = await db.prepare(`SELECT * FROM users WHERE email = ? AND email_verified = ${boolVal(false)}`).getAsync(email.toLowerCase());
 
         if (!user) {
             return res.status(404).json({ error: 'No unverified account found with this email' });
@@ -250,9 +246,9 @@ router.post('/resend-verification', async (req, res) => {
         const verificationCode = generateVerificationCode();
         const verificationExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-        db.prepare(`
+        await db.prepare(`
             UPDATE users SET verification_code = ?, verification_expires = ? WHERE id = ?
-        `).run(verificationCode, verificationExpires.toISOString(), user.id);
+        `).runAsync(verificationCode, verificationExpires.toISOString(), user.id);
 
         // Send email
         const emailResult = await sendVerificationEmail(email.toLowerCase(), verificationCode, user.username);
@@ -282,7 +278,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Find user by email or username
-        const user = db.prepare('SELECT * FROM users WHERE email = ? OR username = ?').get(
+        const user = await db.prepare('SELECT * FROM users WHERE email = ? OR username = ?').getAsync(
             email.toLowerCase(),
             email.toLowerCase()
         );
@@ -316,7 +312,7 @@ router.post('/login', async (req, res) => {
         // Store session
         const sessionId = uuidv4();
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(
+        await db.prepare('INSERT INTO user_sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').runAsync(
             sessionId,
             user.id,
             token,
@@ -324,7 +320,7 @@ router.post('/login', async (req, res) => {
         );
 
         // Update last login
-        db.prepare('UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
+        await db.prepare('UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').runAsync(user.id);
 
         res.json({
             message: 'Login successful',
@@ -345,13 +341,13 @@ router.post('/login', async (req, res) => {
 });
 
 // Logout user
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const token = authHeader.substring(7);
             // Remove session from database
-            db.prepare('DELETE FROM user_sessions WHERE token = ?').run(token);
+            await db.prepare('DELETE FROM user_sessions WHERE token = ?').runAsync(token);
         }
         res.json({ message: 'Logged out successfully' });
     } catch (error) {
@@ -425,19 +421,15 @@ async function getUsageStats(userId) {
 
   const usage2x = await db
     .prepare(
-      `
-        SELECT COUNT(*) as count FROM usage_tracking 
-        WHERE user_id = ? AND model = '2x' AND created_at >= ?
-      `
+      `SELECT COUNT(*) as count FROM usage_tracking 
+       WHERE user_id = ? AND model = '2x' AND created_at >= ?`
     )
     .getAsync(userId, startOfMonth.toISOString());
 
   const usage4x = await db
     .prepare(
-      `
-        SELECT COUNT(*) as count FROM usage_tracking 
-        WHERE user_id = ? AND model = '4x' AND created_at >= ?
-      `
+      `SELECT COUNT(*) as count FROM usage_tracking 
+       WHERE user_id = ? AND model = '4x' AND created_at >= ?`
     )
     .getAsync(userId, startOfMonth.toISOString());
 
@@ -449,7 +441,7 @@ async function getUsageStats(userId) {
 }
 
 // Get usage for guest/unregistered users (by fingerprint)
-router.get('/usage/guest', (req, res) => {
+router.get('/usage/guest', async (req, res) => {
     try {
         const fingerprint = req.query.fingerprint;
         if (!fingerprint) {
@@ -457,18 +449,18 @@ router.get('/usage/guest', (req, res) => {
         }
         
         // Get total uses (no monthly reset for guests)
-        const usage2x = db.prepare(`
+        const usage2x = await db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE fingerprint = ? AND model = '2x' AND user_id IS NULL
-        `).get(fingerprint);
+        `).getAsync(fingerprint);
         
-        const usage4x = db.prepare(`
+        const usage4x = await db.prepare(`
             SELECT COUNT(*) as count FROM usage_tracking 
             WHERE fingerprint = ? AND model = '4x' AND user_id IS NULL
-        `).get(fingerprint);
+        `).getAsync(fingerprint);
         
         // Guest limits from subscription_plans
-        const guestPlan = db.prepare("SELECT upscale_2x_limit, upscale_4x_limit FROM subscription_plans WHERE name = 'guest'").get();
+        const guestPlan = await db.prepare("SELECT upscale_2x_limit, upscale_4x_limit FROM subscription_plans WHERE name = 'guest'").getAsync();
         const limits = guestPlan ? 
             { upscale_2x: guestPlan.upscale_2x_limit, upscale_4x: guestPlan.upscale_4x_limit } : 
             { upscale_2x: 10, upscale_4x: 5 };
@@ -491,9 +483,9 @@ router.get('/usage/guest', (req, res) => {
 });
 
 // Get subscription plans
-router.get('/plans', (req, res) => {
+router.get('/plans', async (req, res) => {
     try {
-        const plans = db.prepare('SELECT * FROM subscription_plans ORDER BY price_monthly ASC').all();
+        const plans = await db.prepare('SELECT * FROM subscription_plans ORDER BY price_monthly ASC').allAsync();
         
         // Add feature descriptions for each plan
         const planFeatures = {
@@ -513,8 +505,8 @@ router.get('/plans', (req, res) => {
                     upscale_2x: p.upscale_2x_limit,
                     upscale_4x: p.upscale_4x_limit,
                     max_resolution: p.max_resolution,
-                    batch_enabled: p.batch_enabled === 1,
-                    priority_queue: p.priority_queue === 1
+                    batch_enabled: !!p.batch_enabled,
+                    priority_queue: !!p.priority_queue
                 },
                 features: planFeatures[p.id] || []
             }))
@@ -526,7 +518,7 @@ router.get('/plans', (req, res) => {
 });
 
 // Refresh token
-router.post('/refresh', (req, res) => {
+router.post('/refresh', async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -544,13 +536,13 @@ router.post('/refresh', (req, res) => {
         }
 
         // Check if session exists
-        const session = db.prepare('SELECT * FROM user_sessions WHERE token = ?').get(oldToken);
+        const session = await db.prepare('SELECT * FROM user_sessions WHERE token = ?').getAsync(oldToken);
         if (!session) {
             return res.status(401).json({ error: 'Session not found' });
         }
 
         // Get user
-        const user = db.prepare('SELECT id, email, username FROM users WHERE id = ?').get(decoded.userId);
+        const user = await db.prepare('SELECT id, email, username FROM users WHERE id = ?').getAsync(decoded.userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -564,7 +556,7 @@ router.post('/refresh', (req, res) => {
 
         // Update session
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        db.prepare('UPDATE user_sessions SET token = ?, expires_at = ? WHERE id = ?').run(
+        await db.prepare('UPDATE user_sessions SET token = ?, expires_at = ? WHERE id = ?').runAsync(
             newToken,
             expiresAt.toISOString(),
             session.id

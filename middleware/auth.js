@@ -4,7 +4,7 @@ const db = require('../database-pg');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
 // Middleware to authenticate JWT token
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
@@ -17,11 +17,19 @@ const authenticateToken = (req, res, next) => {
         // Verify JWT
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        // Check if session exists and is valid
-        const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
+        // Check if session exists (async — works on both SQLite and Postgres)
+        const session = await db.prepare('SELECT * FROM user_sessions WHERE token = ?').getAsync(token);
 
         if (!session) {
             return res.status(401).json({ error: 'Session expired or invalid. Please login again.' });
+        }
+
+        // Check expiry in JS (cross-DB compatible)
+        if (session.expires_at) {
+            const expiresAt = new Date(session.expires_at);
+            if (Number.isFinite(expiresAt.getTime()) && expiresAt <= new Date()) {
+                return res.status(401).json({ error: 'Session expired or invalid. Please login again.' });
+            }
         }
 
         // Attach user info to request
@@ -41,7 +49,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Optional authentication - doesn't fail if no token, but attaches user if present
-const optionalAuth = (req, res, next) => {
+const optionalAuth = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
@@ -55,12 +63,18 @@ const optionalAuth = (req, res, next) => {
         // Verify JWT
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        // Check if session exists and is valid
-        const session = db.prepare("SELECT * FROM user_sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
+        // Check if session exists (async — works on both SQLite and Postgres)
+        const session = await db.prepare('SELECT * FROM user_sessions WHERE token = ?').getAsync(token);
 
         if (session) {
-            req.user = decoded;
-            req.token = token;
+            // Check expiry in JS
+            const expiresAt = new Date(session.expires_at);
+            if (Number.isFinite(expiresAt.getTime()) && expiresAt > new Date()) {
+                req.user = decoded;
+                req.token = token;
+            } else {
+                req.user = null;
+            }
         } else {
             req.user = null;
         }

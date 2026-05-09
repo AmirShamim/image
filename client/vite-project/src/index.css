@@ -1,26 +1,44 @@
-@import "tailwindcss";
+/* =========================================
+   ImageStudio — Design System (Tailwind v3)
+   ========================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/*
-  Tailwind v4 note:
-  - Using @import "tailwindcss" is the recommended entry point.
-  - We avoid @apply to keep custom classes compatible with Tailwind v4.
-*/
-
-/* Base styles & Liquid Glass Tokens */
+/* =========================================
+   Base styles & Design Tokens
+   ========================================= */
 @layer base {
   :root {
-    /* Liquid Glassmorphism Tokens */
-    --color-gold-light: #fef08a; /* Soft bright gold for highlights */
-    --color-gold-main: #d4af37; /* Core luxury gold */
-    --color-gold-dark: #854d0e; /* Deep gold for shadows/borders */
-    --bg-dark-base: #060606; /* Almost true black for contrast */
-    --bg-dark-elevated: #111111; /* Slightly lifted panels */
-    --bg-glass: rgba(255, 255, 255, 0.02); /* Barely-there frost */
+    /* Primary Teal Palette (unified across all pages) */
+    --accent-color: #00d4aa;
+    --accent-hover: #00b894;
+    --accent-light: rgba(0, 212, 170, 0.15);
+    --accent-glow: rgba(0, 212, 170, 0.4);
+
+    /* Dark Theme Backgrounds */
+    --bg-primary: #09090b;
+    --bg-secondary: #0f0f11;
+    --bg-tertiary: #18181b;
+    --bg-elevated: #1f1f23;
+
+    /* Text Colors */
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+
+    /* Borders */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.15);
+    --border-accent: rgba(0, 212, 170, 0.3);
+
+    /* Glassmorphism */
+    --bg-glass: rgba(255, 255, 255, 0.02);
     --bg-glass-hover: rgba(255, 255, 255, 0.05);
-    --border-glass: rgba(212, 175, 55, 0.15); /* Subtle gold tint */
-    --border-glass-hover: rgba(212, 175, 55, 0.4);
-    --shadow-gold: 0 8px 32px 0 rgba(212, 175, 55, 0.05);
-    --shadow-gold-hover: 0 8px 32px 0 rgba(212, 175, 55, 0.15);
+    --border-glass: rgba(0, 212, 170, 0.12);
+    --border-glass-hover: rgba(0, 212, 170, 0.3);
+    --shadow-glow: 0 8px 32px 0 rgba(0, 212, 170, 0.08);
+    --shadow-glow-hover: 0 8px 32px 0 rgba(0, 212, 170, 0.2);
   }
 
   * {
@@ -35,8 +53,8 @@
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-dark-base); /* Changed to new token */
-    color: #f4f4f5;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -63,33 +81,23 @@
   }
 
   ::selection {
-    background: var(--color-gold-main);
+    background: var(--accent-color);
     color: #000;
   }
 }
 
-/* Liquid Glass Utilities */
+/* =========================================
+   Reusable Component Classes
+   ========================================= */
 @layer components {
-  /* Typography */
-  .font-serif {
-    font-family: 'Playfair Display', serif;
-  }
-
-  .gold-gradient-text {
-    background: linear-gradient(to right, var(--color-gold-light), var(--color-gold-main));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Modular Liquid Panels */
+  /* Glassmorphism panels */
   .liquid-panel {
     background: var(--bg-glass);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border-glass);
     border-radius: 1rem;
-    box-shadow: var(--shadow-gold);
+    box-shadow: var(--shadow-glow);
     transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -99,22 +107,22 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border-glass);
     border-radius: 1rem;
-    box-shadow: var(--shadow-gold);
+    box-shadow: var(--shadow-glow);
     transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .liquid-card:hover {
     background: var(--bg-glass-hover);
     border-color: var(--border-glass-hover);
-    box-shadow: var(--shadow-gold-hover);
+    box-shadow: var(--shadow-glow-hover);
     transform: translateY(-2px);
   }
 
-  /* Core Buttons */
+  /* Buttons */
   .liquid-button {
     background: var(--bg-glass);
     border: 1px solid var(--border-glass);
-    border-radius: 9999px; /* Pill shape is very luxury */
+    border-radius: 9999px;
     padding: 0.75rem 1.5rem;
     color: #e4e4e7;
     font-weight: 500;
@@ -127,41 +135,49 @@
 
   .liquid-button:hover {
     background: var(--bg-glass-hover);
-    border-color: var(--color-gold-main);
-    color: var(--color-gold-light);
-    box-shadow: var(--shadow-gold-hover);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: var(--shadow-glow-hover);
     transform: translateY(-1px);
   }
 
   .accent-button {
-    background: linear-gradient(135deg, var(--color-gold-main), var(--color-gold-dark));
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
     color: #000;
     font-weight: 600;
     font-size: 0.95rem;
     border-radius: 9999px;
     padding: 0.75rem 1.75rem;
-    border: 1px solid var(--color-gold-light);
+    border: 1px solid rgba(0, 212, 170, 0.5);
     transition: all 300ms ease;
-    box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.25);
+    box-shadow: 0 4px 14px 0 rgba(0, 212, 170, 0.25);
   }
 
   .accent-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px 0 rgba(212, 175, 55, 0.4);
+    box-shadow: 0 6px 20px 0 rgba(0, 212, 170, 0.4);
     filter: brightness(1.1);
   }
 
-  /* Timeline Node (For features/process steps) */
+  /* Accent gradient text */
+  .accent-gradient-text {
+    background: linear-gradient(to right, #00d4aa, #00e5c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Timeline (for features/process) */
   .timeline-node {
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
-    border: 1px solid var(--color-gold-main);
-    background: var(--bg-dark-base);
+    border: 1px solid var(--accent-color);
+    background: var(--bg-primary);
     display: grid;
     place-items: center;
-    color: var(--color-gold-main);
-    box-shadow: 0 0 15px 0 rgba(212, 175, 55, 0.15) inset;
+    color: var(--accent-color);
+    box-shadow: 0 0 15px 0 rgba(0, 212, 170, 0.15) inset;
     position: relative;
     z-index: 2;
   }
@@ -169,16 +185,16 @@
   .timeline-line {
     position: absolute;
     top: 3rem;
-    bottom: -3rem; /* Extends to next node */
+    bottom: -3rem;
     left: 50%;
     transform: translateX(-50%);
     width: 1px;
-    background: linear-gradient(to bottom, var(--color-gold-main), transparent);
+    background: linear-gradient(to bottom, var(--accent-color), transparent);
     z-index: 1;
     opacity: 0.3;
   }
 
-  /* 3D card effect neutralized */
+  /* 3D card hover */
   .card-3d {
     transition: transform 300ms;
   }
@@ -187,25 +203,17 @@
     transform: translateY(-4px);
   }
 
-  /* Animated gradient background neutralized */
-  .gradient-bg {
-    background: #09090b;
-  }
-
-  /* Grid pattern subtle */
+  /* Subtle grid background */
   .grid-pattern {
     background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 60px 60px;
   }
-
-
 }
 
-/*
-  Modern motion utilities (commonly provided by tailwindcss-animate).
-  We implement them locally to keep deps minimal while supporting the UI.
-*/
+/* =========================================
+   Motion Utilities
+   ========================================= */
 @layer utilities {
   @keyframes tw-enter {
     from {
@@ -242,13 +250,14 @@
   }
 }
 
-/* RTL Support */
+/* =========================================
+   RTL & Language Support
+   ========================================= */
 [dir="rtl"] {
   direction: rtl;
   text-align: right;
 }
 
-/* Language-specific fonts */
 [lang="ar"] {
   font-family: 'Noto Sans Arabic', 'Dubai', 'Segoe UI', Arial, sans-serif;
 }

@@ -33,10 +33,22 @@ image = (
 )
 
 
-@app.function(gpu="T4", image=image, timeout=120)
+@app.function(gpu="T4", image=image, timeout=180)
 @modal.web_endpoint(method="POST")
 def upscale(request: dict):
-    """Upscale an image using Real-ESRGAN on a T4 GPU."""
+    """Upscale an image using Real-ESRGAN on a T4 GPU.
+    
+    Returns raw JPEG bytes (binary) with metadata in headers for fast transfer.
+    Falls back to base64 JSON if 'response_format' is set to 'base64'.
+    
+    Request JSON:
+        image (str): Base64-encoded input image
+        model (str): 'realesrgan' or 'realesrgan-anime'
+        scale (int): 2 or 4
+        tile_size (int): Tile size for processing (default 512, use 0 to disable)
+        response_format (str): 'binary' (default) or 'base64'
+    """
+    from fastapi.responses import Response
     
     # Monkey-patch the removed torchvision module BEFORE importing basicsr/realesrgan
     import importlib
@@ -59,6 +71,8 @@ def upscale(request: dict):
 
         model_name = request.get("model", "realesrgan")
         scale = int(request.get("scale", 4))
+        tile_size = int(request.get("tile_size", 512))
+        response_format = request.get("response_format", "binary")
 
         # 2. Decode image
         img_bytes = base64.b64decode(base64_img)
@@ -66,7 +80,19 @@ def upscale(request: dict):
         img_np = np.array(img)
         img_bgr = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
 
-        # 3. Setup Model
+        width, height = img.size
+        print(f"[Real-ESRGAN] Input: {width}x{height}, model={model_name}, scale={scale}x, tile={tile_size}")
+
+        # 3. Auto-adjust tile size for very large images to prevent OOM
+        max_dim = max(width, height)
+        if tile_size > 0 and max_dim > 4096:
+            tile_size = min(tile_size, 256)
+            print(f"[Real-ESRGAN] Large image detected, reducing tile to {tile_size}")
+        elif tile_size > 0 and max_dim > 2048:
+            tile_size = min(tile_size, 384)
+            print(f"[Real-ESRGAN] Medium-large image, tile set to {tile_size}")
+
+        # 4. Setup Model
         if model_name == "realesrgan-anime":
             model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=6, num_grow_ch=32, scale=4)
             netscale = 4
@@ -81,27 +107,53 @@ def upscale(request: dict):
             model_path=file_url,
             model=model,
             half=True,
-            tile=512,
+            tile=tile_size,
             tile_pad=10,
             pre_pad=0
         )
 
-        # 4. Process image
+        # 5. Process image
         output_img, _ = upsampler.enhance(img_bgr, outscale=scale)
 
-        # 5. Encode output to Base64
+        out_h, out_w = output_img.shape[:2]
+        print(f"[Real-ESRGAN] Output: {out_w}x{out_h}")
+
+        # 6. Encode output
         output_rgb = cv2.cvtColor(output_img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(output_rgb)
 
         buffered = BytesIO()
-        pil_img.save(buffered, format="JPEG", quality=95)
-        out_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        pil_img.save(buffered, format="JPEG", quality=90)
+        image_bytes = buffered.getvalue()
 
-        return {
-            "success": True,
-            "output_image": f"data:image/jpeg;base64,{out_base64}"
-        }
+        print(f"[Real-ESRGAN] Output size: {len(image_bytes) / 1024 / 1024:.1f}MB, format={response_format}")
 
+        # 7. Return response
+        if response_format == "binary":
+            # Return raw JPEG bytes — ~40% faster than base64 JSON
+            return Response(
+                content=image_bytes,
+                media_type="image/jpeg",
+                headers={
+                    "X-Output-Width": str(out_w),
+                    "X-Output-Height": str(out_h),
+                    "X-Success": "true",
+                }
+            )
+        else:
+            # Legacy base64 JSON format (backward compat)
+            out_base64 = base64.b64encode(image_bytes).decode("utf-8")
+            return {
+                "success": True,
+                "output_image": f"data:image/jpeg;base64,{out_base64}",
+                "output_width": out_w,
+                "output_height": out_h,
+            }
+
+    except torch.cuda.OutOfMemoryError:
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "error": "GPU out of memory. Try a smaller image or lower scale."}
     except Exception as e:
         import traceback
         traceback.print_exc()
