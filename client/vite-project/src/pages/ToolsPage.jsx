@@ -121,10 +121,10 @@ const ToolsPage = () => {
         <div className="max-w-6xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
               All Tools
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('tools.title')}</h1>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">{t('tools.title')}</h1>
             <p className="text-zinc-400 text-lg max-w-lg mx-auto">{t('tools.subtitle')}</p>
           </div>
 
@@ -147,13 +147,13 @@ const ToolsPage = () => {
                   </span>
                 )}
 
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-cyan-400 p-2.5 mb-4 group-hover:shadow-glow transition-shadow">
-                  <div className="w-full h-full text-black">
+                <div className="w-12 h-12 rounded-xl border border-yellow-500/30 bg-black/40 p-2.5 mb-4 group-hover:border-yellow-500 transition-colors group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]">
+                  <div className="w-full h-full text-yellow-500">
                     {tool.icon}
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2">{tool.title}</h3>
+                <h3 className="font-serif text-lg font-semibold text-white mb-2">{tool.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{tool.description}</p>
 
                 {tool.available && (

@@ -183,11 +183,13 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         const gpuTime = Date.now() - startTime;
         console.log(`[Upscale] ✅ GPU done in ${(gpuTime / 1000).toFixed(1)}s — ${result.width}×${result.height} via ${result.provider}`);
 
-        let cloudUrl = null;
-        let cloudPublicId = null;
+        let cloudUrl = result.cloudUrl || null;
+        let cloudPublicId = result.cloudPublicId || null;
+        let isDirectCloud = !!result.cloudUrl;
 
         // Upload to Cloudinary if user is authenticated and Cloudinary is configured
-        if (req.user && isCloudinaryConfigured()) {
+        // ONLY if Modal hasn't already done the direct upload
+        if (!isDirectCloud && req.user && isCloudinaryConfigured()) {
             const cloudStart = Date.now();
             try {
                 const cloudResult = await uploadToCloudinary(outputPath, {
@@ -196,7 +198,7 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
                 if (cloudResult.success) {
                     cloudUrl = cloudResult.url;
                     cloudPublicId = cloudResult.publicId;
-                    console.log(`[Upscale] ☁️ Cloudinary upload in ${(Date.now() - cloudStart) / 1000}s`);
+                    console.log(`[Upscale] ☁️ Cloudinary fallback upload in ${(Date.now() - cloudStart) / 1000}s`);
                 }
             } catch (err) {
                 console.error('[Upscale] Cloudinary upload failed:', err.message);
@@ -229,22 +231,33 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
         `).runAsync(trackingId, userId, fingerprint, `${finalScale}x`)
             .catch(err => console.error('[Upscale] Usage tracking failed:', err.message));
 
-        // Send file to client
+        // Send URL to client instead of downloading blob directly
         const totalTime = Date.now() - startTime;
-        console.log(`[Upscale] 📤 Sending file to client (total pipeline: ${(totalTime / 1000).toFixed(1)}s)...`);
+        console.log(`[Upscale] 📤 Sending JSON URL to client (total pipeline: ${(totalTime / 1000).toFixed(1)}s)...`);
 
-        res.download(outputPath, `upscaled_${finalModelType}_${finalScale}x_${originalFilename}`, (err) => {
-            if (err) console.error('[Upscale] Download error:', err.message);
-            else console.log(`[Upscale] ✅ Download complete (total: ${((Date.now() - startTime) / 1000).toFixed(1)}s)`);
-            // Clean up input file
-            if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
-            // Clean up processed file after a delay
+        // If we don't have a Cloudinary URL (local/fallback), create a static URL pointing to the processed folder
+        const finalUrl = cloudUrl || `${req.protocol}://${req.get('host')}/processed/${outputPath.split('/').pop()}`;
+
+        res.json({
+            success: true,
+            url: finalUrl,
+            width: result.width,
+            height: result.height,
+            publicId: cloudPublicId
+        });
+        
+        console.log(`[Upscale] ✅ Request complete (total: ${((Date.now() - startTime) / 1000).toFixed(1)}s)`);
+
+        // Clean up input file
+        if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+        // Clean up processed file after a delay (only if we actually downloaded it locally)
+        if (!isDirectCloud) {
             setTimeout(() => {
                 if (fs.existsSync(outputPath)) {
                     fs.unlinkSync(outputPath);
                 }
             }, 60000);
-        });
+        }
 
     } catch (err) {
         console.error('GPU upscale failed:', err);

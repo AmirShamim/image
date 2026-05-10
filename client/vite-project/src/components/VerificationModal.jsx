@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { verifyEmail, resendVerification } from '../services/auth';
-import './Auth.css';
 
 const VerificationModal = ({ isOpen, onClose, email, onVerified }) => {
   const [code, setCode] = useState('');
@@ -71,53 +70,71 @@ const VerificationModal = ({ isOpen, onClose, email, onVerified }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="auth-modal-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="auth-modal-close" onClick={onClose}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md glass-card p-8 shadow-glass-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="auth-modal-header">
-          <h2>Verify Your Email</h2>
-          <p>We sent a 6-digit code to <strong>{email}</strong></p>
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-white mb-1">Verify Your Email</h2>
+          <p className="text-zinc-400 text-sm">We sent a 6-digit code to <strong className="text-white">{email}</strong></p>
         </div>
 
-        <form onSubmit={handleVerify} className="auth-form">
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="auth-success">{success}</div>}
+        <form onSubmit={handleVerify} className="space-y-4">
+          {error && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm">
+              {success}
+            </div>
+          )}
 
-          <div className="form-group">
-            <label>Verification Code</label>
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Verification Code</label>
             <input
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="Enter 6-digit code"
+              placeholder="000000"
               maxLength={6}
               required
-              style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px' }}
+              className="w-full px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors text-center text-2xl tracking-[0.5em]"
             />
           </div>
 
-          <button type="submit" className="auth-submit-btn" disabled={loading || code.length !== 6}>
-            {loading ? 'Verifying...' : 'Verify Email'}
+          <button
+            type="submit"
+            disabled={loading || code.length !== 6}
+            className="w-full py-3.5 bg-gradient-to-r from-primary to-cyan-400 text-black font-semibold rounded-xl hover:shadow-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+            ) : (
+              'Verify Email'
+            )}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <div className="mt-6 text-center text-sm text-zinc-400">
           <button 
             onClick={handleResend} 
             disabled={resendLoading}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'var(--primary-color)', 
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
+            className="text-primary hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {resendLoading ? 'Sending...' : 'Resend Code'}
           </button>

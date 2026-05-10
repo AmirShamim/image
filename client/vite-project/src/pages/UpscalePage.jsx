@@ -250,24 +250,28 @@ const UpscalePage = () => {
 
     try {
       const response = await api.post('/api/upscale', formData, {
-        responseType: 'blob',
         onUploadProgress: (e) => {
           setProgress(Math.round((e.loaded * 50) / e.total));
         },
         onDownloadProgress: (e) => {
+          // JSON download is instant, but we keep this for UI smoothness
           setProgress(50 + Math.round((e.loaded * 50) / e.total));
         }
       });
 
       setProgress(100);
-      const imageUrl = URL.createObjectURL(response.data);
+      const imageUrl = response.data.url;
       setResultImage(imageUrl);
       
-      // Save to IndexedDB history
+      // Save to IndexedDB history in the background
       try {
+        // Fetch the blob from the URL so we can save the actual image data locally
+        const cloudBlobResponse = await fetch(imageUrl);
+        const upscaledBlob = await cloudBlobResponse.blob();
+
         const savedImage = await saveImageToHistory({
           originalBlob: file,
-          upscaledBlob: response.data,
+          upscaledBlob: upscaledBlob,
           scale,
           modelType,
           originalWidth: originalDimensions.width,
@@ -320,6 +324,24 @@ const UpscalePage = () => {
     setResultImage(null);
     setError('');
     setOriginalDimensions({ width: 0, height: 0 });
+  };
+
+  const handleDownloadHistoryImage = (blob, imgScale, imgModelType) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `upscaled_${imgModelType}_${imgScale}_${Date.now()}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteHistoryImage = async (id) => {
+    try {
+      await deleteImageFromHistory(id);
+      setSessionHistory(prev => prev.filter(item => item.id !== id));
+    } catch (err) {
+      console.error('Failed to delete history image:', err);
+    }
   };
 
   const getResultDimensions = () => {

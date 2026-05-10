@@ -52,10 +52,10 @@ const PricingPage = () => {
         <div className="max-w-5xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Pricing Plans
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('pricing.title')}</h1>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">{t('pricing.title')}</h1>
             <p className="text-zinc-400 text-lg max-w-md mx-auto">{t('pricing.subtitle')}</p>
           </div>
 

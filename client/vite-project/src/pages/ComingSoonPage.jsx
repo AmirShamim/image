@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import PageShell from '../components/PageShell';
+import PageHero from '../components/PageHero';
+import SEO from '../components/SEO';
+import { Sparkles, Bell } from 'lucide-react';
 
 const TOOL_INFO = {
   '/compress': {
@@ -106,65 +108,96 @@ const ComingSoonPage = () => {
   ];
 
   return (
-    <div className="coming-soon-page">
-      <Header />
-      
-      <main className="coming-soon-main">
-        <div className="coming-soon-container">
-          <div className="coming-soon-card">
-            <div className="tool-icon">
-              {toolInfo.icon}
-            </div>
-            
-            <div className="status-badge">Coming Soon</div>
-            
-            <h1>{toolInfo.title}</h1>
-            <p className="tool-description">{toolInfo.description}</p>
-            
-            {toolInfo.features.length > 0 && (
-              <div className="planned-features">
-                <h3>Planned Features</h3>
-                <ul>
-                  {toolInfo.features.map((feature, index) => (
-                    <li key={index}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            <div className="notify-section">
-              <p>Want to be notified when this tool launches?</p>
-              <div className="notify-form">
-                <input type="email" placeholder="Enter your email" />
-                <button>Notify Me</button>
-              </div>
-            </div>
+    <PageShell>
+      <SEO
+        title={`${toolInfo.title} — Coming Soon | ImageStudio`}
+        description={toolInfo.description}
+        path={location.pathname}
+      />
+
+      <PageHero
+        badge="Coming Soon"
+        title={toolInfo.title}
+        subtitle={toolInfo.description}
+      />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Card */}
+        <div className="glass-card p-8 md:p-12 text-center mb-10">
+          {/* Icon */}
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-6">
+            {toolInfo.icon}
           </div>
-          
-          <div className="available-tools">
-            <h2>Available Tools</h2>
-            <p>Try our existing tools while you wait</p>
-            
-            <div className="tools-grid">
-              {availableTools.map((tool) => (
-                <Link to={tool.path} key={tool.path} className="tool-card">
-                  <h3>{tool.name}</h3>
-                  <p>{tool.description}</p>
-                  <span className="try-now">Try Now →</span>
-                </Link>
-              ))}
+
+          {/* Status Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-sm font-medium mb-6">
+            <Sparkles className="w-4 h-4" />
+            Under Development
+          </div>
+
+          <h2 className="font-serif text-2xl md:text-3xl font-bold text-white mb-3">{toolInfo.title}</h2>
+          <p className="text-zinc-400 text-lg max-w-lg mx-auto leading-relaxed mb-8">{toolInfo.description}</p>
+
+          {/* Planned Features */}
+          {toolInfo.features.length > 0 && (
+            <div className="max-w-md mx-auto text-left mb-8">
+              <h3 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-4 text-center">Planned Features</h3>
+              <ul className="space-y-3">
+                {toolInfo.features.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-3 text-zinc-400 text-sm">
+                    <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Notify Section */}
+          <div className="max-w-sm mx-auto">
+            <p className="text-zinc-500 text-sm mb-3">Want to be notified when this tool launches?</p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 bg-dark-600 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors text-sm"
+              />
+              <button className="accent-button flex items-center gap-2 whitespace-nowrap">
+                <Bell className="w-4 h-4" />
+                Notify Me
+              </button>
             </div>
           </div>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+
+        {/* Available Tools */}
+        <div className="text-center mb-6">
+          <h2 className="text-xl font-bold text-white mb-2">Available Tools</h2>
+          <p className="text-zinc-400 text-sm">Try our existing tools while you wait</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          {availableTools.map((tool) => (
+            <Link
+              to={tool.path}
+              key={tool.path}
+              className="glass-card-hover p-6 block group"
+            >
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{tool.name}</h3>
+              <p className="text-sm text-zinc-400 mb-3">{tool.description}</p>
+              <span className="text-primary text-sm font-medium flex items-center gap-1">
+                Try Now
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </PageShell>
   );
 };
 

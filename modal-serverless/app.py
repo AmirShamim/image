@@ -21,6 +21,7 @@ image = (
         "torchvision==0.16.2",
         "opencv-python-headless==4.8.1.78",
         "Pillow",
+        "cloudinary"
     )
     # Phase 3: Install Real-ESRGAN stack after torch is ready
     .pip_install(
@@ -32,21 +33,14 @@ image = (
     )
 )
 
-
 @app.function(gpu="T4", image=image, timeout=180)
 @modal.web_endpoint(method="POST")
 def upscale(request: dict):
     """Upscale an image using Real-ESRGAN on a T4 GPU.
     
-    Returns raw JPEG bytes (binary) with metadata in headers for fast transfer.
-    Falls back to base64 JSON if 'response_format' is set to 'base64'.
-    
-    Request JSON:
-        image (str): Base64-encoded input image
-        model (str): 'realesrgan' or 'realesrgan-anime'
-        scale (int): 2 or 4
-        tile_size (int): Tile size for processing (default 512, use 0 to disable)
-        response_format (str): 'binary' (default) or 'base64'
+    Supports direct Cloudinary upload if credentials are provided in the payload,
+    returning the URL directly to avoid slow binary streaming.
+    Falls back to binary JPEG if 'response_format' is 'binary'.
     """
     from fastapi.responses import Response
     
@@ -62,6 +56,8 @@ def upscale(request: dict):
     import numpy as np
     from realesrgan import RealESRGANer
     from basicsr.archs.rrdbnet_arch import RRDBNet
+    import cloudinary
+    import cloudinary.uploader
 
     try:
         # 1. Parse request
@@ -73,6 +69,7 @@ def upscale(request: dict):
         scale = int(request.get("scale", 4))
         tile_size = int(request.get("tile_size", 512))
         response_format = request.get("response_format", "binary")
+        cloudinary_config = request.get("cloudinary", None)
 
         # 2. Decode image
         img_bytes = base64.b64decode(base64_img)
@@ -118,7 +115,7 @@ def upscale(request: dict):
         out_h, out_w = output_img.shape[:2]
         print(f"[Real-ESRGAN] Output: {out_w}x{out_h}")
 
-        # 6. Encode output
+        # 6. Encode output to JPEG
         output_rgb = cv2.cvtColor(output_img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(output_rgb)
 
@@ -126,11 +123,44 @@ def upscale(request: dict):
         pil_img.save(buffered, format="JPEG", quality=90)
         image_bytes = buffered.getvalue()
 
+        # 7. Check if direct Cloudinary upload is requested
+        if cloudinary_config and all(k in cloudinary_config for k in ["cloud_name", "api_key", "api_secret"]):
+            print("[Real-ESRGAN] Cloudinary config detected. Uploading directly...")
+            temp_file = "/tmp/output.jpg"
+            with open(temp_file, "wb") as f:
+                f.write(image_bytes)
+                
+            cloudinary.config(
+                cloud_name=cloudinary_config["cloud_name"],
+                api_key=cloudinary_config["api_key"],
+                api_secret=cloudinary_config["api_secret"],
+                secure=True
+            )
+            
+            upload_result = cloudinary.uploader.upload(
+                temp_file,
+                folder='image-resizer/processed',
+                resource_type='image'
+            )
+            
+            # Clean up temp file
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+                
+            print(f"[Real-ESRGAN] Direct Cloudinary upload complete! URL: {upload_result['secure_url']}")
+            
+            return {
+                "success": True,
+                "cloud_url": upload_result["secure_url"],
+                "cloud_public_id": upload_result["public_id"],
+                "output_width": out_w,
+                "output_height": out_h
+            }
+
+        # 8. Fallback returns (Binary or Base64)
         print(f"[Real-ESRGAN] Output size: {len(image_bytes) / 1024 / 1024:.1f}MB, format={response_format}")
 
-        # 7. Return response
         if response_format == "binary":
-            # Return raw JPEG bytes — ~40% faster than base64 JSON
             return Response(
                 content=image_bytes,
                 media_type="image/jpeg",
@@ -141,7 +171,6 @@ def upscale(request: dict):
                 }
             )
         else:
-            # Legacy base64 JSON format (backward compat)
             out_base64 = base64.b64encode(image_bytes).decode("utf-8")
             return {
                 "success": True,

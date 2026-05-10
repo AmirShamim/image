@@ -16,6 +16,11 @@
     --accent-light: rgba(0, 212, 170, 0.15);
     --accent-glow: rgba(0, 212, 170, 0.4);
 
+    /* Gold/Premium Palette */
+    --color-gold-dark: #b8860b;
+    --color-gold-main: #d4af37;
+    --color-gold-light: #f5e6a3;
+
     /* Dark Theme Backgrounds */
     --bg-primary: #09090b;
     --bg-secondary: #0f0f11;
@@ -90,7 +95,58 @@
    Reusable Component Classes
    ========================================= */
 @layer components {
-  /* Glassmorphism panels */
+
+  /* ---- Glassmorphism Cards ---- */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-hover {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(0, 212, 170, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 212, 170, 0.12);
+    transform: translateY(-2px);
+  }
+
+  /* ---- Glass Button ---- */
+  .glass-button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+  }
+
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(0, 212, 170, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 212, 170, 0.1);
+  }
+
+  /* ---- Legacy Liquid Panels (kept for backward compat) ---- */
   .liquid-panel {
     background: var(--bg-glass);
     backdrop-filter: blur(16px);
@@ -118,7 +174,7 @@
     transform: translateY(-2px);
   }
 
-  /* Buttons */
+  /* ---- Buttons ---- */
   .liquid-button {
     background: var(--bg-glass);
     border: 1px solid var(--border-glass);
@@ -151,6 +207,7 @@
     border: 1px solid rgba(0, 212, 170, 0.5);
     transition: all 300ms ease;
     box-shadow: 0 4px 14px 0 rgba(0, 212, 170, 0.25);
+    cursor: pointer;
   }
 
   .accent-button:hover {
@@ -159,7 +216,14 @@
     filter: brightness(1.1);
   }
 
-  /* Accent gradient text */
+  .accent-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+  }
+
+  /* ---- Gradient Text ---- */
   .accent-gradient-text {
     background: linear-gradient(to right, #00d4aa, #00e5c0);
     -webkit-background-clip: text;
@@ -167,7 +231,28 @@
     background-clip: text;
   }
 
-  /* Timeline (for features/process) */
+  .gold-gradient-text {
+    background: linear-gradient(135deg, #f5e6a3, #d4af37, #b8860b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .accent-gradient {
+    background: linear-gradient(to right, #00d4aa, #00e5c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ---- Background Effects ---- */
+  .gradient-bg {
+    background: radial-gradient(ellipse at 20% 50%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(0, 212, 170, 0.04) 0%, transparent 50%);
+  }
+
+  /* ---- Timeline (for features/process) ---- */
   .timeline-node {
     width: 3rem;
     height: 3rem;
@@ -194,7 +279,7 @@
     opacity: 0.3;
   }
 
-  /* 3D card hover */
+  /* ---- 3D card hover ---- */
   .card-3d {
     transition: transform 300ms;
   }
@@ -203,11 +288,16 @@
     transform: translateY(-4px);
   }
 
-  /* Subtle grid background */
+  /* ---- Subtle grid background ---- */
   .grid-pattern {
     background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 60px 60px;
+  }
+
+  /* ---- Shadow Glow utility ---- */
+  .shadow-glow {
+    box-shadow: 0 0 40px rgba(0, 212, 170, 0.15);
   }
 }
 
@@ -247,6 +337,10 @@
 
   .slide-in-from-top-2 {
     --tw-enter-translate-y: -0.5rem;
+  }
+
+  .slide-in-from-bottom-5 {
+    --tw-enter-translate-y: 1.25rem;
   }
 }
 

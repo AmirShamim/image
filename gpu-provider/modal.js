@@ -82,7 +82,12 @@ async function upscale(inputPath, outputPath, options) {
         model: model,
         scale: scale,
         tile_size: tileSize,
-        response_format: 'binary',  // Request raw bytes instead of base64 JSON
+        response_format: 'json', // We want JSON back now, which will contain cloud_url
+        cloudinary: {
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+        }
     });
 
     // Retry loop for cold-start and transient failures
@@ -124,53 +129,65 @@ async function upscale(inputPath, outputPath, options) {
 
             let outputWidth, outputHeight;
 
-            if (contentType.startsWith('image/')) {
-                // ============== BINARY RESPONSE (fast path) ==============
-                // Modal returned raw JPEG bytes — no base64 overhead, no JSON parse
-                const bodyStart = Date.now();
-                const arrayBuffer = await response.arrayBuffer();
-                const outputBuffer = Buffer.from(arrayBuffer);
-                console.log(`[Modal GPU] Binary body received: ${(outputBuffer.length / 1024 / 1024).toFixed(1)}MB in ${((Date.now() - bodyStart) / 1000).toFixed(1)}s`);
-
-                fs.writeFileSync(outputPath, outputBuffer);
-
-                // Read dimensions from headers (set by Modal) or from the image itself
-                outputWidth = parseInt(response.headers.get('x-output-width') || '0', 10);
-                outputHeight = parseInt(response.headers.get('x-output-height') || '0', 10);
-
-                // If headers missing, read from the file
-                if (!outputWidth || !outputHeight) {
-                    const sharp = require('sharp');
-                    const metadata = await sharp(outputPath).metadata();
-                    outputWidth = metadata.width;
-                    outputHeight = metadata.height;
-                }
-
-                console.log(`[Modal GPU] ✅ Saved ${outputWidth}×${outputHeight} to ${outputPath}`);
-
-            } else {
-                // ============== JSON/BASE64 RESPONSE (legacy fallback) ==============
-                // For older Modal deployments that still return base64 JSON
+            if (contentType.includes('application/json')) {
                 const jsonStart = Date.now();
                 const result = await response.json();
                 console.log(`[Modal GPU] JSON parsed in ${((Date.now() - jsonStart) / 1000).toFixed(1)}s`);
 
-                if (!result.success || !result.output_image) {
-                    throw new Error(result.error || 'Invalid response from Modal: missing output_image');
+                if (!result.success) {
+                    throw new Error(result.error || 'Invalid response from Modal');
                 }
 
-                const decodeStart = Date.now();
-                const base64Data = result.output_image.replace(/^data:image\/\w+;base64,/, "");
-                const outputBuffer = Buffer.from(base64Data, 'base64');
+                if (result.cloud_url) {
+                    // ============== DIRECT CLOUDINARY UPLOAD (fastest path) ==============
+                    console.log(`[Modal GPU] Cloudinary URL received: ${result.cloud_url}`);
+                    return {
+                        success: true,
+                        model: model,
+                        width: result.output_width,
+                        height: result.output_height,
+                        cloudUrl: result.cloud_url,
+                        cloudPublicId: result.cloud_public_id
+                    };
+                } else if (result.output_image) {
+                    // ============== BASE64 FALLBACK ==============
+                    const decodeStart = Date.now();
+                    const base64Data = result.output_image.replace(/^data:image\/\w+;base64,/, "");
+                    const outputBuffer = Buffer.from(base64Data, 'base64');
 
-                fs.writeFileSync(outputPath, outputBuffer);
-                console.log(`[Modal GPU] Decoded + saved ${(outputBuffer.length / 1024 / 1024).toFixed(1)}MB in ${((Date.now() - decodeStart) / 1000).toFixed(1)}s`);
+                    fs.writeFileSync(outputPath, outputBuffer);
+                    console.log(`[Modal GPU] Decoded + saved ${(outputBuffer.length / 1024 / 1024).toFixed(1)}MB in ${((Date.now() - decodeStart) / 1000).toFixed(1)}s`);
 
+                    outputWidth = result.output_width;
+                    outputHeight = result.output_height;
+                } else {
+                    throw new Error('Invalid JSON response format from Modal');
+                }
+            } else if (contentType.startsWith('image/')) {
+                // ============== BINARY RESPONSE FALLBACK ==============
+                const bodyStart = Date.now();
+                const { finished } = require('stream/promises');
+                const { Readable } = require('stream');
+                
+                const fileStream = fs.createWriteStream(outputPath);
+                await finished(Readable.fromWeb(response.body).pipe(fileStream));
+                
+                const fileSize = fs.statSync(outputPath).size;
+                console.log(`[Modal GPU] Binary body received: ${(fileSize / 1024 / 1024).toFixed(1)}MB in ${((Date.now() - bodyStart) / 1000).toFixed(1)}s`);
+
+                outputWidth = parseInt(response.headers.get('x-output-width') || '0', 10);
+                outputHeight = parseInt(response.headers.get('x-output-height') || '0', 10);
+            }
+            // If we get here, it means we did NOT return early from cloudUrl, so a local file was saved
+            // If headers missing, read from the file
+            if (!outputWidth || !outputHeight) {
                 const sharp = require('sharp');
                 const metadata = await sharp(outputPath).metadata();
                 outputWidth = metadata.width;
                 outputHeight = metadata.height;
             }
+
+            console.log(`[Modal GPU] ✅ Saved ${outputWidth}×${outputHeight} to ${outputPath}`);
 
             return {
                 success: true,

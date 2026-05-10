@@ -36,17 +36,17 @@ const Footer = () => {
               <div className="w-8 h-8">
                 <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#footer-logo-gradient)" />
-                  <path d="M8 20L12 14L16 18L22 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="22" cy="10" r="2" fill="white" />
+                  <path d="M8 20L12 14L16 18L22 10" stroke="var(--color-gold-light, #f5e6a3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="22" cy="10" r="2" fill="var(--color-gold-light, #f5e6a3)" />
                   <defs>
                     <linearGradient id="footer-logo-gradient" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#00d4aa" />
-                      <stop offset="1" stopColor="#00a8cc" />
+                      <stop stopColor="var(--color-gold-dark, #b8860b)" />
+                      <stop offset="1" stopColor="var(--color-gold-main, #d4af37)" />
                     </linearGradient>
                   </defs>
                 </svg>
               </div>
-              <span className="text-lg font-semibold text-white group-hover:text-primary transition-colors">ImageStudio</span>
+              <span className="font-serif text-lg font-semibold text-white group-hover:text-yellow-500 transition-colors">ImageStudio</span>
             </Link>
             <p className="text-sm text-zinc-500 leading-relaxed">{t('footer.tagline')}</p>
           </div>

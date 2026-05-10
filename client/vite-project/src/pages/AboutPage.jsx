@@ -29,10 +29,10 @@ const AboutPage = () => {
         <div className="max-w-4xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
               About Us
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{t('about.title')}</h1>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-6">{t('about.title')}</h1>
             <p className="text-zinc-400 text-lg max-w-2xl mx-auto leading-relaxed">
               {t('about.description')}
             </p>
