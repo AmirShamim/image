@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import PageShell from '../components/PageShell';
 import SEO from '../components/SEO';
 import { Zap, Target, Package, Lock, Briefcase, Paintbrush, BookOpen } from 'lucide-react';
 
@@ -108,24 +107,16 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <PageShell>
       <SEO
         title={t('seo.home.title')}
         description={t('seo.home.description')}
         keywords="image upscaler, AI upscale, image resizer, photo enlarger, increase resolution, free image tools"
         path="/"
       />
-      <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 gradient-bg" />
-        <div className="absolute inset-0 grid-pattern opacity-30" />
-
-        {/* Floating orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-500/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '1s' }} />
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           {/* Badge */}
@@ -174,59 +165,11 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Tools Section */}
-      <section className="py-24 px-4 relative">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
-              Powerful Tools
-            </span>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">{t('home.tools.title')}</h2>
-            <p className="text-zinc-400 max-w-lg mx-auto text-lg">{t('tools.subtitle')}</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tools.map((tool) => (
-              <Link
-                key={tool.id}
-                to={tool.path}
-                className={`group relative liquid-card p-6 block ${!tool.available ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
-              >
-                {!tool.available && (
-                  <span className="absolute top-4 right-4 px-2 py-1 text-xs font-medium rounded-md bg-zinc-800 text-zinc-500">
-                    {t('tools.comingSoon')}
-                  </span>
-                )}
-
-                <div className="w-14 h-14 rounded-full border border-yellow-500/30 bg-black/40 p-3.5 mb-5 group-hover:border-yellow-500 transition-colors">
-                  <div className="w-full h-full text-yellow-500">
-                    {tool.icon}
-                  </div>
-                </div>
-
-                <h3 className="font-serif text-xl font-semibold text-white mb-2">{tool.title}</h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">{tool.description}</p>
-
-                {tool.available && (
-                  <div className="mt-4 flex items-center gap-1 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    Try now
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
-      <section className="py-24 px-4 bg-dark-800/50">
+      <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Why Choose Us
             </span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">{t('home.features.title')}</h2>
@@ -239,8 +182,8 @@ const HomePage = () => {
                 className="liquid-panel p-6 text-center"
               >
                 <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-full border border-yellow-500/30 flex items-center justify-center bg-black/40">
-                    {React.cloneElement(feature.icon, { className: 'w-7 h-7 text-yellow-500' })}
+                  <div className="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center bg-black/40">
+                    {React.cloneElement(feature.icon, { className: 'w-7 h-7 text-primary' })}
                   </div>
                 </div>
                 <h3 className="font-serif text-xl font-semibold text-white mb-3">{feature.title}</h3>
@@ -255,7 +198,7 @@ const HomePage = () => {
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Use Cases
             </span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">Built for Everyone</h2>
@@ -273,13 +216,13 @@ const HomePage = () => {
                 className="relative liquid-card p-8 text-center"
               >
                 {useCase.featured && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-yellow-300 to-yellow-600 text-black text-xs font-bold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-teal-300 to-teal-500 text-black text-xs font-bold rounded-full shadow-[0_0_15px_rgba(0,212,170,0.4)]">
                     Most Popular
                   </span>
                 )}
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full border border-yellow-500/30 flex items-center justify-center bg-black/40">
-                    {React.cloneElement(useCase.icon, { className: 'w-10 h-10 text-zinc-300 group-hover:text-yellow-500 transition-colors' })}
+                  <div className="w-20 h-20 rounded-full border border-primary/30 flex items-center justify-center bg-black/40">
+                    {React.cloneElement(useCase.icon, { className: 'w-10 h-10 text-zinc-300 group-hover:text-primary transition-colors' })}
                   </div>
                 </div>
                 <h3 className="font-serif text-2xl font-bold text-white mb-4">{useCase.title}</h3>
@@ -300,7 +243,7 @@ const HomePage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-24 px-4 bg-dark-800/50">
+      <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
@@ -320,9 +263,6 @@ const HomePage = () => {
 
       {/* CTA Section */}
       <section className="py-32 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] animate-pulse-slow" />
-        </div>
 
         <div className="relative z-10 max-w-2xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-4">Ready to Enhance Your Images?</h2>
@@ -348,8 +288,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <Footer />
-    </div>
+    </PageShell>
   );
 };
 

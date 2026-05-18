@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+﻿import React, { useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
 import JSZip from 'jszip';
 import { useTranslation } from 'react-i18next';
@@ -562,12 +562,12 @@ const UpscalePage = () => {
               <div>
                 <h4 className="text-white font-medium text-sm">{toastMessage.title}</h4>
                 <p className="text-zinc-400 text-xs mt-1">{toastMessage.description}</p>
-                <div className="mt-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg p-3">
-                  <div className="flex items-center gap-2 text-amber-500 font-medium text-xs mb-1">
+                <div className="mt-3 bg-gradient-to-r from-primary/10 to-teal-600/10 border border-primary/20 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-primary font-medium text-xs mb-1">
                     <Crown className="w-3 h-3" /> Go Pro
                   </div>
                   <p className="text-zinc-300 text-xs">{toastMessage.upsell}</p>
-                  <a href="/pricing" className="block text-amber-500 hover:text-amber-400 text-xs font-medium mt-2">
+                  <a href="/pricing" className="block text-primary hover:text-primary/80 text-xs font-medium mt-2">
                     View Plans &rarr;
                   </a>
                 </div>
@@ -948,7 +948,7 @@ const UpscalePage = () => {
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       item.status === 'done' ? 'bg-green-500/20 text-green-400' :
                       item.status === 'error' ? 'bg-red-500/20 text-red-400' :
-                      item.status === 'processing' ? 'bg-yellow-500/20 text-yellow-400' :
+                      item.status === 'processing' ? 'bg-primary/20 text-primary' :
                       'bg-white/10 text-zinc-400'
                     }`}>{item.status}</span>
                     {item.status === 'done' && item.resultUrl && (

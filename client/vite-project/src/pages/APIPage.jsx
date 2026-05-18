@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { Zap, Key, BarChart3 } from 'lucide-react';
+import PageShell from '../components/PageShell';
 
 const APIPage = () => {
   const { t } = useTranslation();
@@ -51,14 +50,12 @@ result = response.json()`
   ];
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <PageShell>
       <SEO
         title="API Documentation | ImageStudio"
         description="Integrate ImageStudio's powerful image processing capabilities into your applications with our REST API."
         path="/api"
       />
-      <Header />
-
       <main className="pt-24 pb-20">
         <div className="max-w-5xl mx-auto px-4">
           {/* Header */}
@@ -149,10 +146,7 @@ result = response.json()`
             </Link>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </PageShell>
   );
 };
 

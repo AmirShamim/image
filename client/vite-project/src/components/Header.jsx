@@ -47,7 +47,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-dark-900/80 backdrop-blur-xl border-b border-white/[0.06]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-dark-900/80 backdrop-blur-sm border-b border-white/[0.06]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -65,20 +65,20 @@ const Header = () => {
                   </defs>
                 </svg>
               </div>
-              <span className="font-serif text-xl font-bold text-white group-hover:text-yellow-500 transition-colors">
+              <span className="font-serif text-xl font-bold text-white group-hover:text-primary transition-colors">
                 ImageStudio
               </span>
             </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center">
-              <div className="flex items-center gap-1 bg-black/40 rounded-full p-1 border border-yellow-500/20">
+              <div className="flex items-center gap-1 bg-black/40 rounded-full p-1 border border-primary/20">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
                     className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ${isActive(link.path)
-                      ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/30'
+                      ? 'bg-primary/10 text-primary border border-primary/30'
                       : 'text-zinc-400 hover:text-white hover:bg-white/[0.05] border border-transparent'
                       }`}
                   >
@@ -96,11 +96,11 @@ const Header = () => {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/[0.06] border border-transparent hover:border-yellow-500/30 transition-colors"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/[0.06] border border-transparent hover:border-primary/30 transition-colors"
                     aria-haspopup="menu"
                     aria-expanded={userDropdownOpen}
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 flex items-center justify-center text-sm font-semibold text-black overflow-hidden border border-yellow-300/30">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-teal-700 flex items-center justify-center text-sm font-semibold text-black overflow-hidden border border-primary/30">
                       {user.profile_picture ? (
                         <img src={user.profile_picture} alt="" className="w-full h-full rounded-full object-cover" />
                       ) : (
@@ -124,17 +124,22 @@ const Header = () => {
 
                   {userDropdownOpen && (
                     <div
-                      className="absolute right-0 mt-2 w-64 liquid-card p-2 origin-top-right"
+                      className="absolute right-0 mt-2 w-64 p-2 origin-top-right z-50 animate-in fade-in slide-in-from-top-2 rounded-2xl overflow-hidden border border-white/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,212,170,0.06)]"
+                      style={{
+                        background: 'rgba(10, 10, 15, 0.5)',
+                        backdropFilter: 'blur(50px) saturate(1.4)',
+                        WebkitBackdropFilter: 'blur(50px) saturate(1.4)',
+                      }}
                       role="menu"
                     >
                       <div className="px-3 py-2 border-b border-white/[0.06]">
                         <p className="text-sm font-medium text-white flex items-center gap-1">
                           {user.username || 'User'}
-                          {user.role === 'admin' && <Crown className="w-4 h-4 text-yellow-500 ml-1" title="Admin" />}
+                          {user.role === 'admin' && <Crown className="w-4 h-4 text-primary ml-1" title="Admin" />}
                         </p>
                         <p className="text-xs text-zinc-500 truncate">{user.email}</p>
-                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-yellow-500/15 text-yellow-500 border border-yellow-500/30">
-                          <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-primary/15 text-primary border border-primary/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {user.role === 'admin' ? 'Admin' : `${user.subscription_tier || 'Free'} Plan`}
                         </span>
                       </div>

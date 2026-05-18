@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -46,7 +46,7 @@ const Footer = () => {
                   </defs>
                 </svg>
               </div>
-              <span className="font-serif text-lg font-semibold text-white group-hover:text-yellow-500 transition-colors">ImageStudio</span>
+              <span className="font-serif text-lg font-semibold text-white group-hover:text-primary transition-colors">ImageStudio</span>
             </Link>
             <p className="text-sm text-zinc-500 leading-relaxed">{t('footer.tagline')}</p>
           </div>

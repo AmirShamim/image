@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, getImageHistory, deleteHistoryImage } from '../services/auth';
 import { Crown, Search, Ruler, Upload, X, Trash2, Download } from 'lucide-react';
@@ -255,7 +255,7 @@ const UserProfile = ({ isOpen, onClose }) => {
         <div className="border-b border-white/10 pr-14 pb-4 px-6 shrink-0">
           <div className="relative w-[92px] mx-auto mb-3.5">
             <div
-              className={`w-[92px] h-[92px] rounded-[22px] border border-yellow-500/30 shadow-[0_12px_30px_rgba(0,0,0,0.45)] grid place-items-center font-bold text-3xl cursor-pointer overflow-hidden relative bg-black/40 group ${uploadingPicture ? 'opacity-70' : ''}`}
+              className={`w-[92px] h-[92px] rounded-[22px] border border-primary/30 shadow-[0_12px_30px_rgba(0,0,0,0.45)] grid place-items-center font-bold text-3xl cursor-pointer overflow-hidden relative bg-black/40 group ${uploadingPicture ? 'opacity-70' : ''}`}
               onClick={handleProfilePictureClick}
               title="Click to change profile picture"
             >
@@ -266,14 +266,14 @@ const UserProfile = ({ isOpen, onClose }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-yellow-500">{user?.username?.[0]?.toUpperCase() || 'U'}</span>
+                <span className="text-primary">{user?.username?.[0]?.toUpperCase() || 'U'}</span>
               )}
               <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center text-white">
                 <Upload className="w-6 h-6" />
               </div>
               {uploadingPicture && (
                 <div className="absolute inset-0 grid place-items-center bg-black/50">
-                  <div className="w-6 h-6 border-2 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin"></div>
+                  <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                 </div>
               )}
             </div>
@@ -308,19 +308,19 @@ const UserProfile = ({ isOpen, onClose }) => {
 
         <div className="sticky top-0 z-10 bg-[var(--bg-dark-base)]/80 backdrop-blur-md border-b border-white/10 flex gap-2 p-4">
           <button
-            className={`flex-1 h-10 rounded-xl border text-[13px] font-semibold transition-all ${activeSection === 'profile' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500 shadow-[inset_0_0_0_1px_rgba(212,175,55,0.1)]' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
+            className={`flex-1 h-10 rounded-xl border text-[13px] font-semibold transition-all ${activeSection === 'profile' ? 'bg-primary/10 border-primary/30 text-primary shadow-[inset_0_0_0_1px_rgba(0,212,170,0.1)]' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
             onClick={() => { setActiveSection('profile'); setError(''); setSuccess(''); }}
           >
             Profile
           </button>
           <button
-            className={`flex-1 h-10 rounded-xl border text-[13px] font-semibold transition-all ${activeSection === 'security' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500 shadow-[inset_0_0_0_1px_rgba(212,175,55,0.1)]' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
+            className={`flex-1 h-10 rounded-xl border text-[13px] font-semibold transition-all ${activeSection === 'security' ? 'bg-primary/10 border-primary/30 text-primary shadow-[inset_0_0_0_1px_rgba(0,212,170,0.1)]' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
             onClick={() => { setActiveSection('security'); setError(''); setSuccess(''); }}
           >
             Security
           </button>
           <button
-            className={`flex-1 h-10 rounded-xl border text-[13px] font-semibold transition-all ${activeSection === 'history' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500 shadow-[inset_0_0_0_1px_rgba(212,175,55,0.1)]' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
+            className={`flex-1 h-10 rounded-xl border text-[13px] font-semibold transition-all ${activeSection === 'history' ? 'bg-primary/10 border-primary/30 text-primary shadow-[inset_0_0_0_1px_rgba(0,212,170,0.1)]' : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'}`}
             onClick={() => { setActiveSection('history'); setError(''); setSuccess(''); }}
           >
             History
@@ -340,7 +340,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                   id="profile-email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-yellow-500/50 focus:bg-white/10 outline-none transition-all"
+                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-primary/50 focus:bg-white/10 outline-none transition-all"
                   required
                 />
               </div>
@@ -351,7 +351,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                   id="profile-username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-yellow-500/50 focus:bg-white/10 outline-none transition-all"
+                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-primary/50 focus:bg-white/10 outline-none transition-all"
                   required
                   pattern="[a-zA-Z0-9_]{3,30}"
                 />
@@ -373,7 +373,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                     id="current-password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-yellow-500/50 focus:bg-white/10 outline-none transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-primary/50 focus:bg-white/10 outline-none transition-all"
                     required
                   />
                 </div>
@@ -384,7 +384,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                     id="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-yellow-500/50 focus:bg-white/10 outline-none transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-primary/50 focus:bg-white/10 outline-none transition-all"
                     required
                     minLength={6}
                   />
@@ -396,7 +396,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                     id="confirm-new-password"
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-yellow-500/50 focus:bg-white/10 outline-none transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 focus:border-primary/50 focus:bg-white/10 outline-none transition-all"
                     required
                   />
                 </div>
@@ -457,7 +457,7 @@ const UserProfile = ({ isOpen, onClose }) => {
                             <img src={image.cloud_url} alt={image.original_filename} className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-500/20 to-yellow-700/20 text-yellow-500 border border-yellow-500/30">
+                          <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary/20 to-teal-700/20 text-primary border border-primary/30">
                             {image.operation === 'upscale' ? <Search className="w-5 h-5" /> : <Ruler className="w-5 h-5" />}
                           </div>
                         )}

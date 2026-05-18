@@ -1,9 +1,8 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import PageShell from '../components/PageShell';
 
 const ToolsPage = () => {
   const { t } = useTranslation();
@@ -108,20 +107,18 @@ const ToolsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <PageShell>
       <SEO
         title="Free Image Tools - AI Upscaler, Resizer & More | ImageStudio"
         description="Explore our free image tools: AI-powered upscaler, smart resizer, batch processor. No signup required."
         keywords="free image tools, online image editor, AI image tools, batch image processing"
         path="/tools"
       />
-      <Header />
-
       <main className="pt-24 pb-20">
         <div className="max-w-6xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-medium mb-4 tracking-wide uppercase">
               All Tools
             </span>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">{t('tools.title')}</h1>
@@ -147,8 +144,8 @@ const ToolsPage = () => {
                   </span>
                 )}
 
-                <div className="w-12 h-12 rounded-xl border border-yellow-500/30 bg-black/40 p-2.5 mb-4 group-hover:border-yellow-500 transition-colors group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]">
-                  <div className="w-full h-full text-yellow-500">
+                <div className="w-12 h-12 rounded-xl border border-primary/30 bg-black/40 p-2.5 mb-4 group-hover:border-primary transition-colors group-hover:shadow-[0_0_20px_rgba(0,212,170,0.15)]">
+                  <div className="w-full h-full text-primary">
                     {tool.icon}
                   </div>
                 </div>
@@ -168,10 +165,7 @@ const ToolsPage = () => {
             ))}
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </PageShell>
   );
 };
 

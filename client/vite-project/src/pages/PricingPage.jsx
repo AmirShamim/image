@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
+import PageShell from '../components/PageShell';
 
 const PricingPage = () => {
   const { t } = useTranslation();
@@ -39,20 +38,18 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <PageShell>
       <SEO
         title="Pricing - Free & Pro Plans | ImageStudio"
         description="Choose the perfect plan for your needs. Free tier with 5 upscales/day or Pro with unlimited access starting at $9/month."
         keywords="image upscaler pricing, pro image tools, premium upscaling, AI image pricing"
         path="/pricing"
       />
-      <Header />
-
       <main className="pt-24 pb-20">
         <div className="max-w-5xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-medium mb-4 tracking-wide uppercase">
               Pricing Plans
             </span>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">{t('pricing.title')}</h1>
@@ -138,10 +135,7 @@ const PricingPage = () => {
             ))}
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </PageShell>
   );
 };
 

@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { Mail, MessageCircle, MapPin } from 'lucide-react';
+import PageShell from '../components/PageShell';
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -28,14 +27,12 @@ const ContactPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <PageShell>
       <SEO
         title="Contact Us | ImageStudio"
         description="Get in touch with our team. We're here to help with any questions about ImageStudio."
         path="/contact"
       />
-      <Header />
-
       <main className="pt-24 pb-20">
         <div className="max-w-5xl mx-auto px-4">
           {/* Header */}
@@ -136,10 +133,7 @@ const ContactPage = () => {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </PageShell>
   );
 };
 

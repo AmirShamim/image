@@ -1,10 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { Zap, Lock, Target, Globe } from 'lucide-react';
+import PageShell from '../components/PageShell';
 
 const AboutPage = () => {
   const { t } = useTranslation();
@@ -17,19 +16,17 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <PageShell>
       <SEO
         title="About ImageStudio - AI Image Processing"
         description="Learn about ImageStudio, our mission, and how we're making professional image tools accessible to everyone."
         path="/about"
       />
-      <Header />
-
       <main className="pt-24 pb-20">
         <div className="max-w-4xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-sm font-medium mb-4 tracking-wide uppercase">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-medium mb-4 tracking-wide uppercase">
               About Us
             </span>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-6">{t('about.title')}</h1>
@@ -78,10 +75,7 @@ const AboutPage = () => {
             </Link>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </PageShell>
   );
 };
 
