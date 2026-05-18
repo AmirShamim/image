@@ -1,0 +1,184 @@
+================================================================================
+  MERMAID DIAGRAM CODE — Copy-paste into https://mermaid.live
+  Export: Click Actions > PNG (use white background for print)
+================================================================================
+
+
+================================================================================
+  FIG 5.2 — Real-ESRGAN Second-Order Degradation Pipeline
+================================================================================
+
+flowchart LR
+    GT["Ground Truth\nHR Image"]
+
+    subgraph D1["First-Order Degradation"]
+        direction LR
+        B1["Blur\n(Gaussian / Sinc)"]
+        N1["Noise\n(Gaussian / Poisson)"]
+        R1["Resize\n(Bilinear / Bicubic / Area)"]
+        J1["JPEG Compression\n(Random QF 30-95)"]
+        B1 --> N1 --> R1 --> J1
+    end
+
+    subgraph D2["Second-Order Degradation"]
+        direction LR
+        B2["Blur\n(Gaussian / Sinc)"]
+        N2["Noise\n(Gaussian / Poisson)"]
+        R2["Resize\n(Bilinear / Bicubic / Area)"]
+        J2["JPEG Compression\n(Random QF 30-95)"]
+        B2 --> N2 --> R2 --> J2
+    end
+
+    LR["Degraded LR\nTraining Input"]
+
+    GT --> D1 --> D2 --> LR
+
+    style GT fill:#4CAF50,stroke:#2E7D32,color:#fff
+    style LR fill:#f44336,stroke:#c62828,color:#fff
+    style D1 fill:#E3F2FD,stroke:#1565C0
+    style D2 fill:#FFF3E0,stroke:#E65100
+    style B1 fill:#42A5F5,stroke:#1565C0,color:#fff
+    style N1 fill:#FF7043,stroke:#D84315,color:#fff
+    style R1 fill:#66BB6A,stroke:#2E7D32,color:#fff
+    style J1 fill:#EF5350,stroke:#C62828,color:#fff
+    style B2 fill:#42A5F5,stroke:#1565C0,color:#fff
+    style N2 fill:#FF7043,stroke:#D84315,color:#fff
+    style R2 fill:#66BB6A,stroke:#2E7D32,color:#fff
+    style J2 fill:#EF5350,stroke:#C62828,color:#fff
+
+
+================================================================================
+  FIG 7.1 — Context Level DFD (Level 0)
+================================================================================
+
+flowchart TB
+    User(["End User"])
+    Modal(["Modal GPU Cluster"])
+    Cloud(["Cloudinary CDN"])
+    DB(["Neon PostgreSQL"])
+
+    System(("Upscale Pro\nSystem"))
+
+    User -- "Image Upload\nCredentials\nSubscription Selection" --> System
+    System -- "Upscaled Image URL\nJWT Token\nProcessing Status" --> User
+
+    System -- "Base64 Image Payload\nModel Selection\nScale Factor" --> Modal
+    Modal -- "Cloudinary Asset URL\nProcessing Metadata" --> System
+
+    System -- "Upload API Credentials" --> Cloud
+    Cloud -- "CDN Image URL" --> System
+    Modal -- "Direct Binary Upload" --> Cloud
+
+    System <-- "Read/Write:\nUser Profiles\nSubscriptions\nProcessing Logs\nSessions" --> DB
+
+    style System fill:#1565C0,stroke:#0D47A1,color:#fff,stroke-width:3px
+    style User fill:#4CAF50,stroke:#2E7D32,color:#fff
+    style Modal fill:#FF9800,stroke:#E65100,color:#fff
+    style Cloud fill:#9C27B0,stroke:#6A1B9A,color:#fff
+    style DB fill:#F44336,stroke:#C62828,color:#fff
+
+
+================================================================================
+  FIG 7.2 — Level 1 Data Flow Diagram
+================================================================================
+
+flowchart TB
+    User(["End User"])
+    Modal(["Modal GPU"])
+    Cloud(["Cloudinary"])
+
+    P1(("P1\nAuthentication\nModule"))
+    P2(("P2\nUpload\nValidation"))
+    P3(("P3\nGPU\nDispatch"))
+    P4(("P4\nResult\nDelivery"))
+    P5(("P5\nAnalytics\nModule"))
+
+    D1[("D1: Users")]
+    D2[("D2: Subscriptions")]
+    D3[("D3: Processing Logs")]
+
+    User -- "Registration Credentials\nLogin Request" --> P1
+    P1 -- "JWT Token\nAuth Response" --> User
+    P1 <--> D1
+
+    User -- "Image File\nModel and Scale Selection" --> P2
+    P2 <--> D2
+    P2 -- "Validated Base64 Payload" --> P3
+
+    P3 -- "HTTP POST:\nImage + Model Config" --> Modal
+    Modal -- "Cloudinary URL" --> P3
+    Modal -- "Direct Upload" --> Cloud
+
+    P3 -- "Processing Result" --> P4
+    P4 --> D3
+    P4 -- "Upscaled Image URL\nMetadata" --> User
+
+    D3 --> P5
+    P5 -- "Usage Charts\nLatency Stats" --> User
+
+    style P1 fill:#1565C0,stroke:#0D47A1,color:#fff
+    style P2 fill:#2E7D32,stroke:#1B5E20,color:#fff
+    style P3 fill:#E65100,stroke:#BF360C,color:#fff
+    style P4 fill:#6A1B9A,stroke:#4A148C,color:#fff
+    style P5 fill:#00838F,stroke:#006064,color:#fff
+    style D1 fill:#E8EAF6,stroke:#3F51B5
+    style D2 fill:#E8F5E9,stroke:#4CAF50
+    style D3 fill:#FFF3E0,stroke:#FF9800
+    style User fill:#4CAF50,stroke:#2E7D32,color:#fff
+    style Modal fill:#FF9800,stroke:#E65100,color:#fff
+    style Cloud fill:#9C27B0,stroke:#6A1B9A,color:#fff
+
+
+================================================================================
+  FIG 7.3 — Entity Relationship Diagram
+================================================================================
+
+erDiagram
+    USERS {
+        int user_id PK
+        varchar username
+        varchar email UK
+        varchar password_hash
+        boolean is_verified
+        varchar profile_picture_url
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    SUBSCRIPTIONS {
+        int subscription_id PK
+        int user_id FK
+        enum tier "free | pro | business"
+        int daily_quota
+        int max_input_px
+        timestamp started_at
+        timestamp expires_at
+    }
+
+    PROCESSING_LOGS {
+        int log_id PK
+        int user_id FK
+        varchar model_type
+        int scale_factor
+        int input_width
+        int input_height
+        int output_width
+        int output_height
+        int processing_time_ms
+        varchar cloudinary_url
+        timestamp created_at
+    }
+
+    SESSIONS {
+        int session_id PK
+        int user_id FK
+        varchar jwt_token_hash
+        varchar ip_address
+        varchar user_agent
+        timestamp created_at
+        timestamp expires_at
+    }
+
+    USERS ||--|| SUBSCRIPTIONS : "has active"
+    USERS ||--o{ PROCESSING_LOGS : "generates"
+    USERS ||--o{ SESSIONS : "maintains"

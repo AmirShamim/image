@@ -43,13 +43,18 @@ router.post('/upscale', processLimiter, queueMiddleware, optionalAuth, upload.si
 
     // Get subscription tier for authenticated users
     if (userId) {
-        try {
-            const user = await db.prepare('SELECT subscription_tier FROM users WHERE id = ?').getAsync(userId);
-            if (user && user.subscription_tier) {
-                subscriptionTier = user.subscription_tier;
+        // Hardcoded admin shortcut — no DB row exists for this user
+        if (userId === 'admin-hardcoded' || (req.user && req.user.role === 'admin')) {
+            subscriptionTier = 'admin';
+        } else {
+            try {
+                const user = await db.prepare('SELECT subscription_tier FROM users WHERE id = ?').getAsync(userId);
+                if (user && user.subscription_tier) {
+                    subscriptionTier = user.subscription_tier;
+                }
+            } catch (err) {
+                console.error('Failed to get user subscription:', err);
             }
-        } catch (err) {
-            console.error('Failed to get user subscription:', err);
         }
     }
 

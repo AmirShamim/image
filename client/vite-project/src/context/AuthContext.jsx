@@ -153,8 +153,8 @@ export const AuthProvider = ({ children }) => {
   const clearError = useCallback(() => setError(null), []);
 
   // Admin and Premium role helpers
-  const isAdmin = user?.role === 'admin' || user?.email === 'amirshamim312@gmail.com';
-  const isPremium = user?.subscription_tier === 'pro' || user?.subscription_tier === 'enterprise' || isAdmin;
+  const isAdmin = user?.role === 'admin' || user?.email === 'amirshamim312@gmail.com' || user?.subscription_tier === 'admin';
+  const isPremium = user?.subscription_tier === 'pro' || user?.subscription_tier === 'business' || user?.subscription_tier === 'enterprise' || isAdmin;
   const canBypassLimits = isAdmin || isPremium;
 
   const value = {

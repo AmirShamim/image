@@ -1,5 +1,6 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
+import JSZip from 'jszip';
 import { useTranslation } from 'react-i18next';
 import SEO from '../components/SEO';
 import ImageComparison from '../components/ImageComparison';
@@ -8,7 +9,7 @@ import { getGuestUsage } from '../services/auth';
 import { getOrCreateFingerprint } from '../utils/fingerprint';
 import PageShell from '../components/PageShell';
 import PageHero from '../components/PageHero';
-import { AlertTriangle, Paintbrush, Wand2, ArrowLeftRight, SplitSquareHorizontal, Brain, Clock, Download, Trash2, Crown } from 'lucide-react';
+import { AlertTriangle, Paintbrush, Wand2, ArrowLeftRight, SplitSquareHorizontal, Brain, Clock, Download, Trash2, Crown, Package, Check, XCircle, Archive, Cloud } from 'lucide-react';
 import { saveImageToHistory, getHistoryImages, deleteImageFromHistory, clearOldHistory } from '../utils/indexedDB';
 
 // In production, bypass Vercel proxy by using absolute URL
@@ -23,7 +24,7 @@ api.interceptors.request.use((config) => {
 
 const UpscalePage = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, isAdmin, isPremium } = useAuth();
 
   // File state
   const [file, setFile] = useState(null);
@@ -51,6 +52,35 @@ const UpscalePage = () => {
   // Session History
   const [sessionHistory, setSessionHistory] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
+  // Keep object URLs alive for history items (keyed by item.id)
+  const historyUrlsRef = useRef({});
+
+  // Batch upscaling state (Pro/Business/Admin)
+  const [batchFiles, setBatchFiles] = useState([]);
+  const [batchScale, setBatchScale] = useState('2x');
+  const [batchModelType, setBatchModelType] = useState('realesrgan-anime');
+  const [batchProcessing, setBatchProcessing] = useState(false);
+  const [batchDragActive, setBatchDragActive] = useState(false);
+  const batchFileInputRef = useRef(null);
+  const canUseBatch = isAdmin || isPremium || user?.subscription_tier === 'business';
+
+  // Persistent batch history (stored in localStorage, URLs are Cloudinary so they persist)
+  const [batchHistory, setBatchHistory] = useState([]);
+  const [showBatchHistory, setShowBatchHistory] = useState(false);
+
+  // Load batch history on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('batch_upscale_history');
+      if (saved) setBatchHistory(JSON.parse(saved));
+    } catch (e) { /* ignore parse errors */ }
+  }, []);
+
+  // Persist batch history on change
+  const saveBatchHistory = (history) => {
+    setBatchHistory(history);
+    try { localStorage.setItem('batch_upscale_history', JSON.stringify(history)); } catch (e) {}
+  };
 
   // Clear old history on mount
   useEffect(() => {
@@ -310,12 +340,24 @@ const UpscalePage = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!resultImage) return;
-    const link = document.createElement('a');
-    link.href = resultImage;
-    link.download = `upscaled_${modelType}_${scale}_${file?.name || 'image.jpg'}`;
-    link.click();
+    try {
+      const response = await fetch(resultImage);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `upscaled_${modelType}_${scale}_${file?.name || 'image.png'}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    } catch (err) {
+      console.error('Download failed:', err);
+      // Fallback: open in new tab
+      window.open(resultImage, '_blank');
+    }
   };
 
   const resetAll = () => {
@@ -326,22 +368,153 @@ const UpscalePage = () => {
     setOriginalDimensions({ width: 0, height: 0 });
   };
 
-  const handleDownloadHistoryImage = (blob, imgScale, imgModelType) => {
-    const url = URL.createObjectURL(blob);
+  const handleDownloadHistoryImage = async (blob, imgScale, imgModelType) => {
+    const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = url;
+    link.href = blobUrl;
     link.download = `upscaled_${imgModelType}_${imgScale}_${Date.now()}.png`;
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
   };
 
   const handleDeleteHistoryImage = async (id) => {
     try {
+      // Clean up cached URL for this item
+      if (historyUrlsRef.current[id]) {
+        URL.revokeObjectURL(historyUrlsRef.current[id]);
+        delete historyUrlsRef.current[id];
+      }
       await deleteImageFromHistory(id);
       setSessionHistory(prev => prev.filter(item => item.id !== id));
     } catch (err) {
       console.error('Failed to delete history image:', err);
     }
+  };
+
+  // Batch upscaling handlers
+  const handleBatchFiles = (files) => {
+    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    const newItems = imageFiles.map(f => ({
+      id: Date.now() + Math.random().toString(36).substr(2, 9),
+      file: f,
+      name: f.name,
+      preview: URL.createObjectURL(f),
+      status: 'pending',
+      resultUrl: null,
+      error: null
+    }));
+    setBatchFiles(prev => [...prev, ...newItems]);
+  };
+
+  const processBatch = async () => {
+    if (!batchFiles.length || batchProcessing) return;
+    setBatchProcessing(true);
+    const newHistoryItems = [];
+    for (const item of batchFiles) {
+      if (item.status === 'done') continue;
+      setBatchFiles(prev => prev.map(i => i.id === item.id ? { ...i, status: 'processing' } : i));
+      try {
+        const formData = new FormData();
+        formData.append('image', item.file);
+        formData.append('scale', batchScale);
+        formData.append('modelType', batchModelType);
+        const response = await api.post('/api/upscale', formData);
+        const cloudUrl = response.data.url;
+        setBatchFiles(prev => prev.map(i =>
+          i.id === item.id ? { ...i, status: 'done', resultUrl: cloudUrl } : i
+        ));
+        // Save to persistent batch history (Cloudinary URL persists)
+        newHistoryItems.push({
+          id: item.id,
+          name: item.name,
+          cloudUrl,
+          scale: batchScale,
+          modelType: batchModelType,
+          timestamp: Date.now()
+        });
+      } catch (err) {
+        setBatchFiles(prev => prev.map(i =>
+          i.id === item.id ? { ...i, status: 'error', error: err.response?.data?.error || 'Failed' } : i
+        ));
+      }
+    }
+    // Persist new results to batch history
+    if (newHistoryItems.length > 0) {
+      saveBatchHistory([...newHistoryItems, ...batchHistory]);
+    }
+    setBatchProcessing(false);
+  };
+
+  const downloadBatchItem = async (url, name) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `upscaled_${batchScale}_${name}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    } catch (e) {
+      window.open(url, '_blank');
+    }
+  };
+
+  const downloadAllAsZip = async () => {
+    const doneFiles = batchFiles.filter(i => i.status === 'done' && i.resultUrl);
+    if (!doneFiles.length) return;
+    const zip = new JSZip();
+    for (const item of doneFiles) {
+      try {
+        const res = await fetch(item.resultUrl);
+        const blob = await res.blob();
+        const ext = item.resultUrl.match(/\.(png|jpg|jpeg|webp)/i)?.[1] || 'png';
+        const baseName = item.name.replace(/\.[^/.]+$/, '');
+        zip.file(`${baseName}_upscaled_${batchScale}.${ext}`, blob);
+      } catch (e) {
+        console.error('Failed to fetch for zip:', item.name, e);
+      }
+    }
+    const content = await zip.generateAsync({ type: 'blob' });
+    const blobUrl = URL.createObjectURL(content);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `upscaled-batch-${batchModelType}-${batchScale}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+  };
+
+  const downloadHistoryItemsAsZip = async (items) => {
+    if (!items.length) return;
+    const zip = new JSZip();
+    const model = items[0]?.modelType || 'realesrgan';
+    const sc = items[0]?.scale || '2x';
+    for (const item of items) {
+      try {
+        const res = await fetch(item.cloudUrl);
+        const blob = await res.blob();
+        const ext = item.cloudUrl.match(/\.(png|jpg|jpeg|webp)/i)?.[1] || 'png';
+        const baseName = item.name.replace(/\.[^/.]+$/, '');
+        zip.file(`${baseName}_upscaled_${item.scale}.${ext}`, blob);
+      } catch (e) {
+        console.error('Failed to fetch for zip:', item.name, e);
+      }
+    }
+    const content = await zip.generateAsync({ type: 'blob' });
+    const blobUrl = URL.createObjectURL(content);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `upscaled-batch-${model}-${sc}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
   };
 
   const getResultDimensions = () => {
@@ -681,10 +854,14 @@ const UpscalePage = () => {
             
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {sessionHistory.map((item) => {
-                const url = URL.createObjectURL(item.upscaledBlob);
+                // Keep URL alive in a ref so buttons can use it
+                if (!historyUrlsRef.current[item.id]) {
+                  historyUrlsRef.current[item.id] = URL.createObjectURL(item.upscaledBlob);
+                }
+                const url = historyUrlsRef.current[item.id];
                 return (
                   <div key={item.id} className="relative group rounded-xl overflow-hidden border border-white/5 bg-zinc-900/50 aspect-square">
-                    <img src={url} alt={`Upscaled ${item.scale}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" onLoad={() => URL.revokeObjectURL(url)} />
+                    <img src={url} alt={`Upscaled ${item.scale}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                     
                     <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md rounded px-2 py-1 text-[10px] font-mono text-primary font-bold border border-primary/20">
                       {item.scale}
@@ -696,6 +873,7 @@ const UpscalePage = () => {
                           onClick={() => handleDownloadHistoryImage(item.upscaledBlob, item.scale, item.modelType)}
                           className="p-2 bg-primary/20 hover:bg-primary/40 text-primary rounded-lg transition-colors"
                           title="Download"
+                          type="button"
                         >
                           <Download className="w-4 h-4" />
                         </button>
@@ -703,6 +881,7 @@ const UpscalePage = () => {
                           onClick={() => handleDeleteHistoryImage(item.id)}
                           className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-colors"
                           title="Delete"
+                          type="button"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -712,6 +891,153 @@ const UpscalePage = () => {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Batch Upscaling Section — Pro / Business / Admin only */}
+        {canUseBatch && (
+          <div className="mt-12 bg-black/20 border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-white font-semibold flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary" /> Batch AI Upscaling
+                  <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 uppercase font-bold">
+                    {isAdmin ? 'Admin' : 'Pro'}
+                  </span>
+                </h3>
+                <p className="text-sm text-zinc-400 mt-1">Upload multiple images and upscale them all at once.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <select value={batchScale} onChange={e => setBatchScale(e.target.value)}
+                  className="bg-white/5 border border-white/10 text-white text-sm rounded-lg px-2 py-1.5 outline-none">
+                  <option value="2x">2x</option>
+                  <option value="4x">4x</option>
+                </select>
+                <select value={batchModelType} onChange={e => setBatchModelType(e.target.value)}
+                  className="bg-white/5 border border-white/10 text-white text-sm rounded-lg px-2 py-1.5 outline-none">
+                  <option value="realesrgan-anime">Anime</option>
+                  <option value="realesrgan">Pro</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Drop zone */}
+            <div
+              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                batchDragActive ? 'border-primary/60 bg-primary/5' : 'border-white/20 hover:border-white/40'
+              }`}
+              onDragEnter={e => { e.preventDefault(); setBatchDragActive(true); }}
+              onDragLeave={e => { e.preventDefault(); setBatchDragActive(false); }}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); setBatchDragActive(false); handleBatchFiles(e.dataTransfer.files); }}
+              onClick={() => batchFileInputRef.current?.click()}
+            >
+              <Package className="w-8 h-8 text-zinc-500 mx-auto mb-2" />
+              <p className="text-zinc-400 text-sm">Drop multiple images here or click to browse</p>
+              <input ref={batchFileInputRef} type="file" accept="image/*" multiple hidden
+                onChange={e => handleBatchFiles(e.target.files)} />
+            </div>
+
+            {/* Batch file list */}
+            {batchFiles.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {batchFiles.map(item => (
+                  <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                    <img src={item.preview} alt={item.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                    <span className="flex-1 text-sm text-white truncate">{item.name}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      item.status === 'done' ? 'bg-green-500/20 text-green-400' :
+                      item.status === 'error' ? 'bg-red-500/20 text-red-400' :
+                      item.status === 'processing' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-white/10 text-zinc-400'
+                    }`}>{item.status}</span>
+                    {item.status === 'done' && item.resultUrl && (
+                      <button onClick={() => downloadBatchItem(item.resultUrl, item.name)}
+                        className="p-1.5 bg-primary/20 hover:bg-primary/40 text-primary rounded-lg transition-colors" type="button">
+                        <Download className="w-4 h-4" />
+                      </button>
+                    )}
+                    {item.status === 'processing' && (
+                      <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin flex-shrink-0" />
+                    )}
+                    <button onClick={() => setBatchFiles(prev => prev.filter(i => i.id !== item.id))}
+                      className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors flex-shrink-0" type="button">
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={processBatch}
+                    disabled={batchProcessing}
+                    className="accent-button flex-1 flex items-center justify-center gap-2"
+                    type="button"
+                  >
+                    {batchProcessing ? (
+                      <><span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" /> Processing…</>
+                    ) : (
+                      <><Package className="w-4 h-4" /> Upscale All ({batchFiles.filter(i => i.status !== 'done').length})</>
+                    )}
+                  </button>
+                  {batchFiles.some(i => i.status === 'done') && (
+                    <button onClick={downloadAllAsZip}
+                      className="glass-button text-white text-sm flex items-center gap-1.5" type="button">
+                      <Archive className="w-4 h-4" /> Download ZIP
+                    </button>
+                  )}
+                  <button onClick={() => setBatchFiles([])} className="glass-button text-white text-sm" type="button">Clear Queue</button>
+                </div>
+              </div>
+            )}
+
+            {/* Persistent Cloud Batch History */}
+            {batchHistory.length > 0 && (
+              <div className="mt-6 border-t border-white/10 pt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <button onClick={() => setShowBatchHistory(!showBatchHistory)}
+                    className="text-sm text-zinc-300 font-medium flex items-center gap-2 hover:text-white transition-colors" type="button">
+                    <Cloud className="w-4 h-4 text-primary" />
+                    Cloud Batch History ({batchHistory.length} images)
+                    <span className="text-zinc-500 text-xs">{showBatchHistory ? '▲' : '▼'}</span>
+                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => downloadHistoryItemsAsZip(batchHistory)}
+                      className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors" type="button">
+                      <Archive className="w-3.5 h-3.5" /> Download All ZIP
+                    </button>
+                    <button onClick={() => { saveBatchHistory([]); }}
+                      className="text-xs text-red-400 hover:text-red-300 transition-colors" type="button">
+                      Clear History
+                    </button>
+                  </div>
+                </div>
+                {showBatchHistory && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {batchHistory.map(item => (
+                      <div key={item.id} className="relative group rounded-xl overflow-hidden border border-white/5 bg-zinc-900/50 aspect-square">
+                        <img src={item.cloudUrl} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded px-2 py-0.5 text-[10px] font-mono text-primary font-bold border border-primary/20">
+                          {item.scale} • {item.modelType === 'realesrgan' ? 'Pro' : 'Anime'}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col justify-end p-3">
+                          <p className="text-[11px] text-zinc-300 truncate mb-2">{item.name}</p>
+                          <div className="flex gap-2 justify-center">
+                            <button onClick={() => downloadBatchItem(item.cloudUrl, item.name)}
+                              className="p-2 bg-primary/20 hover:bg-primary/40 text-primary rounded-lg transition-colors" type="button" title="Download">
+                              <Download className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => saveBatchHistory(batchHistory.filter(h => h.id !== item.id))}
+                              className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-colors" type="button" title="Remove">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

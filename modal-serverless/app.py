@@ -115,20 +115,20 @@ def upscale(request: dict):
         out_h, out_w = output_img.shape[:2]
         print(f"[Real-ESRGAN] Output: {out_w}x{out_h}")
 
-        # 6. Encode output to JPEG
+        # 6. Convert output to PIL
         output_rgb = cv2.cvtColor(output_img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(output_rgb)
 
-        buffered = BytesIO()
-        pil_img.save(buffered, format="JPEG", quality=90)
-        image_bytes = buffered.getvalue()
-
         # 7. Check if direct Cloudinary upload is requested
+        #    Use PNG (lossless) for cloud uploads to preserve 100% quality from the AI model.
         if cloudinary_config and all(k in cloudinary_config for k in ["cloud_name", "api_key", "api_secret"]):
-            print("[Real-ESRGAN] Cloudinary config detected. Uploading directly...")
-            temp_file = "/tmp/output.jpg"
+            print("[Real-ESRGAN] Cloudinary config detected. Uploading lossless PNG directly...")
+            buffered_png = BytesIO()
+            pil_img.save(buffered_png, format="PNG")
+            png_bytes = buffered_png.getvalue()
+            temp_file = "/tmp/output.png"
             with open(temp_file, "wb") as f:
-                f.write(image_bytes)
+                f.write(png_bytes)
                 
             cloudinary.config(
                 cloud_name=cloudinary_config["cloud_name"],
@@ -157,7 +157,11 @@ def upscale(request: dict):
                 "output_height": out_h
             }
 
-        # 8. Fallback returns (Binary or Base64)
+        # 8. Fallback returns (Binary or Base64) — use JPEG q=95 for speed
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG", quality=95)
+        image_bytes = buffered.getvalue()
+
         print(f"[Real-ESRGAN] Output size: {len(image_bytes) / 1024 / 1024:.1f}MB, format={response_format}")
 
         if response_format == "binary":

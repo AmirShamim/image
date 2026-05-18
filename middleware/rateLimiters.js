@@ -10,7 +10,8 @@ function isAdminRequest(req) {
         try {
             const token = authHeader.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-            return decoded.role === 'admin';
+            // Support role='admin' or hardcoded admin userId
+            return decoded.role === 'admin' || decoded.userId === 'admin-hardcoded';
         } catch (e) {
             return false;
         }

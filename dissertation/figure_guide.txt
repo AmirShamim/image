@@ -1,0 +1,389 @@
+================================================================================
+  UPSCALE PRO DISSERTATION — COMPLETE FIGURE GUIDE
+  What to insert for EVERY figure placeholder in your project file
+================================================================================
+
+
+================================================================================
+  FIG 5.1 — Original vs Real-ESRGAN Comparison
+  Location: Chapter 3 (Problem Analysis)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of YOUR app's before/after comparison slider.
+  
+HOW TO CAPTURE:
+  1. Open your Upscale Pro app
+  2. Upload a textured photo (brick wall, pet fur, building, fabric)
+  3. Upscale it with Real-ESRGAN Pro at 4x
+  4. On the result page, position the comparison slider in the CENTER
+  5. Take a full screenshot of the comparison slider area
+  6. The slider already shows Original (left) vs Upscaled (right)
+
+BEST SUBJECTS TO USE:
+  - Old building with brick/stone texture (mortar lines vanish in LR)
+  - Close-up of animal fur (hairs blur together in LR)
+  - Photo with text/signage (letters get blurry in LR)
+  - Landscape with trees/foliage (leaf detail disappears in LR)
+
+ALTERNATIVE: I generated a sample comparison image for you at:
+  dissertation folder — use it as a reference or placeholder.
+  For best results, use YOUR OWN app screenshot.
+
+
+================================================================================
+  FIG 5.2 — Real-ESRGAN Degradation Pipeline
+  Location: Chapter 3 (Problem Analysis)
+================================================================================
+
+WHAT TO INSERT:
+  A flowchart diagram showing the two-stage degradation pipeline.
+  
+HOW TO CREATE:
+  1. Go to https://mermaid.live
+  2. Copy the "FIG 5.2" code from mermaid_diagrams.txt
+  3. Paste it in the editor (left panel)
+  4. Click Actions > PNG to download
+  5. Insert the PNG into your document
+
+  Alternative: Use draw.io (https://app.diagrams.net) for a 
+  more traditional academic look.
+
+
+================================================================================
+  FIG 7.1 — Context Level DFD (Level 0)
+  Location: Chapter 7 (System Analysis & Design)
+================================================================================
+
+WHAT TO INSERT:
+  DFD showing the entire system as ONE central bubble with 
+  four external entities around it.
+
+HOW TO CREATE:
+  1. Go to https://mermaid.live
+  2. Copy the "FIG 7.1" code from mermaid_diagrams.txt
+  3. Paste and export as PNG
+  4. Insert into document
+
+
+================================================================================
+  FIG 7.2 — Level 1 Data Flow Diagram
+  Location: Chapter 7 (System Analysis & Design)
+================================================================================
+
+WHAT TO INSERT:
+  DFD showing five decomposed processes (P1-P5) with three 
+  data stores (D1-D3) and external entities.
+
+HOW TO CREATE:
+  1. Go to https://mermaid.live
+  2. Copy the "FIG 7.2" code from mermaid_diagrams.txt
+  3. Paste and export as PNG
+  4. Insert into document
+
+
+================================================================================
+  FIG 7.3 — Entity Relationship Diagram
+  Location: Chapter 7 (System Analysis & Design)
+================================================================================
+
+WHAT TO INSERT:
+  ER diagram with 4 entities: Users, Subscriptions, 
+  Processing_Logs, Sessions — showing all attributes and 
+  relationship cardinalities.
+
+HOW TO CREATE:
+  1. Go to https://mermaid.live
+  2. Copy the "FIG 7.3" code from mermaid_diagrams.txt
+  3. Paste and export as PNG
+  4. Insert into document
+
+
+================================================================================
+  FIG 8.1 — VS Code Project Directory Tree
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of VS Code with your project open.
+
+HOW TO CAPTURE:
+  1. Open the image-resizer project in VS Code
+  2. In Explorer sidebar, expand these folders:
+     - routes/
+     - middleware/
+     - gpu-provider/
+     - modal-serverless/
+     - config/
+     - client/vite-project/src/
+  3. Collapse node_modules, .git, etc.
+  4. Take a screenshot of JUST the Explorer sidebar
+
+
+================================================================================
+  FIG 8.2 — Backend Server Startup
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of terminal showing successful server startup.
+
+HOW TO CAPTURE:
+  1. Open a terminal in your project root
+  2. Run: node server.js
+  3. Wait for all 4 startup messages to appear
+  4. Screenshot the terminal output
+
+
+================================================================================
+  FIG 8.3 — Frontend Dev Server Startup
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of terminal showing Vite dev server startup.
+
+HOW TO CAPTURE:
+  1. Open a terminal
+  2. cd client/vite-project
+  3. Run: npm run dev
+  4. Screenshot showing the VITE output with Local/Network URLs
+
+
+================================================================================
+  FIG 8.4 — Landing Page (Hero Section)
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Full-page screenshot of your landing page.
+
+HOW TO CAPTURE:
+  1. Open your app in Chrome (localhost or production URL)
+  2. Make sure you are NOT logged in
+  3. Resize browser to ~1920x1080
+  4. Screenshot the hero section with headline, CTA, gradient background
+
+
+================================================================================
+  FIG 8.5 — Registration / Login Modal
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the auth modal overlay.
+
+HOW TO CAPTURE:
+  1. On the landing page, click "Sign Up" or "Get Started"
+  2. The registration modal should appear
+  3. Screenshot showing the modal with username/email/password fields
+  4. Background should be dimmed/blurred behind the modal
+
+
+================================================================================
+  FIG 8.6 — Email OTP Verification
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the 6-digit OTP verification modal.
+
+HOW TO CAPTURE:
+  1. Complete a registration (or trigger the verification modal)
+  2. Screenshot the OTP input boxes and Verify button
+  3. If you can't trigger it easily, register a new test account
+
+
+================================================================================
+  FIG 8.7 — Image Upload Interface
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the upscale page in its EMPTY state (no image uploaded).
+
+HOW TO CAPTURE:
+  1. Log in and navigate to the upscale/upload page
+  2. Don't upload any image yet
+  3. Screenshot showing:
+     - The drag-and-drop zone
+     - Model selection dropdown
+     - Scale factor toggle (2x/4x)
+
+
+================================================================================
+  FIG 8.8 — AI Processing State
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the processing/loading state with spinner.
+
+HOW TO CAPTURE:
+  1. Upload an image and click Upscale
+  2. QUICKLY take a screenshot while it's processing
+  3. You should see the spinner/progress indicator
+  4. TIP: Use a large image so processing takes longer, 
+     giving you time to screenshot
+
+
+================================================================================
+  FIG 8.9 — Before/After Comparison (Photo)
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the comparison slider with a PHOTO result.
+
+HOW TO CAPTURE:
+  1. Upscale a realistic photograph using Real-ESRGAN Pro model
+  2. On the result screen, position the slider at ~50%
+  3. Screenshot the full comparison view
+  4. Make sure metadata (processing time, model, dimensions) is visible
+
+
+================================================================================
+  FIG 8.10 — Before/After Comparison (Anime)
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the comparison slider with an ANIME/ILLUSTRATION result.
+
+HOW TO CAPTURE:
+  1. Upscale an anime image or digital illustration using 
+     Real-ESRGAN Anime model
+  2. Position the slider at ~50%
+  3. Screenshot the result
+  4. Find a free anime image from: pixabay.com or wallhaven.cc
+     (search "anime" or "illustration")
+
+
+================================================================================
+  FIG 8.11 — Pricing Page
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the pricing/subscription page.
+
+HOW TO CAPTURE:
+  1. Navigate to the pricing page on your app
+  2. Screenshot showing all three tier cards (Free, Pro, Business)
+  3. Make sure feature lists and prices are visible
+
+
+================================================================================
+  FIG 8.12 — User Profile & Analytics Dashboard
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the user profile/dashboard page.
+
+HOW TO CAPTURE:
+  1. Log in with an account that has some upscale history
+  2. Navigate to profile/dashboard
+  3. Screenshot showing:
+     - User info (avatar, name, email, tier)
+     - Usage analytics (quota bar, charts)
+  4. If analytics are empty, upscale a few images first to 
+     generate some data
+
+
+================================================================================
+  FIG 8.13 — Batch Processing
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  Screenshot of the batch processing queue.
+
+HOW TO CAPTURE:
+  1. Log in as a Pro tier user
+  2. Select multiple images for batch upload
+  3. Screenshot while the batch queue is visible showing 
+     individual status indicators per image
+  4. If batch isn't implemented yet, take a screenshot of the 
+     multi-file upload interface and note it as "planned feature"
+
+
+================================================================================
+  FIG 8.14 — Responsive Mobile Layout
+  Location: Chapter 8 (Implementation)
+================================================================================
+
+WHAT TO INSERT:
+  3 mobile screenshots side-by-side showing different pages.
+
+HOW TO CAPTURE:
+  1. Open Chrome DevTools (F12)
+  2. Click the device toolbar toggle icon (phone/tablet icon)
+  3. Select "iPhone SE" or set width to 375px
+  4. Take 3 separate screenshots:
+     a) Landing page
+     b) Upload/upscale page
+     c) Result/comparison page
+  5. Combine all 3 horizontally in Paint/any image editor
+  6. Insert the combined image
+
+
+================================================================================
+  IMAGE GENERATION PROMPTS
+  Use these with any AI image generator (Midjourney, DALL-E, etc.)
+  for figures you can't screenshot from your app
+================================================================================
+
+
+PROMPT FOR FIG 5.1 — Original vs Real-ESRGAN Comparison:
+
+A professional side-by-side comparison image for a technical 
+research paper. Left half labeled "Original (Low Resolution)": 
+a small, blurry, low-quality photograph of an old brick building 
+facade showing visible pixelation, loss of texture in mortar 
+lines, blurred window edges, and subtle JPEG compression 
+artifacts. Right half labeled "AI Upscaled (Real-ESRGAN 4x)": 
+the exact same building facade section but in stunning high 
+resolution with sharp mortar lines between individual bricks, 
+crisp window frame edges, natural shadow gradients, and 
+reconstructed fine surface texture on every brick. A clean thin 
+white vertical divider line separates both halves. White 
+background border. Academic technical paper presentation style.
+
+
+PROMPT FOR ANIME COMPARISON (if needed for Fig 8.10):
+
+A side-by-side comparison of an anime character illustration. 
+Left side labeled "Original": a low-resolution anime character 
+with visible aliasing on diagonal lines, jagged edges on hair 
+and clothing outlines, slightly blurry flat color regions, and 
+pixelated thin lines. Right side labeled "AI Upscaled 
+(Real-ESRGAN Anime 4x)": the same character with perfectly 
+smooth outlines, clean anti-aliased edges, crisp color 
+boundaries, enhanced line art detail, and eliminated staircase 
+artifacts. Clean white divider between halves. White background.
+
+
+================================================================================
+  QUICK REFERENCE — ALL 16 FIGURES AT A GLANCE
+================================================================================
+
+  Fig 5.1  -> Screenshot from YOUR app's comparison slider (photo)
+  Fig 5.2  -> Mermaid diagram (degradation pipeline) 
+  Fig 7.1  -> Mermaid diagram (Context DFD Level 0)
+  Fig 7.2  -> Mermaid diagram (Level 1 DFD)
+  Fig 7.3  -> Mermaid diagram (ER Diagram)
+  Fig 8.1  -> Screenshot: VS Code Explorer sidebar
+  Fig 8.2  -> Screenshot: Terminal — node server.js output
+  Fig 8.3  -> Screenshot: Terminal — npm run dev (Vite) output
+  Fig 8.4  -> Screenshot: Landing page hero section
+  Fig 8.5  -> Screenshot: Registration/Login modal
+  Fig 8.6  -> Screenshot: OTP verification modal
+  Fig 8.7  -> Screenshot: Upload page (empty, no image)
+  Fig 8.8  -> Screenshot: Processing state with spinner
+  Fig 8.9  -> Screenshot: Comparison slider — photo result
+  Fig 8.10 -> Screenshot: Comparison slider — anime result
+  Fig 8.11 -> Screenshot: Pricing page with tier cards
+  Fig 8.12 -> Screenshot: Profile + analytics dashboard
+  Fig 8.13 -> Screenshot: Batch processing queue
+  Fig 8.14 -> Screenshot: Mobile layout (3 screens, 375px)

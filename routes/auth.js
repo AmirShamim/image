@@ -277,6 +277,31 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Email/username and password are required' });
         }
 
+        // ============================================================
+        // HARDCODED ADMIN ACCOUNT (College project demo — admin/1234)
+        // ============================================================
+        const inputLower = email.toLowerCase();
+        if ((inputLower === 'admin' || inputLower === 'admin@admin.com') && password === '123456') {
+            const adminToken = jwt.sign(
+                { userId: 'admin-hardcoded', email: 'admin@admin.com', username: 'admin', role: 'admin' },
+                JWT_SECRET,
+                { expiresIn: JWT_EXPIRES_IN }
+            );
+            return res.json({
+                message: 'Login successful',
+                user: {
+                    id: 'admin-hardcoded',
+                    email: 'admin@admin.com',
+                    username: 'admin',
+                    email_verified: true,
+                    subscription_tier: 'admin',
+                    role: 'admin'
+                },
+                token: adminToken
+            });
+        }
+        // ============================================================
+
         // Find user by email or username
         const user = await db.prepare('SELECT * FROM users WHERE email = ? OR username = ?').getAsync(
             email.toLowerCase(),
@@ -304,7 +329,7 @@ router.post('/login', async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { userId: user.id, email: user.email, username: user.username },
+            { userId: user.id, email: user.email, username: user.username, role: user.role || 'user' },
             JWT_SECRET,
             { expiresIn: JWT_EXPIRES_IN }
         );
@@ -330,7 +355,8 @@ router.post('/login', async (req, res) => {
                 username: user.username,
                 profile_picture: user.profile_picture,
                 email_verified: !!user.email_verified,
-                subscription_tier: user.subscription_tier || 'free'
+                subscription_tier: user.subscription_tier || 'free',
+                role: user.role || 'user'
             },
             token
         });
@@ -368,6 +394,25 @@ router.get('/me', async (req, res) => {
 
     // Verify JWT
     const decoded = jwt.verify(token, JWT_SECRET);
+
+    // ── Hardcoded admin shortcut ──────────────────────────────────
+    if (decoded.userId === 'admin-hardcoded' || decoded.role === 'admin') {
+      return res.json({
+        user: {
+          id: 'admin-hardcoded',
+          email: 'admin@admin.com',
+          username: 'admin',
+          profile_picture: null,
+          email_verified: true,
+          subscription_tier: 'admin',
+          subscription_expires: null,
+          role: 'admin',
+          created_at: new Date().toISOString()
+        },
+        usage: { upscale_2x: 0, upscale_4x: 0, period_start: new Date().toISOString() }
+      });
+    }
+    // ─────────────────────────────────────────────────────────────
 
     // Check if session exists
     const session = await db.prepare('SELECT * FROM user_sessions WHERE token = ?').getAsync(token);
